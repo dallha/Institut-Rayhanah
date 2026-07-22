@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown, Fingerprint } from "lucide-react";
+import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown, Fingerprint, BookOpen, Award, Shield, Activity, RefreshCw } from "lucide-react";
 import Papa from "papaparse";
 import { Student, EtapePedagogique } from "../types";
 
@@ -21,6 +21,8 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
   const [academicYear, setAcademicYear] = useState(() => 
     localStorage.getItem("daara_academic_year") || "2026-2027"
   );
+  const [pointsHizb, setPointsHizb] = useState(100);
+  const [pointsSurah, setPointsSurah] = useState(15);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
   const handleSaveGeneralSettings = () => {
@@ -124,12 +126,25 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
   // ----------------------------------------------------
 
   const [staffList, setStaffList] = useState([
-    { id: 1, name: "Cheikh Baye Kane (شيخ باي كان)", role: "Fondateur (المؤسس)", phone: "+221 77 000 00 01", status: "Actif" },
+    { id: 1, name: "Cheikh Baye Kane (شيخ باي كان)", role: "Directeur (المدير)", phone: "+221 77 000 00 01", status: "Actif" },
     { id: 2, name: "Mohamed Sall (محمد صال)", role: "Enseignant Principal (المدرس)", phone: "+221 77 000 00 02", status: "Actif" },
     { id: 3, name: "Mohamed Ka (محمد كا)", role: "Enseignant Assistant (المساعد)", phone: "+221 77 000 00 03", status: "Actif" },
-    { id: 4, name: "Asma Niass (آسماء انياس)", role: "Responsable (المسؤلة)", phone: "+221 78 000 00 04", status: "Actif" },
+    { id: 4, name: "Asma Niass (آسماء انياس)", role: "Secrétaire (سكرتيرة)", phone: "+221 78 000 00 04", status: "Actif" },
     { id: 5, name: "Khadidja Ji (خديجة جي)", role: "Assistante (المساعدة)", phone: "+221 70 000 00 05", status: "Actif" },
   ]);
+
+  const [systemLogs] = useState([
+    { id: 1, action: "Sauvegarde complète de la base de données", user: "Admin", time: "Aujourd'hui, 09:12" },
+    { id: 2, action: "Import CSV massif (34 élèves)", user: "Directeur", time: "Hier, 16:45" },
+    { id: 3, action: "Clôture de la journée pédagogique", user: "Enseignant", time: "Hier, 15:30" },
+    { id: 4, action: "Connexion biométrique activée", user: "Admin", time: "20/07/2026" },
+  ]);
+
+  const [smsTestStatus, setSmsTestStatus] = useState<null|'testing'|'success'|'error'>(null);
+  const handleTestSms = () => {
+    setSmsTestStatus('testing');
+    setTimeout(() => setSmsTestStatus('success'), 1500);
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -251,6 +266,24 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
     }
   };
 
+  const handleClearCache = () => {
+    if(window.confirm("Attention : Cela va effacer le cache local. Si des modifications n'ont pas été synchronisées avec le serveur, elles seront perdues. Continuer ?")) {
+      // We clear everything except the institute settings and biometric ID
+      const instituteName = localStorage.getItem("daara_institute_name");
+      const academicYear = localStorage.getItem("daara_academic_year");
+      const biometricId = localStorage.getItem("daara_biometric_id");
+      
+      localStorage.clear();
+      
+      if (instituteName) localStorage.setItem("daara_institute_name", instituteName);
+      if (academicYear) localStorage.setItem("daara_academic_year", academicYear);
+      if (biometricId) localStorage.setItem("daara_biometric_id", biometricId);
+      
+      alert("Cache local vidé avec succès. La page va se recharger.");
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="space-y-6 relative">
       {!isAuthenticated ? (
@@ -307,9 +340,9 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
         <div className="mb-6">
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <Settings className="w-5 h-5 text-[#0B1C30]" />
-            <span>Paramètres Système & RH</span>
+            <span>Administration Globale du Système</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">Configuration globale de l'institut et gestion du personnel</p>
+          <p className="text-xs text-slate-400 mt-1">Paramètres vitaux, sécurité et identité de l'institut</p>
         </div>
 
         {settingsSuccess && (
@@ -359,6 +392,22 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Clé d'API</label>
                 <input type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-medium" defaultValue="****************" />
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={handleTestSms}
+                  disabled={smsTestStatus === 'testing'}
+                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg py-2 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {smsTestStatus === 'testing' ? (
+                    <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Test en cours...</>
+                  ) : smsTestStatus === 'success' ? (
+                    <><Check className="w-3.5 h-3.5 text-emerald-600" /> Connexion Réussie !</>
+                  ) : (
+                    "Tester la connexion API"
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -410,6 +459,70 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
             <Save className="w-4 h-4" />
             Enregistrer les modifications
           </button>
+        </div>
+      </div>
+
+      {/* SECTION CONFIGURATION PEDAGOGIQUE */}
+      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full mt-8">
+        <div className="mb-6">
+          <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
+            <BookOpen className="w-5 h-5 text-indigo-600" />
+            <span>Configuration Pédagogique (Halaqas & Gamification)</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">Paramétrage des groupes, des points de motivation et du cursus coranique</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2 flex items-center gap-2">
+              <Users className="w-4 h-4 text-indigo-500" /> Gestion des Halaqas
+            </h4>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+              <p className="text-[11px] text-slate-500">Les groupes (Halaqas) permettent de diviser les élèves par enseignant ou par niveau.</p>
+              <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-slate-100">
+                <div>
+                  <div className="text-xs font-bold text-slate-700">Halaqa Abu Bakr</div>
+                  <div className="text-[10px] text-slate-500">Oustaz Mohamed Sall • 12 élèves</div>
+                </div>
+                <button className="text-slate-400 hover:text-[#0B1C30]"><Edit className="w-4 h-4" /></button>
+              </div>
+              <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-slate-100">
+                <div>
+                  <div className="text-xs font-bold text-slate-700">Halaqa Oumar</div>
+                  <div className="text-[10px] text-slate-500">Oustaz Mohamed Ka • 8 élèves</div>
+                </div>
+                <button className="text-slate-400 hover:text-[#0B1C30]"><Edit className="w-4 h-4" /></button>
+              </div>
+              <button className="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-xs font-bold text-slate-500 hover:text-[#0B1C30] hover:border-[#0B1C30] transition-colors cursor-pointer">
+                + Créer une nouvelle Halaqa
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2 flex items-center gap-2">
+              <Award className="w-4 h-4 text-amber-500" /> Barème de Points (Gamification)
+            </h4>
+            <div className="bg-amber-50/30 p-4 rounded-xl border border-amber-100 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Points pour l'achèvement d'un Hizb</label>
+                <div className="flex items-center gap-2">
+                  <input type="number" value={pointsHizb} onChange={(e) => setPointsHizb(Number(e.target.value))} className="w-24 bg-white border border-slate-200 rounded-lg p-2 text-sm text-center font-bold" />
+                  <span className="text-xs text-slate-500">points attribués à l'élève</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Points pour un Dars 'Naam' (Sourate)</label>
+                <div className="flex items-center gap-2">
+                  <input type="number" value={pointsSurah} onChange={(e) => setPointsSurah(Number(e.target.value))} className="w-24 bg-white border border-slate-200 rounded-lg p-2 text-sm text-center font-bold" />
+                  <span className="text-xs text-slate-500">points de récompense par leçon réussie</span>
+                </div>
+              </div>
+              <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors w-full cursor-pointer shadow-sm">
+                Sauvegarder le barème
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -472,11 +585,22 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
             <div>
               <button
                 onClick={handleExportCSV}
-                className="bg-[#0B1C30] hover:bg-[#142d47] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2 cursor-pointer"
+                className="bg-[#0B1C30] hover:bg-[#142d47] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex justify-center items-center gap-2 cursor-pointer w-full shadow-sm"
               >
                 <Download className="w-4 h-4" />
-                <span>Télécharger l'Export CSV ({students.length})</span>
+                <span>Exporter CSV complet ({students.length})</span>
               </button>
+              
+              <div className="mt-4 pt-4 border-t border-slate-200/60">
+                <h5 className="font-bold text-[10px] text-slate-400 uppercase tracking-wider mb-2">Opérations Avancées</h5>
+                <button
+                  onClick={handleClearCache}
+                  className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold px-4 py-2 rounded-lg transition-colors flex justify-center items-center gap-2 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Vider le Cache Local</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -545,10 +669,10 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
         <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
-              <Users className="w-5 h-5 text-[#0B1C30]" />
-              <span>Répertoire du Personnel — الهيكل الإداري</span>
+              <Shield className="w-5 h-5 text-[#0B1C30]" />
+              <span>Gestion de l'Équipe & Accès — إدارة الفريق</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Structure administrative, direction et encadrement coranique</p>
+            <p className="text-xs text-slate-400 mt-1">Gérez le personnel, les enseignants et leurs accès au système</p>
           </div>
           <button 
             onClick={() => handleOpenModal()}
@@ -663,6 +787,48 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
               Aucun personnel enregistré.
             </div>
           )}
+        </div>
+      </div>
+      
+      {/* SECTION LOGS SYSTEME */}
+      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full mt-8">
+        <div className="mb-6">
+          <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
+            <Activity className="w-5 h-5 text-slate-600" />
+            <span>Journaux d'Audit & Activité Système</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">Historique des actions critiques effectuées par l'équipe sur la plateforme</p>
+        </div>
+        
+        <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-100 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+              <tr>
+                <th className="px-4 py-2.5">Date & Heure</th>
+                <th className="px-4 py-2.5">Utilisateur</th>
+                <th className="px-4 py-2.5">Action Effectuée</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 text-xs">
+              {systemLogs.map(log => (
+                <tr key={log.id} className="hover:bg-slate-100/50">
+                  <td className="px-4 py-3 font-mono text-slate-500 whitespace-nowrap">{log.time}</td>
+                  <td className="px-4 py-3 font-bold text-slate-700">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#0B1C30] text-white flex items-center justify-center text-[8px]">{log.user.charAt(0)}</span>
+                      {log.user}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">{log.action}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 flex justify-center">
+          <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline decoration-emerald-600/30 underline-offset-4 cursor-pointer">
+            Voir tout l'historique d'audit
+          </button>
         </div>
       </div>
 

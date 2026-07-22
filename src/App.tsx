@@ -778,7 +778,7 @@ export default function App() {
             className={`flex-1 flex flex-col items-center justify-center h-full gap-1 transition-colors cursor-pointer min-w-0 ${activeTab === "parametres" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
           >
             <Settings className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "parametres" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Admin/RH</span>
+            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Administration</span>
           </button>
         </div>
       </nav>
