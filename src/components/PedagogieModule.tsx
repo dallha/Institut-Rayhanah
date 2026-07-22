@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Student, Halaqa, AttendanceRecord, QuranLesson } from "../types";
+import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord } from "../types";
 import AttendanceTab from "./AttendanceTab";
 import PedagogyTab from "./PedagogyTab";
 import KashfShahriTab from "./KashfShahriTab";
@@ -12,6 +12,7 @@ interface PedagogieModuleProps {
   attendance: AttendanceRecord[];
   lessons: QuranLesson[];
   onUpdateStudent: (student: Student) => void;
+  payments?: PaymentRecord[];
   onClotureDay: (attendance: AttendanceRecord[], lessons: QuranLesson[]) => void;
   initialSubTab?: string;
 }
@@ -23,6 +24,7 @@ export default function PedagogieModule({
   lessons,
   onUpdateStudent,
   onClotureDay,
+  payments = [],
   initialSubTab = "pedagogy"
 }: PedagogieModuleProps) {
   const [subTab, setSubTab] = useState<string>(initialSubTab);
@@ -60,6 +62,7 @@ export default function PedagogieModule({
           onUpdateStudent={onUpdateStudent}
           attendance={attendance}
           lessons={lessons}
+          payments={payments}
         />
       )}
 

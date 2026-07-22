@@ -4,11 +4,12 @@
  */
 
 import React, { useState } from "react";
-import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson } from "../types";
+import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson, PaymentRecord } from "../types";
 import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
-import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings } from "lucide-react";
-import { motion } from "motion/react";
+import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import WeeklySummaryChart from "./WeeklySummaryChart";
+import StudentFile from "./StudentFile";
 
 interface PedagogyTabProps {
   students: Student[];
@@ -16,6 +17,7 @@ interface PedagogyTabProps {
   onUpdateStudent: (updated: Student) => void;
   attendance: AttendanceRecord[];
   lessons: QuranLesson[];
+  payments?: PaymentRecord[];
 }
 
 export default function PedagogyTab({ 
@@ -23,12 +25,14 @@ export default function PedagogyTab({
   halaqas, 
   onUpdateStudent,
   attendance,
-  lessons
+  lessons,
+  payments = []
 }: PedagogyTabProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedHalaqa, setSelectedHalaqa] = useState("all");
   const [selectedEtape, setSelectedEtape] = useState("all");
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
 
   // Edit progress state
   const [etapeVal, setEtapeVal] = useState<EtapePedagogique>(EtapePedagogique.Hifz);
@@ -329,15 +333,25 @@ export default function PedagogyTab({
                   )}
                 </div>
 
-                {/* Edit Button */}
-                <button
-                  onClick={() => openEditModal(student)}
-                  id={`btn-edit-student-${student.id}`}
-                  className="w-full mt-4 bg-slate-50 border border-slate-200 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 text-slate-600 text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center space-x-1.5"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span>Gérer la Progression & Curseur</span>
-                </button>
+                {/* Action Buttons */}
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setViewingStudent(student)}
+                    id={`btn-view-student-${student.id}`}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    <span>Dossier</span>
+                  </button>
+                  <button
+                    onClick={() => openEditModal(student)}
+                    id={`btn-edit-student-${student.id}`}
+                    className="bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span>Progression</span>
+                  </button>
+                </div>
               </div>
             </motion.div>
           );
@@ -351,6 +365,24 @@ export default function PedagogyTab({
           </div>
         )}
       </div>
+
+      {/* Student File Modal */}
+      <AnimatePresence>
+        {viewingStudent && (
+          <StudentFile
+            student={viewingStudent}
+            halaqas={halaqas}
+            attendance={attendance}
+            lessons={lessons}
+            payments={payments}
+            onClose={() => setViewingStudent(null)}
+            onUpdateStudent={(updated) => {
+              onUpdateStudent(updated);
+              setViewingStudent(updated);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Edit Modal (Asynchronous React State Updates) */}
       {editingStudent && (

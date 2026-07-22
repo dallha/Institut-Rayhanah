@@ -697,6 +697,7 @@ export default function App() {
                 halaqas={halaqas}
                 attendance={attendance}
                 lessons={lessons}
+                payments={payments}
                 onUpdateStudent={handleUpdateStudent}
                 onClotureDay={handleClotureDay}
               />

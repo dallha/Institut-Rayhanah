@@ -102,9 +102,8 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
       return;
     }
 
-    const year = new Date().getFullYear();
     const count = students.length + 1;
-    const matricule = `RAY-${year}-${String(count).padStart(3, "0")}`;
+    const matricule = `IRY-${String(count).padStart(4, "0")}`;
 
     const newStudent: Student = {
       id: `s_${Date.now()}`,
