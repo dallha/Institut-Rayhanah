@@ -102,6 +102,9 @@ export default function StudentFile({
 
   const halaqa = halaqas.find(h => h.id === student.halaqaId);
   const progress = calculateWestAfricanProgress(student.currentHizbNum, student.currentHizbFraction);
+  const medals = student.medals ?? [];
+  const score = student.score ?? 0;
+  const balanceDue = student.balanceDue ?? 0;
 
   // Student-specific records
   const studentLessons = useMemo(() =>
@@ -191,8 +194,8 @@ export default function StudentFile({
             {[
               { label: "Progression", value: `${progress}%`, icon: <TrendingUp className="w-3.5 h-3.5" /> },
               { label: "Présence", value: `${attendanceRate}%`, icon: <CheckCircle className="w-3.5 h-3.5" /> },
-              { label: "Score", value: `${student.score} pts`, icon: <Star className="w-3.5 h-3.5" /> },
-              { label: "Balance", value: `${student.balanceDue.toLocaleString()} F`, icon: <CreditCard className="w-3.5 h-3.5" /> },
+              { label: "Score", value: `${score} pts`, icon: <Star className="w-3.5 h-3.5" /> },
+              { label: "Balance", value: `${balanceDue.toLocaleString()} F`, icon: <CreditCard className="w-3.5 h-3.5" /> },
             ].map(kpi => (
               <div key={kpi.label} className="bg-white/10 rounded-xl p-2 text-center">
                 <div className="flex items-center justify-center gap-1 text-emerald-200 mb-0.5">{kpi.icon}</div>
@@ -499,11 +502,11 @@ export default function StudentFile({
               </div>
 
               {/* Medals */}
-              {student.medals.length > 0 && (
+              {medals.length > 0 && (
                 <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
                   <h3 className="text-xs font-bold text-amber-700 uppercase mb-3 flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> Médailles obtenues</h3>
                   <div className="flex flex-wrap gap-2">
-                    {student.medals.map(m => (
+                    {medals.map(m => (
                       <span key={m.id} className="flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-200">
                         <span>{m.icon}</span> {m.name}
                       </span>
@@ -595,14 +598,14 @@ export default function StudentFile({
           {activeTab === "finances" && (
             <div className="space-y-4">
               {/* Balance card */}
-              <div className={`rounded-xl p-5 ${student.balanceDue > 0 ? "bg-rose-50 border-2 border-rose-300" : "bg-emerald-50 border-2 border-emerald-300"}`}>
-                <p className="text-xs font-bold uppercase mb-1 ${student.balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}">
-                  {student.balanceDue > 0 ? "⚠️ Solde dû" : "✅ Compte à jour"}
+              <div className={`rounded-xl p-5 ${balanceDue > 0 ? "bg-rose-50 border-2 border-rose-300" : "bg-emerald-50 border-2 border-emerald-300"}`}>
+                <p className={`text-xs font-bold uppercase mb-1 ${balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                  {balanceDue > 0 ? "⚠️ Solde dû" : "✅ Compte à jour"}
                 </p>
-                <p className={`text-3xl font-black ${student.balanceDue > 0 ? "text-rose-700" : "text-emerald-700"}`}>
-                  {student.balanceDue.toLocaleString()} FCFA
+                <p className={`text-3xl font-black ${balanceDue > 0 ? "text-rose-700" : "text-emerald-700"}`}>
+                  {balanceDue.toLocaleString()} FCFA
                 </p>
-                <p className="text-xs text-slate-500 mt-1">Mensualité: {student.monthlyFee.toLocaleString()} FCFA / mois</p>
+                <p className="text-xs text-slate-500 mt-1">Mensualité: {(student.monthlyFee ?? 0).toLocaleString()} FCFA / mois</p>
               </div>
 
               {/* Stats */}

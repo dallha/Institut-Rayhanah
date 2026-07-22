@@ -174,32 +174,41 @@ export default function App() {
   const fetchAllData = () => {
     setIsSyncing(true);
     Promise.all([
-      fetch("/api/students").then(res => res.json()),
-      fetch("/api/halaqas").then(res => res.json()),
-      fetch("/api/attendance").then(res => res.json()),
-      fetch("/api/lessons").then(res => res.json()),
-      fetch("/api/payments").then(res => res.json())
+      fetch("/api/students").then(res => res.ok ? res.json() : null),
+      fetch("/api/halaqas").then(res => res.ok ? res.json() : null),
+      fetch("/api/attendance").then(res => res.ok ? res.json() : null),
+      fetch("/api/lessons").then(res => res.ok ? res.json() : null),
+      fetch("/api/payments").then(res => res.ok ? res.json() : null)
     ]).then(([studentsData, halaqasData, attendanceData, lessonsData, paymentsData]) => {
-      setStudents(studentsData);
-      localStorage.setItem("daara_students", JSON.stringify(studentsData));
-      
-      setHalaqas(halaqasData);
-      localStorage.setItem("daara_halaqas", JSON.stringify(halaqasData));
-      
-      setAttendance(attendanceData);
-      localStorage.setItem("daara_attendance", JSON.stringify(attendanceData));
-      
-      setLessons(lessonsData);
-      localStorage.setItem("daara_lessons", JSON.stringify(lessonsData));
-      
-      setPayments(paymentsData);
-      localStorage.setItem("daara_payments", JSON.stringify(paymentsData));
+      // Only update state & localStorage if server returns valid non-empty data
+      // This prevents overwriting local data when the API returns [] or fails
+      if (studentsData && Array.isArray(studentsData) && studentsData.length > 0) {
+        setStudents(studentsData);
+        localStorage.setItem("daara_students", JSON.stringify(studentsData));
+      }
+      if (halaqasData && Array.isArray(halaqasData) && halaqasData.length > 0) {
+        setHalaqas(halaqasData);
+        localStorage.setItem("daara_halaqas", JSON.stringify(halaqasData));
+      }
+      if (attendanceData && Array.isArray(attendanceData)) {
+        setAttendance(attendanceData);
+        localStorage.setItem("daara_attendance", JSON.stringify(attendanceData));
+      }
+      if (lessonsData && Array.isArray(lessonsData)) {
+        setLessons(lessonsData);
+        localStorage.setItem("daara_lessons", JSON.stringify(lessonsData));
+      }
+      if (paymentsData && Array.isArray(paymentsData)) {
+        setPayments(paymentsData);
+        localStorage.setItem("daara_payments", JSON.stringify(paymentsData));
+      }
     }).catch(err => {
       console.error("Error fetching data (might be offline):", err);
     }).finally(() => {
       setIsSyncing(false);
     });
   };
+
 
   useEffect(() => {
     fetchAllData();
