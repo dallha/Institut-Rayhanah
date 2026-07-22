@@ -31,7 +31,9 @@ export default function ParametresTab({
   onUpdateHalaqa,
   onDeleteHalaqa
 }: ParametresTabProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem("daara_admin_auth") === "true";
+  });
   const [passwordAttempt, setPasswordAttempt] = useState("");
   const [authError, setAuthError] = useState(false);
 
@@ -42,8 +44,12 @@ export default function ParametresTab({
   const [academicYear, setAcademicYear] = useState(() => 
     localStorage.getItem("daara_academic_year") || "2026-2027"
   );
-  const [pointsHizb, setPointsHizb] = useState(100);
-  const [pointsSurah, setPointsSurah] = useState(15);
+  const [pointsHizb, setPointsHizb] = useState(() => 
+    Number(localStorage.getItem("daara_points_hizb")) || 100
+  );
+  const [pointsSurah, setPointsSurah] = useState(() => 
+    Number(localStorage.getItem("daara_points_surah")) || 15
+  );
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
   // Student Dossier Viewing State
@@ -89,6 +95,8 @@ export default function ParametresTab({
   const handleSaveGeneralSettings = () => {
     localStorage.setItem("daara_institute_name", instituteName);
     localStorage.setItem("daara_academic_year", academicYear);
+    localStorage.setItem("daara_points_hizb", pointsHizb.toString());
+    localStorage.setItem("daara_points_surah", pointsSurah.toString());
     if (onUpdateInstituteName) {
       onUpdateInstituteName(instituteName);
     }
@@ -103,6 +111,7 @@ export default function ParametresTab({
     e.preventDefault();
     if (passwordAttempt === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
+      sessionStorage.setItem("daara_admin_auth", "true");
       setAuthError(false);
     } else {
       setAuthError(true);
