@@ -1,12 +1,8 @@
 import express from "express";
 import cors from "cors";
-import pkg from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "@prisma/client";
 
-const { PrismaClient } = pkg;
-
-const adapter = new PrismaBetterSqlite3({ url: "file:./dev.db" });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
