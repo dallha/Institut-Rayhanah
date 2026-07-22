@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
@@ -10,14 +12,17 @@ const prisma = new PrismaClient({ adapter });
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(cors());
 app.use(express.json());
 
 // --- ROUTES ---
 
-// Root route
-app.get("/", (req, res) => {
-  res.send("Backend API is running. Please access the frontend at port 3000.");
+// Root route (API placeholder, since frontend will handle /)
+app.get("/api", (req, res) => {
+  res.send("Backend API is running.");
 });
 
 // Health check
@@ -180,6 +185,15 @@ app.post("/api/cloture-day", async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Error closing day" });
   }
+});
+
+// --- SERVE FRONTEND (PRODUCTION) ---
+// Sert les fichiers statiques compilés de Vite (dossier dist)
+app.use(express.static(path.join(__dirname, "dist")));
+
+// Pour toutes les autres requêtes (non-API), renvoyer l'index.html de React (SPA fallback)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 // Start server
