@@ -1,16 +1,15 @@
-import pkg from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
 import { 
   INITIAL_HALAQAS, 
   INITIAL_STUDENTS, 
   INITIAL_ATTENDANCE, 
   INITIAL_PAYMENTS, 
   INITIAL_LESSONS 
-} from "../src/mockData.js"; // Note: might need to be resolved correctly if using tsx
+} from "../src/mockData.js";
 
-const { PrismaClient } = pkg;
-
-const adapter = new PrismaBetterSqlite3({ url: "file:./dev.db" });
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
