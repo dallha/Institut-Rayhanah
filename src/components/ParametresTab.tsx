@@ -498,12 +498,14 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
           </div>
         </div>
 
-        <div className="overflow-x-auto w-full">
+        {/* Desktop View (Table) */}
+        <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left text-sm text-slate-600 whitespace-nowrap">
             <thead className="bg-slate-50 text-xs text-slate-500 font-bold uppercase">
               <tr>
                 <th className="px-4 py-3 rounded-tl-lg">Matricule</th>
                 <th className="px-4 py-3">Nom & Prénom</th>
+                <th className="px-4 py-3">Genre</th>
                 <th className="px-4 py-3">Niveau</th>
                 <th className="px-4 py-3">Régime</th>
                 <th className="px-4 py-3 rounded-tr-lg">Contact Parent</th>
@@ -516,6 +518,13 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                   <td className="px-4 py-3 font-semibold text-slate-800">
                     {student.firstName} {student.lastName}
                   </td>
+                  <td className="px-4 py-3 font-semibold text-slate-600 text-center">
+                    {student.gender === 'F' ? (
+                      <span className="text-pink-500 font-bold">♀</span>
+                    ) : (
+                      <span className="text-blue-500 font-bold">♂</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-xs">
                     <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-medium border border-emerald-100">
                       {student.etape}
@@ -527,13 +536,73 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
               ))}
               {students.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-xs font-medium">
+                  <td colSpan={6} className="px-4 py-6 text-center text-slate-400 text-xs font-medium">
                     Aucun élève enregistré.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View (Cards) */}
+        <div className="md:hidden space-y-4">
+          {students.map((student) => (
+            <div key={student.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+              {/* Card Header: Avatar & Info */}
+              <div className="p-4 flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                  {student.firstName.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-slate-500 text-sm truncate uppercase">{student.firstName}</span>
+                    <span className="text-slate-800 font-bold text-sm truncate uppercase">{student.lastName}</span>
+                    <span className="text-sm shrink-0">
+                      {student.gender === 'F' ? (
+                        <span className="text-pink-500 font-bold">♀</span>
+                      ) : (
+                        <span className="text-blue-500 font-bold">♂</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="mt-1">
+                    <span className="inline-block bg-slate-500 text-white text-[10px] px-2 py-0.5 rounded font-mono">
+                      {student.matricule}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Card Body: Data Rows */}
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex justify-between items-center">
+                <span className="font-bold text-slate-400">FAMILLE & CONTACTS</span>
+                <div className="flex items-center space-x-1 font-semibold text-slate-800">
+                  <Users className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{student.parentPhone || "Non renseigné"}</span>
+                </div>
+              </div>
+              
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex justify-between items-center">
+                <span className="font-bold text-slate-400">PARCOURS CORAN</span>
+                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                  {student.etape}
+                </span>
+              </div>
+              
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex justify-between items-center">
+                <span className="font-bold text-slate-400">HÉBERGEMENT / RÉGIME</span>
+                <span className="font-semibold text-slate-700 uppercase">
+                  {student.regime || "-"}
+                </span>
+              </div>
+            </div>
+          ))}
+          {students.length === 0 && (
+            <div className="text-center py-8 text-slate-400 text-sm">
+              Aucun élève enregistré.
+            </div>
+          )}
         </div>
       </div>
 
