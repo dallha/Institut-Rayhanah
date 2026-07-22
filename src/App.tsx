@@ -280,6 +280,47 @@ export default function App() {
     }
   };
 
+  const handleAddHalaqa = async (newHalaqa: Halaqa) => {
+    const updated = [...halaqas, newHalaqa];
+    setHalaqas(updated);
+    localStorage.setItem("daara_halaqas", JSON.stringify(updated));
+    try {
+      await fetch("/api/halaqas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newHalaqa)
+      });
+    } catch (err) {
+      enqueueRequest("/api/halaqas", "POST", newHalaqa);
+    }
+  };
+
+  const handleUpdateHalaqa = async (updatedHalaqa: Halaqa) => {
+    const updated = halaqas.map(h => h.id === updatedHalaqa.id ? updatedHalaqa : h);
+    setHalaqas(updated);
+    localStorage.setItem("daara_halaqas", JSON.stringify(updated));
+    try {
+      await fetch(`/api/halaqas/${updatedHalaqa.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedHalaqa)
+      });
+    } catch (err) {
+      enqueueRequest(`/api/halaqas/${updatedHalaqa.id}`, "PUT", updatedHalaqa);
+    }
+  };
+
+  const handleDeleteHalaqa = async (halaqaId: string) => {
+    const updated = halaqas.filter(h => h.id !== halaqaId);
+    setHalaqas(updated);
+    localStorage.setItem("daara_halaqas", JSON.stringify(updated));
+    try {
+      await fetch(`/api/halaqas/${halaqaId}`, { method: "DELETE" });
+    } catch (err) {
+      enqueueRequest(`/api/halaqas/${halaqaId}`, "DELETE", { id: halaqaId });
+    }
+  };
+
   const handleEnrollStudent = async (newStudent: Student) => {
     // Optimistic UI Update
     const newStudents = [...students, newStudent];
@@ -732,8 +773,16 @@ export default function App() {
             {activeTab === "parametres" && (
               <ParametresTab
                 students={students}
+                halaqas={halaqas}
+                attendance={attendance}
+                lessons={lessons}
+                payments={payments}
                 onImportStudents={handleImportStudents}
                 onUpdateInstituteName={(name) => setInstituteName(name)}
+                onUpdateStudent={handleUpdateStudent}
+                onAddHalaqa={handleAddHalaqa}
+                onUpdateHalaqa={handleUpdateHalaqa}
+                onDeleteHalaqa={handleDeleteHalaqa}
               />
             )}
           </motion.div>

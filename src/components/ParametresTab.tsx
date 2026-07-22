@@ -1,15 +1,36 @@
 import React, { useState } from "react";
 import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown, Fingerprint, BookOpen, Award, Shield, Activity, RefreshCw } from "lucide-react";
 import Papa from "papaparse";
-import { Student, EtapePedagogique } from "../types";
+import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique } from "../types";
+import StudentFile from "./StudentFile";
 
 interface ParametresTabProps {
   students?: Student[];
+  halaqas?: Halaqa[];
+  attendance?: AttendanceRecord[];
+  lessons?: QuranLesson[];
+  payments?: PaymentRecord[];
   onImportStudents?: (importedStudents: Partial<Student>[]) => Promise<void>;
   onUpdateInstituteName?: (name: string) => void;
+  onUpdateStudent?: (student: Student) => void;
+  onAddHalaqa?: (halaqa: Halaqa) => void;
+  onUpdateHalaqa?: (halaqa: Halaqa) => void;
+  onDeleteHalaqa?: (halaqaId: string) => void;
 }
 
-export default function ParametresTab({ students = [], onImportStudents, onUpdateInstituteName }: ParametresTabProps) {
+export default function ParametresTab({
+  students = [],
+  halaqas = [],
+  attendance = [],
+  lessons = [],
+  payments = [],
+  onImportStudents,
+  onUpdateInstituteName,
+  onUpdateStudent,
+  onAddHalaqa,
+  onUpdateHalaqa,
+  onDeleteHalaqa
+}: ParametresTabProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordAttempt, setPasswordAttempt] = useState("");
   const [authError, setAuthError] = useState(false);
@@ -24,6 +45,46 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
   const [pointsHizb, setPointsHizb] = useState(100);
   const [pointsSurah, setPointsSurah] = useState(15);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
+
+  // Student Dossier Viewing State
+  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+
+  // Halaqa Modal State
+  const [isHalaqaModalOpen, setIsHalaqaModalOpen] = useState(false);
+  const [editingHalaqa, setEditingHalaqa] = useState<Halaqa | null>(null);
+  const [halaqaForm, setHalaqaForm] = useState({ name: "", teacherName: "", maxCapacity: 20 });
+
+  const openNewHalaqaModal = () => {
+    setEditingHalaqa(null);
+    setHalaqaForm({ name: "", teacherName: "", maxCapacity: 20 });
+    setIsHalaqaModalOpen(true);
+  };
+
+  const openEditHalaqaModal = (h: Halaqa) => {
+    setEditingHalaqa(h);
+    setHalaqaForm({ name: h.name, teacherName: h.teacherName, maxCapacity: h.maxCapacity });
+    setIsHalaqaModalOpen(true);
+  };
+
+  const handleSaveHalaqa = () => {
+    if (!halaqaForm.name || !halaqaForm.teacherName) {
+      alert("Veuillez renseigner le nom de la Halaqa et l'enseignant.");
+      return;
+    }
+    if (editingHalaqa) {
+      if (onUpdateHalaqa) {
+        onUpdateHalaqa({ ...editingHalaqa, ...halaqaForm });
+      }
+    } else {
+      if (onAddHalaqa) {
+        onAddHalaqa({
+          id: `h_${Date.now()}`,
+          ...halaqaForm
+        });
+      }
+    }
+    setIsHalaqaModalOpen(false);
+  };
 
   const handleSaveGeneralSettings = () => {
     localStorage.setItem("daara_institute_name", instituteName);
@@ -479,22 +540,32 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
             </h4>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
               <p className="text-[11px] text-slate-500">Les groupes (Halaqas) permettent de diviser les élèves par enseignant ou par niveau.</p>
-              <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                <div>
-                  <div className="text-xs font-bold text-slate-700">Halaqa Abu Bakr</div>
-                  <div className="text-[10px] text-slate-500">Oustaz Mohamed Sall • 12 élèves</div>
-                </div>
-                <button className="text-slate-400 hover:text-[#0B1C30]"><Edit className="w-4 h-4" /></button>
-              </div>
-              <div className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                <div>
-                  <div className="text-xs font-bold text-slate-700">Halaqa Oumar</div>
-                  <div className="text-[10px] text-slate-500">Oustaz Mohamed Ka • 8 élèves</div>
-                </div>
-                <button className="text-slate-400 hover:text-[#0B1C30]"><Edit className="w-4 h-4" /></button>
-              </div>
-              <button className="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-xs font-bold text-slate-500 hover:text-[#0B1C30] hover:border-[#0B1C30] transition-colors cursor-pointer">
-                + Créer une nouvelle Halaqa
+              
+              {halaqas.map((h) => {
+                const count = students.filter(s => s.halaqaId === h.id).length;
+                return (
+                  <div key={h.id} className="flex justify-between items-center bg-white p-3 rounded-lg shadow-xs border border-slate-100">
+                    <div>
+                      <div className="text-xs font-bold text-slate-700">{h.name}</div>
+                      <div className="text-[10px] text-slate-500">{h.teacherName} • {count} élèves (max {h.maxCapacity || 20})</div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => openEditHalaqaModal(h)} title="Modifier" className="text-slate-400 hover:text-[#0B1C30] p-1 transition-colors"><Edit className="w-4 h-4" /></button>
+                      <button onClick={() => { if (confirm(`Supprimer la Halaqa "${h.name}" ?`)) onDeleteHalaqa?.(h.id); }} title="Supprimer" className="text-slate-400 hover:text-rose-600 p-1 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {halaqas.length === 0 && (
+                <p className="text-xs text-slate-400 italic text-center py-2">Aucune Halaqa enregistrée.</p>
+              )}
+
+              <button
+                onClick={openNewHalaqaModal}
+                className="w-full py-2.5 bg-white border-2 border-dashed border-indigo-300 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 hover:border-indigo-400 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>+ Créer une nouvelle Halaqa</span>
               </button>
             </div>
           </div>
@@ -877,7 +948,8 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                 <th className="px-4 py-3">Genre</th>
                 <th className="px-4 py-3">Niveau</th>
                 <th className="px-4 py-3">Régime</th>
-                <th className="px-4 py-3 rounded-tr-lg">Contact Parent</th>
+                <th className="px-4 py-3">Contact Parent</th>
+                <th className="px-4 py-3 rounded-tr-lg text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -901,6 +973,15 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500">{student.regime || "Non défini"}</td>
                   <td className="px-4 py-3 text-xs">{student.parentPhone}</td>
+                  <td className="px-4 py-3 text-xs text-right">
+                    <button
+                      onClick={() => setViewingStudent(student)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer text-xs"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      <span>Dossier</span>
+                    </button>
+                  </td>
                 </tr>
               ))}
               {students.length === 0 && (
@@ -966,16 +1047,15 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                 </span>
               </div>
               
-              {/* Actions Row (Matching User Request) */}
-              <div className="border-t border-slate-100 px-4 py-3 text-xs flex flex-col justify-center">
-                <span className="font-bold text-slate-400 mb-2">ACTIONS</span>
-                <div className="flex items-center">
-                  <button className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors font-semibold shadow-sm">
-                    <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Dossier</span>
-                    <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-50" />
-                  </button>
-                </div>
+              {/* Actions Row */}
+              <div className="border-t border-slate-100 p-3 bg-slate-50 flex justify-end">
+                <button
+                  onClick={() => setViewingStudent(student)}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 text-xs shadow-xs transition-colors cursor-pointer"
+                >
+                  <FolderOpen className="w-4 h-4" />
+                  <span>Ouvrir le Dossier Élève</span>
+                </button>
               </div>
             </div>
           ))}
@@ -986,6 +1066,90 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
           )}
         </div>
       </div>
+
+      {/* Student Dossier Modal */}
+      {viewingStudent && (
+        <StudentFile
+          student={viewingStudent}
+          halaqas={halaqas}
+          attendance={attendance}
+          lessons={lessons}
+          payments={payments}
+          onClose={() => setViewingStudent(null)}
+          onUpdateStudent={(updated) => {
+            onUpdateStudent?.(updated);
+            setViewingStudent(updated);
+          }}
+        />
+      )}
+
+      {/* Halaqa Create / Edit Modal */}
+      {isHalaqaModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="font-bold text-[#0B1C30]">
+                {editingHalaqa ? "Modifier la Halaqa" : "Créer une nouvelle Halaqa"}
+              </h3>
+              <button onClick={() => setIsHalaqaModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Nom de la Halaqa</label>
+                <input 
+                  type="text" 
+                  value={halaqaForm.name}
+                  onChange={(e) => setHalaqaForm({...halaqaForm, name: e.target.value})}
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium" 
+                  placeholder="Ex: Halaqa Abu Bakr — حلقة أبو بكر"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Enseignant / Oustaz Responsable</label>
+                <input 
+                  type="text" 
+                  value={halaqaForm.teacherName}
+                  onChange={(e) => setHalaqaForm({...halaqaForm, teacherName: e.target.value})}
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" 
+                  placeholder="Ex: Oustaz Mohamed Ka"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Capacité Maximale d'Élèves</label>
+                <input 
+                  type="number" 
+                  min={1}
+                  max={100}
+                  value={halaqaForm.maxCapacity}
+                  onChange={(e) => setHalaqaForm({...halaqaForm, maxCapacity: Number(e.target.value)})}
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold" 
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
+              <button 
+                onClick={() => setIsHalaqaModalOpen(false)}
+                className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={handleSaveHalaqa}
+                disabled={!halaqaForm.name || !halaqaForm.teacherName}
+                className="px-5 py-2 text-sm font-bold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+              >
+                {editingHalaqa ? "Enregistrer" : "Créer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
