@@ -37,6 +37,8 @@ model Student {
   monthlyFee          Float              @default(0)
   age                 Int?
   regime              String?            // "internat" | "externat" | "demi-pension"
+  nationality         String?
+  status              String?            // "en_cours" | "hafiz" | "abandonne"
 
   medals              StudentMedal[]
   lessons             QuranLesson[]

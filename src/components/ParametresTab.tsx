@@ -214,6 +214,24 @@ export default function ParametresTab({
     }
   };
 
+  const handleClearCacheAndReload = async () => {
+    if (confirm("Voulez-vous réinitialiser le cache et forcer l'actualisation vers la toute dernière version ?")) {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+        }
+      }
+      window.location.reload();
+    }
+  };
+
   const handleBiometricLogin = async () => {
     const storedIdBase64 = localStorage.getItem("daara_biometric_id");
     if (!storedIdBase64) return;
@@ -983,9 +1001,16 @@ export default function ParametresTab({
           ))}
         </div>
 
-        <div className="mt-4 flex justify-center">
+        <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
           <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline decoration-emerald-600/30 underline-offset-4 cursor-pointer">
             Voir tout l'historique d'audit
+          </button>
+          <button
+            onClick={handleClearCacheAndReload}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Vider le cache PWA & Actualiser</span>
           </button>
         </div>
       </div>
