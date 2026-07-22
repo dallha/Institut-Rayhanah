@@ -195,13 +195,18 @@ export default function ParametresTab({
   };
   // ----------------------------------------------------
 
-  const [staffList, setStaffList] = useState([
+  const INITIAL_STAFF = [
     { id: 1, name: "Cheikh Baye Kane (شيخ باي كان)", role: "Directeur (المدير)", phone: "+221 77 000 00 01", status: "Actif" },
     { id: 2, name: "Mohamed Sall (محمد صال)", role: "Enseignant Principal (المدرس)", phone: "+221 77 000 00 02", status: "Actif" },
     { id: 3, name: "Mohamed Ka (محمد كا)", role: "Enseignant Assistant (المساعد)", phone: "+221 77 000 00 03", status: "Actif" },
     { id: 4, name: "Asma Niass (آسماء انياس)", role: "Secrétaire (سكرتيرة)", phone: "+221 78 000 00 04", status: "Actif" },
     { id: 5, name: "Khadidja Ji (خديجة جي)", role: "Assistante (المساعدة)", phone: "+221 70 000 00 05", status: "Actif" },
-  ]);
+  ];
+
+  const [staffList, setStaffList] = useState(() => {
+    const cached = localStorage.getItem("daara_staff_list");
+    return cached ? JSON.parse(cached) : INITIAL_STAFF;
+  });
 
   const [systemLogs] = useState([
     { id: 1, action: "Sauvegarde complète de la base de données", user: "Admin", time: "Aujourd'hui, 09:12" },
@@ -233,11 +238,14 @@ export default function ParametresTab({
 
   const handleSave = () => {
     if (!formData.name || !formData.role) return;
+    let updatedStaff;
     if (editingId !== null) {
-      setStaffList(staffList.map(s => s.id === editingId ? { ...s, ...formData } : s));
+      updatedStaff = staffList.map(s => s.id === editingId ? { ...s, ...formData } : s);
     } else {
-      setStaffList([...staffList, { id: Date.now(), ...formData }]);
+      updatedStaff = [...staffList, { id: Date.now(), ...formData }];
     }
+    setStaffList(updatedStaff);
+    localStorage.setItem("daara_staff_list", JSON.stringify(updatedStaff));
     setIsModalOpen(false);
   };
 
@@ -331,8 +339,10 @@ export default function ParametresTab({
   };
 
   const handleDelete = (id: number) => {
-    if(window.confirm("Voulez-vous vraiment supprimer ce membre du personnel ?")) {
-      setStaffList(staffList.filter(s => s.id !== id));
+    if (window.confirm("Voulez-vous vraiment supprimer ce membre du personnel ?")) {
+      const updatedStaff = staffList.filter(s => s.id !== id);
+      setStaffList(updatedStaff);
+      localStorage.setItem("daara_staff_list", JSON.stringify(updatedStaff));
     }
   };
 

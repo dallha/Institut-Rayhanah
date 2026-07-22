@@ -153,54 +153,54 @@ export default function StudentFile({
         id={`student-file-${student.id}`}
       >
         {/* ── HEADER ─────────────────────────────────── */}
-        <div className="relative bg-gradient-to-r from-emerald-700 to-teal-800 p-6 text-white shrink-0">
+        <div className="relative bg-gradient-to-r from-emerald-700 to-teal-800 p-4 sm:p-6 text-white shrink-0">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 bg-white/10 hover:bg-white/25 text-white p-1.5 rounded-full transition-all"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/10 hover:bg-white/25 text-white p-1.5 rounded-full transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 pr-6">
             {/* Avatar */}
-            <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${getAvatarColor(student)} flex items-center justify-center text-xl font-bold text-white shadow-lg shrink-0`}>
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br ${getAvatarColor(student)} flex items-center justify-center text-base sm:text-xl font-bold text-white shadow-lg shrink-0`}>
               {getInitials(student)}
             </div>
 
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold truncate">{student.firstName} {student.lastName}</h2>
-              <div className="flex flex-wrap items-center gap-2 mt-1">
+              <h2 className="text-base sm:text-xl font-bold truncate">{student.firstName} {student.lastName}</h2>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
                 {/* Matricule badge */}
-                <span className="flex items-center gap-1 bg-white/20 text-white text-xs font-mono font-bold px-2 py-0.5 rounded-full">
+                <span className="flex items-center gap-1 bg-white/20 text-white text-[10px] sm:text-xs font-mono font-bold px-2 py-0.5 rounded-full">
                   <Hash className="w-3 h-3" />
                   {student.matricule}
                 </span>
                 {/* Etape badge */}
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getEtapeColor(student.etape)}`}>
+                <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border ${getEtapeColor(student.etape)}`}>
                   {getEtapeLabel(student.etape)}
                 </span>
                 {student.gender && (
                   <span className="text-[10px] text-emerald-200 font-medium">
-                    {student.gender === "male" ? "♂ Masculin" : "♀ Féminin"}
+                    {student.gender === "female" ? "♀ Féminin" : "♂ Masculin"}
                   </span>
                 )}
               </div>
-              <p className="text-emerald-200 text-xs mt-1">{halaqa?.name ?? "—"} · {student.age ? `${student.age} ans` : "—"}</p>
+              <p className="text-emerald-200 text-[11px] sm:text-xs mt-1 truncate">{halaqa?.name ?? "—"} · {student.age ? `${student.age} ans` : "—"}</p>
             </div>
           </div>
 
           {/* Quick KPIs */}
-          <div className="grid grid-cols-4 gap-2 mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 sm:mt-4">
             {[
               { label: "Progression", value: `${progress}%`, icon: <TrendingUp className="w-3.5 h-3.5" /> },
               { label: "Présence", value: `${attendanceRate}%`, icon: <CheckCircle className="w-3.5 h-3.5" /> },
               { label: "Score", value: `${score} pts`, icon: <Star className="w-3.5 h-3.5" /> },
               { label: "Balance", value: `${balanceDue.toLocaleString()} F`, icon: <CreditCard className="w-3.5 h-3.5" /> },
             ].map(kpi => (
-              <div key={kpi.label} className="bg-white/10 rounded-xl p-2 text-center">
+              <div key={kpi.label} className="bg-white/10 rounded-xl p-1.5 sm:p-2 text-center">
                 <div className="flex items-center justify-center gap-1 text-emerald-200 mb-0.5">{kpi.icon}</div>
-                <div className="text-sm font-bold">{kpi.value}</div>
-                <div className="text-[9px] text-emerald-300 uppercase tracking-wider">{kpi.label}</div>
+                <div className="text-xs sm:text-sm font-bold">{kpi.value}</div>
+                <div className="text-[8px] sm:text-[9px] text-emerald-300 uppercase tracking-wider">{kpi.label}</div>
               </div>
             ))}
           </div>
