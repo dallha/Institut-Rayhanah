@@ -4,6 +4,8 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { supabase } from "./lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique, Evaluation } from "./types";
 import {
   INITIAL_STUDENTS,
@@ -49,11 +51,13 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
-  // Global Authentication State
-  const [isAppAuthenticated, setIsAppAuthenticated] = useState<boolean>(false);
-  const [loginUsername, setLoginUsername] = useState<string>("");
+  // Supabase Auth State
+  const [session, setSession] = useState<Session | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const [loginEmail, setLoginEmail] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
-  const [loginError, setLoginError] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginSubmitting, setLoginSubmitting] = useState<boolean>(false);
 
   // Dynamic Institute Settings
   const [instituteName, setInstituteName] = useState<string>(() => 
@@ -61,16 +65,39 @@ export default function App() {
   );
   const [isDesignerModalOpen, setIsDesignerModalOpen] = useState<boolean>(false);
 
-  const handleGlobalLogin = (e: React.FormEvent) => {
+  // Listen to Supabase session changes (persists across page reloads)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGlobalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginUsername === "directeur" && loginPassword === "Cheikh@66#") {
-      setIsAppAuthenticated(true);
-      setLoginError(false);
-    } else {
-      setLoginError(true);
+    setLoginSubmitting(true);
+    setLoginError(null);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+    if (error) {
+      setLoginError("Email ou mot de passe incorrect.");
       setLoginPassword("");
     }
+    setLoginSubmitting(false);
   };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const isAppAuthenticated = !!session;
 
   const [activeTab, setActiveTab] = useState<string>("pilotage");
   const [activeDaaraSubTab, setActiveDaaraSubTab] = useState<string>("pedagogy");
@@ -262,6 +289,17 @@ export default function App() {
 
   const unpaidAlertCount = students.filter(s => s.balanceDue > unpaidThreshold).length;
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#0B1C30] border-t-[#D0A21C] rounded-full animate-spin"></div>
+          <p className="text-slate-500 text-sm font-medium">Vérification de la session...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAppAuthenticated) {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col font-sans relative overflow-hidden">
@@ -290,17 +328,18 @@ export default function App() {
             <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-slate-100 relative">
               <form onSubmit={handleGlobalLogin} className="space-y-6">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Identifiant</label>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Adresse Email</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <User className="h-5 w-5 text-[#D0A21C]" />
                     </div>
                     <input
-                      type="text"
-                      value={loginUsername}
-                      onChange={(e) => setLoginUsername(e.target.value)}
+                      type="email"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
                       className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]/20 transition-all font-semibold text-slate-800 text-sm"
-                      placeholder="Saisissez votre identifiant"
+                      placeholder="votre@email.com"
+                      required
                       autoFocus
                     />
                   </div>
@@ -318,21 +357,26 @@ export default function App() {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className={`block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border ${loginError ? 'border-rose-400 ring-4 ring-rose-50' : 'border-slate-200'} rounded-xl focus:outline-none focus:border-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]/20 transition-all font-semibold text-slate-800 text-sm`}
                       placeholder="••••••••"
+                      required
                     />
                   </div>
                   {loginError && (
                     <p className="text-rose-500 text-xs mt-2 font-bold flex items-center gap-1">
-                      Identifiant ou mot de passe incorrect.
+                      {loginError}
                     </p>
                   )}
                 </div>
                 
                 <button
                   type="submit"
-                  className="w-full bg-[#0B1C30] text-white px-4 py-4 rounded-xl font-bold hover:bg-[#142d47] hover:shadow-xl hover:shadow-[#0B1C30]/20 transition-all duration-300 mt-4 flex justify-center items-center gap-2 text-sm"
+                  disabled={loginSubmitting}
+                  className="w-full bg-[#0B1C30] text-white px-4 py-4 rounded-xl font-bold hover:bg-[#142d47] hover:shadow-xl hover:shadow-[#0B1C30]/20 transition-all duration-300 mt-4 flex justify-center items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <Lock className="w-4 h-4" />
-                  Déverrouiller le système
+                  {loginSubmitting ? (
+                    <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Connexion en cours...</>
+                  ) : (
+                    <><Lock className="w-4 h-4" />Déverrouiller le système</>
+                  )}
                 </button>
               </form>
             </div>
@@ -399,14 +443,23 @@ export default function App() {
         </div>
 
         {/* User profile & actions in header */}
-        <div className="hidden sm:flex items-center gap-3 bg-slate-50 p-1.5 pr-4 rounded-full border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors shadow-sm">
-          <div className="w-8 h-8 rounded-full bg-[#0B1C30] flex items-center justify-center text-white font-bold text-xs shadow-inner border-2 border-white">
-            CB
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="flex items-center gap-3 bg-slate-50 p-1.5 pr-4 rounded-full border border-slate-200 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-[#0B1C30] flex items-center justify-center text-white font-bold text-xs shadow-inner border-2 border-white">
+              {session?.user?.email?.[0]?.toUpperCase() || "U"}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-[#0B1C30] leading-tight max-w-[120px] truncate">{session?.user?.email || "Administrateur"}</span>
+              <span className="text-[8px] text-[#D0A21C] font-black uppercase tracking-wider">Directeur</span>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-[#0B1C30] leading-tight">Cheikh Baye Kane</span>
-            <span className="text-[8px] text-[#D0A21C] font-black uppercase tracking-wider">Directeur</span>
-          </div>
+          <button
+            onClick={handleLogout}
+            title="Se déconnecter"
+            className="w-9 h-9 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-500 hover:bg-rose-100 hover:text-rose-600 transition-colors shadow-sm"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </header>
 
