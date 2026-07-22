@@ -337,18 +337,19 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                             <div className="flex items-center space-x-1.5 bg-slate-50/50 p-1.5 rounded-lg border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 flex-1">
                               <span className="text-[10px] text-slate-400 font-bold uppercase min-w-[36px]">Début:</span>
                               <span className="text-slate-400 text-[10px]">H.</span>
-                              <input
-                                type="number"
+                              <select
                                 className="bg-white border border-slate-200 rounded p-1.5 text-[11px] w-14 focus:outline-hidden text-center font-semibold"
-                                min={1}
-                                max={60}
                                 value={row.startHizb}
                                 onChange={(e) => {
                                   const val = Number(e.target.value);
                                   updateRowField(student.id, "startHizb", val);
                                   updateRowField(student.id, "endHizb", val);
                                 }}
-                              />
+                              >
+                                {Array.from({ length: 60 }, (_, i) => i + 1).map(h => (
+                                  <option key={h} value={h}>{h}</option>
+                                ))}
+                              </select>
                               <select
                                 className="bg-white border border-slate-200 rounded p-1.5 text-[11px] flex-1 focus:outline-hidden font-medium"
                                 value={row.startHizbFraction}
@@ -370,14 +371,15 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                             <div className="flex items-center space-x-1.5 bg-slate-50/50 p-1.5 rounded-lg border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 flex-1">
                               <span className="text-[10px] text-slate-400 font-bold uppercase min-w-[36px]">Fin:</span>
                               <span className="text-slate-400 text-[10px]">H.</span>
-                              <input
-                                type="number"
+                              <select
                                 className="bg-white border border-slate-200 rounded p-1.5 text-[11px] w-14 focus:outline-hidden text-center font-semibold"
-                                min={1}
-                                max={60}
                                 value={row.endHizb}
                                 onChange={(e) => updateRowField(student.id, "endHizb", Number(e.target.value))}
-                              />
+                              >
+                                {Array.from({ length: 60 }, (_, i) => i + 1).map(h => (
+                                  <option key={h} value={h}>{h}</option>
+                                ))}
+                              </select>
                               <select
                                 className="bg-white border border-slate-200 rounded p-1.5 text-[11px] flex-1 focus:outline-hidden font-medium"
                                 value={row.endHizbFraction}

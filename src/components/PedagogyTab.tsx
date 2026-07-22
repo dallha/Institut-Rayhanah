@@ -424,14 +424,15 @@ export default function PedagogyTab({
                   {/* Hizb Selector */}
                   <div className="space-y-1 mt-2">
                     <label className="block text-xs font-semibold text-slate-500 uppercase">Hizb Actuel (1 à 60)</label>
-                    <input
-                      type="number"
+                    <select
                       className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs focus:outline-hidden"
-                      min={1}
-                      max={60}
                       value={hizbVal}
                       onChange={(e) => setHizbVal(Number(e.target.value))}
-                    />
+                    >
+                      {Array.from({ length: 60 }, (_, i) => i + 1).map(h => (
+                        <option key={h} value={h}>Hizb {h}</option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Hizb Fraction Selector */}
