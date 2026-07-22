@@ -554,17 +554,17 @@ export default function App() {
         <div className="flex justify-between items-center h-[60px] sm:h-16 max-w-7xl mx-auto px-1 sm:px-4">
           <button 
             onClick={() => setActiveTab("pilotage")}
-            className={`flex flex-col items-center justify-center w-full h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "pilotage" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "pilotage" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
           >
-            <LayoutDashboard className={`w-5 h-5 sm:w-6 sm:h-6 ${activeTab === "pilotage" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap">Pilotage</span>
+            <LayoutDashboard className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "pilotage" ? "stroke-[2.5px]" : "stroke-2"}`} />
+            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis px-1 max-w-full">Pilotage</span>
           </button>
           
           <button 
             onClick={() => setActiveTab("scolarite")}
-            className={`flex flex-col items-center justify-center w-full h-full gap-0.5 transition-colors cursor-pointer relative ${activeTab === "scolarite" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center h-full gap-0.5 transition-colors cursor-pointer relative ${activeTab === "scolarite" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
           >
-            <div className="relative">
+            <div className="relative shrink-0">
               <GraduationCap className={`w-5 h-5 sm:w-6 sm:h-6 ${activeTab === "scolarite" ? "stroke-[2.5px]" : "stroke-2"}`} />
               {unpaidAlertCount > 0 && (
                 <span className="absolute -top-1 -right-1.5 bg-rose-500 text-white text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white">
@@ -572,31 +572,31 @@ export default function App() {
                 </span>
               )}
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap">Scolarité</span>
+            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis px-1 max-w-full">Scolarité</span>
           </button>
 
           <button 
             onClick={() => setActiveTab("pedagogie")}
-            className={`flex flex-col items-center justify-center w-full h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "pedagogie" ? "text-emerald-600" : "text-slate-400 hover:text-slate-600"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "pedagogie" ? "text-emerald-600" : "text-slate-400 hover:text-slate-600"}`}
           >
-            <Mosque className={`w-5 h-5 sm:w-6 sm:h-6 ${activeTab === "pedagogie" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap">Pédagogie</span>
+            <Mosque className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "pedagogie" ? "stroke-[2.5px]" : "stroke-2"}`} />
+            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis px-1 max-w-full">Pédagogie</span>
           </button>
 
           <button 
             onClick={() => setActiveTab("honneur")}
-            className={`flex flex-col items-center justify-center w-full h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "honneur" ? "text-amber-500" : "text-slate-400 hover:text-slate-600"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "honneur" ? "text-amber-500" : "text-slate-400 hover:text-slate-600"}`}
           >
-            <Trophy className={`w-5 h-5 sm:w-6 sm:h-6 ${activeTab === "honneur" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap">Honneur</span>
+            <Trophy className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "honneur" ? "stroke-[2.5px]" : "stroke-2"}`} />
+            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis px-1 max-w-full">Honneur</span>
           </button>
 
           <button 
             onClick={() => setActiveTab("parametres")}
-            className={`flex flex-col items-center justify-center w-full h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "parametres" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center h-full gap-0.5 transition-colors cursor-pointer ${activeTab === "parametres" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
           >
-            <Settings className={`w-5 h-5 sm:w-6 sm:h-6 ${activeTab === "parametres" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap">Admin/RH</span>
+            <Settings className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "parametres" ? "stroke-[2.5px]" : "stroke-2"}`} />
+            <span className="text-[9px] sm:text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis px-1 max-w-full">Admin/RH</span>
           </button>
         </div>
       </nav>
