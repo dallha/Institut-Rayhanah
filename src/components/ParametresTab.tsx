@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown } from "lucide-react";
+import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown, Fingerprint } from "lucide-react";
 import Papa from "papaparse";
 import { Student, EtapePedagogique } from "../types";
 
@@ -46,6 +46,82 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
       setPasswordAttempt("");
     }
   };
+
+  // ----------------------------------------------------
+  // BIOMETRIC WEBAUTHN LOGIC (Face ID / Touch ID)
+  // ----------------------------------------------------
+  const [hasBiometric, setHasBiometric] = useState(() => !!localStorage.getItem("daara_biometric_id"));
+
+  const generateRandomBuffer = () => {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return array;
+  };
+
+  const handleRegisterBiometric = async () => {
+    if (!window.PublicKeyCredential) {
+      alert("Votre navigateur ne supporte pas la connexion biométrique (WebAuthn).");
+      return;
+    }
+    try {
+      const publicKey = {
+        challenge: generateRandomBuffer(),
+        rp: { name: "Institut Rayhanah", id: window.location.hostname },
+        user: {
+          id: Uint8Array.from("admin-rayhanah", c => c.charCodeAt(0)),
+          name: "admin",
+          displayName: "Administrateur Rayhanah"
+        },
+        pubKeyCredParams: [{ alg: -7, type: "public-key" as const }, { alg: -257, type: "public-key" as const }],
+        authenticatorSelection: { authenticatorAttachment: "platform" as const, userVerification: "required" as const },
+        timeout: 60000,
+        attestation: "none" as const
+      };
+
+      const credential = await navigator.credentials.create({ publicKey }) as any;
+      
+      if (credential && credential.rawId) {
+        // Encode rawId to base64 string to store in localStorage
+        const rawIdBase64 = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(credential.rawId))));
+        localStorage.setItem("daara_biometric_id", rawIdBase64);
+        setHasBiometric(true);
+        alert("Connexion biométrique activée avec succès !");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Erreur lors de l'activation biométrique : " + err.message);
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    const storedIdBase64 = localStorage.getItem("daara_biometric_id");
+    if (!storedIdBase64) return;
+    
+    try {
+      const binaryString = atob(storedIdBase64);
+      const rawId = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        rawId[i] = binaryString.charCodeAt(i);
+      }
+
+      const publicKey = {
+        challenge: generateRandomBuffer(),
+        allowCredentials: [{ id: rawId, type: "public-key" as const }],
+        userVerification: "required" as const,
+        timeout: 60000
+      };
+
+      const assertion = await navigator.credentials.get({ publicKey });
+      if (assertion) {
+        setIsAuthenticated(true);
+        setAuthError(false);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setAuthError(true);
+    }
+  };
+  // ----------------------------------------------------
 
   const [staffList, setStaffList] = useState([
     { id: 1, name: "Cheikh Baye Kane (شيخ باي كان)", role: "Fondateur (المؤسس)", phone: "+221 77 000 00 01", status: "Actif" },
@@ -212,6 +288,18 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
               Déverrouiller
             </button>
           </form>
+
+          {hasBiometric && (
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <button
+                onClick={handleBiometricLogin}
+                className="w-full bg-slate-50 border border-slate-200 text-[#0B1C30] px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-colors flex justify-center items-center gap-2 cursor-pointer"
+              >
+                <Fingerprint className="w-5 h-5 text-emerald-600" />
+                Se connecter avec Face ID / Touch ID
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -231,7 +319,7 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">
             <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2">Identité de l'Établissement</h4>
             <div className="space-y-3">
@@ -272,6 +360,44 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Clé d'API</label>
                 <input type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-medium" defaultValue="****************" />
               </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2 flex items-center gap-2">
+              <Fingerprint className="w-4 h-4 text-emerald-600" />
+              Sécurité & Accès
+            </h4>
+            <div className="space-y-3">
+              <p className="text-[11px] text-slate-500 leading-tight">
+                Activez l'authentification biométrique (Face ID, Touch ID, Windows Hello) pour déverrouiller ce panneau d'administration sans mot de passe.
+              </p>
+              
+              {!hasBiometric ? (
+                <button
+                  onClick={handleRegisterBiometric}
+                  className="w-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex justify-center items-center gap-1.5 cursor-pointer"
+                >
+                  <Fingerprint className="w-4 h-4" />
+                  Activer la Biométrie (WebAuthn)
+                </button>
+              ) : (
+                <div className="w-full bg-slate-50 border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold flex justify-between items-center">
+                  <div className="flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-emerald-600" />
+                    <span>Biométrie active</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem("daara_biometric_id");
+                      setHasBiometric(false);
+                    }}
+                    className="text-rose-500 hover:text-rose-700 text-[10px] underline cursor-pointer"
+                  >
+                    Désactiver
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
