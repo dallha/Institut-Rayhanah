@@ -4,6 +4,26 @@ import Papa from "papaparse";
 import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique } from "../types";
 import StudentFile from "./StudentFile";
 
+function getEtapeLabelFormat(etape: EtapePedagogique, gender?: string) {
+  const isFemale = gender === "female" || gender === "F";
+  switch (etape) {
+    case EtapePedagogique.Tahajji:
+      return "Tahajji (التهجي)";
+    case EtapePedagogique.Hifz:
+      return "Hifz (الحفظ)";
+    case EtapePedagogique.Murajaah:
+      return "Muraja'ah (المراجعة)";
+    case EtapePedagogique.Tathbit:
+      return "Tathbit (التثبيت)";
+    case EtapePedagogique.Khatm:
+      return "Khatm (الختم)";
+    case EtapePedagogique.Hafiz:
+      return isFemale ? "Hafizat (حافظة) 👑" : "Hafiz (حافظ) 👑";
+    default:
+      return etape;
+  }
+}
+
 interface ParametresTabProps {
   students?: Student[];
   halaqas?: Halaqa[];
@@ -980,7 +1000,7 @@ export default function ParametresTab({
                     {student.firstName} {student.lastName}
                   </td>
                   <td className="px-4 py-3 font-semibold text-slate-600 text-center">
-                    {student.gender === 'F' ? (
+                    {(student.gender === 'female' || student.gender === 'F') ? (
                       <span className="text-pink-500 font-bold">♀</span>
                     ) : (
                       <span className="text-blue-500 font-bold">♂</span>
@@ -988,7 +1008,7 @@ export default function ParametresTab({
                   </td>
                   <td className="px-4 py-3 text-xs">
                     <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-medium border border-emerald-100">
-                      {student.etape}
+                      {getEtapeLabelFormat(student.etape, student.gender)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500">{student.regime || "Non défini"}</td>
@@ -1029,7 +1049,7 @@ export default function ParametresTab({
                     <span className="text-slate-500 text-sm truncate uppercase">{student.firstName}</span>
                     <span className="text-slate-800 font-bold text-sm truncate uppercase">{student.lastName}</span>
                     <span className="text-sm shrink-0">
-                      {student.gender === 'F' ? (
+                      {(student.gender === 'female' || student.gender === 'F') ? (
                         <span className="text-pink-500 font-bold">♀</span>
                       ) : (
                         <span className="text-blue-500 font-bold">♂</span>
@@ -1056,7 +1076,7 @@ export default function ParametresTab({
               <div className="border-t border-slate-100 px-4 py-3 text-xs flex justify-between items-center">
                 <span className="font-bold text-slate-400">PARCOURS CORAN</span>
                 <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                  {student.etape}
+                  {getEtapeLabelFormat(student.etape, student.gender)}
                 </span>
               </div>
               
