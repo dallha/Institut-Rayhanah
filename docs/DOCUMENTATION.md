@@ -72,6 +72,10 @@
 │        Email + Mot de passe · Session JWT persistante       │
 │            @supabase/supabase-js v2                         │
 └─────────────────────────────────────────────────────────────┘
+
+### Nouveautés Architecturales
+- **Mode Hors-Ligne (Offline First) :** Cache local via `localStorage` (Optimistic UI) et File d'attente (`offlineQueue.ts`) permettant la saisie sans réseau avec synchronisation automatique au retour de la connexion.
+- **Biométrie (WebAuthn) :** Intégration Face ID / Touch ID pour les accès administrateur (Paramètres / RH).
 ```
 
 ---
@@ -139,7 +143,9 @@ Institut Rayhanah/
 │   ├── main.tsx              # Point d'entrée React
 │   ├── mockData.ts           # Données de démonstration + helpers
 │   ├── quranData.ts          # Données statiques du Coran (114 sourates)
-│   └── types.ts              # Interfaces TypeScript globales
+│   ├── types.ts              # Interfaces TypeScript globales
+│   └── 📁 utils/
+│       └── offlineQueue.ts   # Gestionnaire de file d'attente hors-ligne
 ├── 📁 scripts/
 │   └── create-admin.ts       # Script création utilisateur Supabase
 ├── 📁 docs/
@@ -192,6 +198,7 @@ model Student {
   monthlyFee          Float     @default(0)
   age                 Int?
   regime              String?   // "internat" | "externat" | "demi-pension"
+  gender              String?   // "M" (Garçon) | "F" (Fille) pour gestion (Hafiz/Hafizat)
 
   medals              StudentMedal[]
   lessons             QuranLesson[]
@@ -322,10 +329,11 @@ model StudentMedal {
 ### 📚 Scolarité (`ScolariteModule.tsx`)
 
 **Onglet Inscriptions / Liste (`InscriptionTab.tsx`) :**
-- Fiche complète de chaque élève
-- Formulaire d'inscription (nom, parent, téléphone, halaqa, régime, étape)
+- Fiche complète de chaque élève (affichage en liste sur Desktop, affichage en **Cartes responsives** sur Mobile)
+- Formulaire d'inscription (nom, parent, téléphone, halaqa, régime, étape, genre)
 - Filtres par halaqa, étape pédagogique
 - Visualisation de la progression coranique (hizb / sourate)
+- Menu d'actions contextuelles (Dossier, Modifier, Supprimer)
 
 **Onglet Trésorerie (`ComptabiliteTab.tsx`) :**
 - Enregistrement des paiements (mensualité, frais d'inscription, etc.)
@@ -355,12 +363,14 @@ model StudentMedal {
 - Comparaison par halaqa
 
 ### 🏆 Honneur (`HonneurTab.tsx`)
-- **Huffaz certifiés** : élèves au stade `Hafiz`
+- **Huffaz certifiés** : élèves au stade `Hafiz` (Garçon) ou `Hafizat` (Fille)
 - **Proches du Khatm** : élèves ayant atteint les Hizbs 50–60
 - **Top 5 mémorisants actifs** : classement par score gamifié
 
 ### ⚙️ Admin / RH (`ParametresTab.tsx`)
 - Nom de l'établissement (modifiable, stocké en localStorage)
+- Répertoire du personnel (affichage en cartes sur Mobile)
+- **Sécurité & Accès (WebAuthn)** : Enregistrement et connexion via Biométrie (Face ID / Touch ID)
 - Import CSV d'élèves avec prévisualisation
 - Export CSV de tous les élèves
 - Paramètre seuil alerte impayés
