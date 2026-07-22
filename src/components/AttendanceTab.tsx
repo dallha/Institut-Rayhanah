@@ -287,7 +287,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                   updateRowField(student.id, "endSurah", val);
                                 }}
                               >
-                                {[...SURAHS].reverse().map(s => (
+                                {SURAHS.map(s => (
                                   <option key={s.number} value={s.number}>
                                     {s.number}. {s.name} ({s.arabicName})
                                   </option>
@@ -315,7 +315,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                 value={row.endSurah}
                                 onChange={(e) => updateRowField(student.id, "endSurah", Number(e.target.value))}
                               >
-                                {[...SURAHS].reverse().map(s => (
+                                {SURAHS.map(s => (
                                   <option key={s.number} value={s.number}>
                                     {s.number}. {s.name} ({s.arabicName})
                                   </option>
@@ -346,7 +346,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                   updateRowField(student.id, "endHizb", val);
                                 }}
                               >
-                                {[...HIZBS].reverse().map(h => (
+                                {HIZBS.map(h => (
                                   <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
                                 ))}
                               </select>
@@ -376,7 +376,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                 value={row.endHizb}
                                 onChange={(e) => updateRowField(student.id, "endHizb", Number(e.target.value))}
                               >
-                                {[...HIZBS].reverse().map(h => (
+                                {HIZBS.map(h => (
                                   <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
                                 ))}
                               </select>

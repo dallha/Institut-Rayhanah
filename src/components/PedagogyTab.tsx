@@ -400,7 +400,7 @@ export default function PedagogyTab({
                       value={surahVal}
                       onChange={(e) => setSurahVal(Number(e.target.value))}
                     >
-                      {[...SURAHS].reverse().map((s) => (
+                      {SURAHS.map((s) => (
                         <option key={s.number} value={s.number}>
                           {s.number}. {s.name} ({s.arabicName})
                         </option>
@@ -429,7 +429,7 @@ export default function PedagogyTab({
                       value={hizbVal}
                       onChange={(e) => setHizbVal(Number(e.target.value))}
                     >
-                      {[...HIZBS].reverse().map((h) => (
+                      {HIZBS.map((h) => (
                         <option key={h.number} value={h.number}>
                           الحزب {h.number}: {h.name}
                         </option>
