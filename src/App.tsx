@@ -46,9 +46,15 @@ import {
   Lock,
   KeyRound,
   User,
-  Palette
+  Palette,
+  Menu,
+  X as XIcon,
+  Wifi,
+  WifiOff,
+  RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { enqueueRequest, processQueue, getQueueCount } from "./utils/offlineQueue";
 
 export default function App() {
   // Supabase Auth State
@@ -103,12 +109,32 @@ export default function App() {
   const [activeDaaraSubTab, setActiveDaaraSubTab] = useState<string>("pedagogy");
 
   // Core global state loaded from local storage for durability
-  const [students, setStudents] = useState<Student[]>([]);
-  const [halaqas, setHalaqas] = useState<Halaqa[]>([]);
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [lessons, setLessons] = useState<QuranLesson[]>([]);
-  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [students, setStudents] = useState<Student[]>(() => {
+    const cached = localStorage.getItem("daara_students");
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [halaqas, setHalaqas] = useState<Halaqa[]>(() => {
+    const cached = localStorage.getItem("daara_halaqas");
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>(() => {
+    const cached = localStorage.getItem("daara_attendance");
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [lessons, setLessons] = useState<QuranLesson[]>(() => {
+    const cached = localStorage.getItem("daara_lessons");
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [payments, setPayments] = useState<PaymentRecord[]>(() => {
+    const cached = localStorage.getItem("daara_payments");
+    return cached ? JSON.parse(cached) : [];
+  });
   const [unpaidThreshold, setUnpaidThreshold] = useState<number>(15000);
+  
+  // Offline State
+  const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
+  const [pendingSyncs, setPendingSyncs] = useState<number>(getQueueCount());
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
   // Bidirectional Hash Routing
   useEffect(() => {
@@ -145,8 +171,8 @@ export default function App() {
     }
   }, [activeTab, activeDaaraSubTab]);
 
-  useEffect(() => {
-    // Fetch data from API instead of localStorage
+  const fetchAllData = () => {
+    setIsSyncing(true);
     Promise.all([
       fetch("/api/students").then(res => res.json()),
       fetch("/api/halaqas").then(res => res.json()),
@@ -155,17 +181,57 @@ export default function App() {
       fetch("/api/payments").then(res => res.json())
     ]).then(([studentsData, halaqasData, attendanceData, lessonsData, paymentsData]) => {
       setStudents(studentsData);
+      localStorage.setItem("daara_students", JSON.stringify(studentsData));
+      
       setHalaqas(halaqasData);
+      localStorage.setItem("daara_halaqas", JSON.stringify(halaqasData));
+      
       setAttendance(attendanceData);
+      localStorage.setItem("daara_attendance", JSON.stringify(attendanceData));
+      
       setLessons(lessonsData);
+      localStorage.setItem("daara_lessons", JSON.stringify(lessonsData));
+      
       setPayments(paymentsData);
-    }).catch(err => console.error("Error fetching data:", err));
+      localStorage.setItem("daara_payments", JSON.stringify(paymentsData));
+    }).catch(err => {
+      console.error("Error fetching data (might be offline):", err);
+    }).finally(() => {
+      setIsSyncing(false);
+    });
+  };
+
+  useEffect(() => {
+    fetchAllData();
+    
+    // Offline Listeners
+    const handleOnline = () => {
+      setIsOffline(false);
+      processQueue();
+    };
+    const handleOffline = () => setIsOffline(true);
+    const handleQueueUpdate = () => setPendingSyncs(getQueueCount());
+    const handleSyncComplete = () => fetchAllData();
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('daara_queue_updated', handleQueueUpdate);
+    window.addEventListener('daara_sync_complete', handleSyncComplete);
+    
+    // Try processing queue on boot just in case
+    processQueue();
     
     // Get stored unpaid threshold
     const storedThreshold = localStorage.getItem("daara_unpaid_threshold");
     if (storedThreshold !== null) {
       setUnpaidThreshold(Number(storedThreshold));
     }
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('daara_queue_updated', handleQueueUpdate);
+      window.removeEventListener('daara_sync_complete', handleSyncComplete);
+    };
   }, []);
 
   const saveUnpaidThreshold = (val: number) => {
@@ -174,27 +240,50 @@ export default function App() {
   };
 
   const handleUpdateStudent = async (updatedStudent: Student) => {
+    // Optimistic UI Update
+    const newStudents = students.map((s) => (s.id === updatedStudent.id ? updatedStudent : s));
+    setStudents(newStudents);
+    localStorage.setItem("daara_students", JSON.stringify(newStudents));
+
     try {
       const res = await fetch(`/api/students/${updatedStudent.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedStudent)
       });
+      if (!res.ok) throw new Error("API Error");
       const saved = await res.json();
-      setStudents(students.map((s) => (s.id === saved.id ? saved : s)));
-    } catch (err) { console.error("Error updating student", err); }
+      const finalStudents = newStudents.map((s) => (s.id === saved.id ? saved : s));
+      setStudents(finalStudents);
+      localStorage.setItem("daara_students", JSON.stringify(finalStudents));
+    } catch (err) {
+      console.warn("Offline or error updating student. Queuing request...");
+      enqueueRequest(`/api/students/${updatedStudent.id}`, "PUT", updatedStudent);
+    }
   };
 
   const handleEnrollStudent = async (newStudent: Student) => {
+    // Optimistic UI Update
+    const newStudents = [...students, newStudent];
+    setStudents(newStudents);
+    localStorage.setItem("daara_students", JSON.stringify(newStudents));
+
     try {
       const res = await fetch("/api/students", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newStudent)
       });
+      if (!res.ok) throw new Error("API Error");
       const saved = await res.json();
-      setStudents([...students, saved]);
-    } catch (err) { console.error("Error enrolling student", err); }
+      const finalStudents = students.map(s => s.id === newStudent.id ? saved : s); // Replace optimistic with real
+      if (!students.find(s => s.id === newStudent.id)) finalStudents.push(saved);
+      setStudents(finalStudents);
+      localStorage.setItem("daara_students", JSON.stringify(finalStudents));
+    } catch (err) {
+      console.warn("Offline or error enrolling student. Queuing request...");
+      enqueueRequest("/api/students", "POST", newStudent);
+    }
   };
 
   const handleImportStudents = async (importedStudents: Partial<Student>[]) => {
@@ -227,23 +316,79 @@ export default function App() {
   };
 
   const handleAddPayment = async (newPayment: PaymentRecord) => {
+    const newPayments = [...payments, newPayment];
+    setPayments(newPayments);
+    localStorage.setItem("daara_payments", JSON.stringify(newPayments));
+    
+    // Update balance optimistically
+    const student = students.find(s => s.id === newPayment.studentId);
+    if (student) {
+      const updatedStudent = {
+        ...student,
+        balanceDue: Math.max(0, student.balanceDue - newPayment.amount)
+      };
+      setStudents(students.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+      localStorage.setItem("daara_students", JSON.stringify(students.map(s => s.id === updatedStudent.id ? updatedStudent : s)));
+    }
+
     try {
       const res = await fetch("/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPayment)
       });
+      if (!res.ok) throw new Error("API error");
       const saved = await res.json();
-      setPayments([...payments, saved]);
+      const finalPayments = payments.map(p => p.id === newPayment.id ? saved : p);
+      if (!payments.find(p => p.id === newPayment.id)) finalPayments.push(saved);
+      setPayments(finalPayments);
+      localStorage.setItem("daara_payments", JSON.stringify(finalPayments));
+    } catch (err) {
+      console.warn("Offline or error adding payment. Queuing request...");
+      enqueueRequest("/api/payments", "POST", newPayment);
+    }
+  };
 
-      const student = students.find(s => s.id === saved.studentId);
-      if (student) {
-        handleUpdateStudent({
-          ...student,
-          balanceDue: Math.max(0, student.balanceDue - saved.amount)
-        });
-      }
-    } catch (err) { console.error("Error adding payment", err); }
+  const handleSaveAttendance = async (records: AttendanceRecord[]) => {
+    const newAttendance = [...attendance, ...records];
+    setAttendance(newAttendance);
+    localStorage.setItem("daara_attendance", JSON.stringify(newAttendance));
+    
+    try {
+      const res = await fetch("/api/attendance/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ records })
+      });
+      if (!res.ok) throw new Error("API error");
+      const saved = await res.json();
+    } catch (err) {
+      console.warn("Offline or error saving attendance. Queuing request...");
+      enqueueRequest("/api/attendance/batch", "POST", { records });
+    }
+  };
+
+  const handleSaveLesson = async (lesson: QuranLesson) => {
+    const newLessons = [...lessons, lesson];
+    setLessons(newLessons);
+    localStorage.setItem("daara_lessons", JSON.stringify(newLessons));
+
+    try {
+      const res = await fetch("/api/lessons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lesson)
+      });
+      if (!res.ok) throw new Error("API Error");
+      const saved = await res.json();
+      const finalLessons = lessons.map(l => l.id === lesson.id ? saved : l);
+      if (!lessons.find(l => l.id === lesson.id)) finalLessons.push(saved);
+      setLessons(finalLessons);
+      localStorage.setItem("daara_lessons", JSON.stringify(finalLessons));
+    } catch (err) {
+      console.warn("Offline or error saving lesson. Queuing request...");
+      enqueueRequest("/api/lessons", "POST", lesson);
+    }
   };
 
   /**
@@ -267,24 +412,42 @@ export default function App() {
         return { ...student, currentHizbNum: lesson.endHizb, currentHizbFraction: lesson.endHizbFraction || 0, score: student.score + scoreAward };
       }
       return { ...student, score: student.score + scoreAward };
-    }).filter(s => newLessons.some(l => l.studentId === s.id));
+    });
+
+    // Optimistic Update
+    const newAtt = [...attendance, ...attendanceRecords];
+    const newLes = [...lessons, ...newLessons];
+    setAttendance(newAtt);
+    setLessons(newLes);
+    setStudents(updatedStudents);
+    
+    localStorage.setItem("daara_attendance", JSON.stringify(newAtt));
+    localStorage.setItem("daara_lessons", JSON.stringify(newLes));
+    localStorage.setItem("daara_students", JSON.stringify(updatedStudents));
 
     try {
-      await fetch("/api/cloture-day", {
+      const res = await fetch("/api/cloture-day", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attendanceRecords, newLessons, updatedStudents })
+        body: JSON.stringify({ attendanceRecords, newLessons, updatedStudents: updatedStudents.filter(s => newLessons.some(l => l.studentId === s.id)) })
       });
+      if (!res.ok) throw new Error("API error");
       // Refresh all state to ensure consistency
-      const [newAtt, newLes, newStu] = await Promise.all([
+      const [finalAtt, finalLes, finalStu] = await Promise.all([
         fetch("/api/attendance").then(res => res.json()),
         fetch("/api/lessons").then(res => res.json()),
         fetch("/api/students").then(res => res.json()),
       ]);
-      setAttendance(newAtt);
-      setLessons(newLes);
-      setStudents(newStu);
-    } catch (err) { console.error("Error closing day", err); }
+      setAttendance(finalAtt);
+      setLessons(finalLes);
+      setStudents(finalStu);
+      localStorage.setItem("daara_attendance", JSON.stringify(finalAtt));
+      localStorage.setItem("daara_lessons", JSON.stringify(finalLes));
+      localStorage.setItem("daara_students", JSON.stringify(finalStu));
+    } catch (err) { 
+      console.warn("Offline or error closing day. Queuing request...");
+      enqueueRequest("/api/cloture-day", "POST", { attendanceRecords, newLessons, updatedStudents: updatedStudents.filter(s => newLessons.some(l => l.studentId === s.id)) });
+    }
   };
 
   const unpaidAlertCount = students.filter(s => s.balanceDue > unpaidThreshold).length;
@@ -412,59 +575,78 @@ export default function App() {
         <div className="absolute top-0 right-0 left-1/2 h-full bg-[#D0A21C] w-1/2"></div>
       </div>
 
-      {/* Main Header / TopAppBar following requested style */}
-      <header className="bg-white shadow-xs border-b border-slate-100 py-3 sm:py-4 px-3 sm:px-4 md:px-8 sticky top-0 z-30 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4" id="daara-main-header">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="h-12 flex-shrink-0 flex items-center justify-start gap-3">
-            <img 
-              src="/logo.png" 
-              alt="Logo Rayhanah" 
-              className="max-w-full max-h-full object-contain"
-            />
-            <div className="hidden md:flex flex-col border-l border-slate-200 pl-3">
-              <span className="font-extrabold text-sm text-[#0B1C30] tracking-tight">{instituteName}</span>
-              <span className="text-[9px] font-bold text-[#D0A21C] uppercase tracking-wider">Système ERP & Pédagogie</span>
+      {/* Main Header / TopAppBar */}
+      <header className="bg-white shadow-xs border-b border-slate-100 sticky top-0 z-30" id="daara-main-header">
+        <div className="py-3 sm:py-4 px-3 sm:px-4 md:px-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="h-12 flex-shrink-0 flex items-center justify-start gap-3">
+              <img src="/logo.png" alt="Logo Rayhanah" className="max-w-full max-h-full object-contain" />
+              <div className="hidden md:flex flex-col border-l border-slate-200 pl-3">
+                <span className="font-extrabold text-sm text-[#0B1C30] tracking-tight">{instituteName}</span>
+                <span className="text-[9px] font-bold text-[#D0A21C] uppercase tracking-wider">Système ERP & Pédagogie</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 w-full max-w-md mt-2 sm:mt-0 sm:mx-4">
+            <div className="relative">
+              <span className="absolute left-3 top-2 text-slate-400"><Search className="w-4 h-4" /></span>
+              <input type="text" placeholder="Rechercher des élèves, des dars ou des règlements..." className="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-9 pr-4 text-xs font-semibold text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-[#0B1C30]" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsDesignerModalOpen(true)}
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-xl transition-colors hidden md:block"
+              title="Personnaliser le thème"
+            >
+              <Palette className="w-5 h-5" />
+            </button>
+            <div className="relative group">
+              <div className="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center cursor-pointer">
+                <span className="text-emerald-700 font-bold text-sm">{session?.user?.email?.[0]?.toUpperCase() || "A"}</span>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Global header search bar */}
-        <div className="flex-1 w-full max-w-md mt-2 sm:mt-0 sm:mx-4">
-          <div className="relative">
-            <span className="absolute left-3 top-2 text-slate-400">
-              <Search className="w-4 h-4" />
-            </span>
-            <input 
-              type="text" 
-              placeholder="Rechercher des élèves, des dars ou des règlements..." 
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-9 pr-4 text-xs font-semibold text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-[#0B1C30]"
-            />
+        
+        {/* Offline & Sync Indicators */}
+        {(isOffline || pendingSyncs > 0) && (
+          <div className="bg-slate-50 border-b border-slate-100 px-4 py-2 flex items-center justify-between text-[11px] md:text-xs">
+            {isOffline ? (
+              <div className="flex items-center text-amber-600 font-bold gap-1.5">
+                <WifiOff className="w-3.5 h-3.5" />
+                <span>Mode Hors-Ligne. Saisie possible, synchronisation en attente.</span>
+              </div>
+            ) : (
+              <div className="flex items-center text-emerald-600 font-bold gap-1.5">
+                <Wifi className="w-3.5 h-3.5" />
+                <span>Réseau rétabli. Synchronisation possible.</span>
+              </div>
+            )}
+            
+            {pendingSyncs > 0 && (
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
+                  {pendingSyncs} modif(s) en attente
+                </span>
+                {!isOffline && (
+                  <button 
+                    onClick={() => processQueue()}
+                    disabled={isSyncing}
+                    className={`flex items-center gap-1 bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold shadow-sm transition-opacity ${isSyncing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-700'}`}
+                  >
+                    <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span>Synchroniser</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* User profile & actions in header */}
-        <div className="hidden sm:flex items-center gap-2">
-          <div className="flex items-center gap-3 bg-slate-50 p-1.5 pr-4 rounded-full border border-slate-200 shadow-sm">
-            <div className="w-8 h-8 rounded-full bg-[#0B1C30] flex items-center justify-center text-white font-bold text-xs shadow-inner border-2 border-white">
-              {session?.user?.email?.[0]?.toUpperCase() || "U"}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#0B1C30] leading-tight max-w-[120px] truncate">{session?.user?.email || "Administrateur"}</span>
-              <span className="text-[8px] text-[#D0A21C] font-black uppercase tracking-wider">Directeur</span>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            title="Se déconnecter"
-            className="w-9 h-9 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-500 hover:bg-rose-100 hover:text-rose-600 transition-colors shadow-sm"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
+        )}
       </header>
 
       {/* Main Container Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 md:p-8" id="daara-main-workspace">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#FDFBF7] p-4 md:p-6 lg:p-8" id="daara-main-workspace">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
