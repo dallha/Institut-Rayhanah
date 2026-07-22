@@ -391,66 +391,75 @@ export default function PedagogyTab({
               </div>
 
               {etapeVal !== EtapePedagogique.Tahajji && (
-                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  {/* Surah Selector */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase">Sourate de Mémorisation</label>
-                    <select
-                      className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs focus:outline-hidden"
-                      value={surahVal}
-                      onChange={(e) => setSurahVal(Number(e.target.value))}
-                    >
-                      {SURAHS.map((s) => (
-                        <option key={s.number} value={s.number}>
-                          {s.number}. {s.name} ({s.arabicName})
-                        </option>
-                      ))}
-                    </select>
+                <div className="border-2 border-emerald-300 rounded-xl overflow-hidden shadow-sm">
+                  {/* Green header */}
+                  <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white">
+                    <BookOpen className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-widest">الموقع القرآني — Position Actuelle</span>
                   </div>
 
-                  {/* Verset Selector */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase">Verset Actuel</label>
-                    <input
-                      type="number"
-                      className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs focus:outline-hidden"
-                      min={1}
-                      max={SURAHS.find(s => s.number === surahVal)?.versesCount || 286}
-                      value={versetVal}
-                      onChange={(e) => setVersetVal(Number(e.target.value))}
-                    />
-                  </div>
+                  {/* Body */}
+                  <div className="p-4 bg-emerald-50 grid grid-cols-2 gap-4">
+                    {/* Surah Selector */}
+                    <div className="col-span-2 space-y-1">
+                      <label className="block text-[10px] font-bold text-emerald-800 uppercase">Sourate de Mémorisation</label>
+                      <select
+                        className="w-full bg-white border border-emerald-300 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
+                        value={surahVal}
+                        onChange={(e) => setSurahVal(Number(e.target.value))}
+                      >
+                        {SURAHS.map((s) => (
+                          <option key={s.number} value={s.number}>
+                            {s.number}. {s.name} ({s.arabicName})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                  {/* Hizb Selector */}
-                  <div className="space-y-1 mt-2">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase">Hizb Actuel (1 à 60)</label>
-                    <select
-                      className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs focus:outline-hidden"
-                      value={hizbVal}
-                      onChange={(e) => setHizbVal(Number(e.target.value))}
-                    >
-                      {HIZBS.map((h) => (
-                        <option key={h.number} value={h.number}>
-                          الحزب {h.number}: {h.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                    {/* Verset Selector */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-emerald-800 uppercase">Verset Actuel (آية)</label>
+                      <input
+                        type="number"
+                        className="w-full bg-white border border-emerald-300 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 font-bold text-center"
+                        min={1}
+                        max={SURAHS.find(s => s.number === surahVal)?.versesCount || 286}
+                        value={versetVal}
+                        onChange={(e) => setVersetVal(Number(e.target.value))}
+                      />
+                    </div>
 
-                  {/* Hizb Fraction Selector */}
-                  <div className="space-y-1 mt-2">
-                    <label className="block text-xs font-semibold text-slate-500 uppercase">Fraction</label>
-                    <select
-                      className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs focus:outline-hidden"
-                      value={fractionVal}
-                      onChange={(e) => setFractionVal(Number(e.target.value))}
-                    >
-                      <option value={0}>Aucune fraction (Début)</option>
-                      <option value={0.25}>1/4 ربع (0.25)</option>
-                      <option value={0.50}>1/2 نصف (0.50)</option>
-                      <option value={0.75}>3/4 ثلاثة أرباع (0.75)</option>
-                      <option value={1.00}>Complet كامل (1.00)</option>
-                    </select>
+                    {/* Hizb Fraction */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-emerald-800 uppercase">Fraction du Hizb</label>
+                      <select
+                        className="w-full bg-white border border-emerald-300 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                        value={fractionVal}
+                        onChange={(e) => setFractionVal(Number(e.target.value))}
+                      >
+                        <option value={0}>بداية — Début</option>
+                        <option value={0.25}>ربع — 1/4</option>
+                        <option value={0.50}>نصف — 1/2</option>
+                        <option value={0.75}>ثلاثة أرباع — 3/4</option>
+                        <option value={1.00}>كامل — Complet</option>
+                      </select>
+                    </div>
+
+                    {/* Hizb Selector */}
+                    <div className="col-span-2 space-y-1">
+                      <label className="block text-[10px] font-bold text-emerald-800 uppercase">Hizb Actuel الحزب (1 → 60)</label>
+                      <select
+                        className="w-full bg-white border border-emerald-300 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
+                        value={hizbVal}
+                        onChange={(e) => setHizbVal(Number(e.target.value))}
+                      >
+                        {HIZBS.map((h) => (
+                          <option key={h.number} value={h.number}>
+                            الحزب {h.number}: {h.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               )}
