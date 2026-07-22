@@ -52,6 +52,7 @@ export interface Student {
   monthlyFee: number;
   age?: number;
   regime?: "internat" | "externat" | "demi-pension";
+  nationality?: string;
 }
 
 export interface Halaqa {

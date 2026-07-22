@@ -98,6 +98,7 @@ export default function StudentFile({
     parentEmail: student.parentEmail ?? "",
     age: student.age ?? 0,
     gender: student.gender ?? "male",
+    nationality: student.nationality ?? "Sénégalaise",
     halaqaId: student.halaqaId,
     etape: student.etape,
     regime: student.regime ?? "externat",
@@ -306,6 +307,19 @@ export default function StudentFile({
                       </select>
                     ) : (
                       <p className="text-sm font-semibold text-slate-800 capitalize">{student.regime ?? "externat"}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nationalité</label>
+                    {editing ? (
+                      <input
+                        className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                        value={form.nationality}
+                        onChange={e => setForm(f => ({ ...f, nationality: e.target.value }))}
+                        placeholder="Ex: Sénégalaise, Mauritanienne..."
+                      />
+                    ) : (
+                      <p className="text-sm font-semibold text-slate-800">{student.nationality ?? "Sénégalaise"}</p>
                     )}
                   </div>
                   <div>

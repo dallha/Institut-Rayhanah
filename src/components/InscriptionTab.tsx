@@ -37,6 +37,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
   const [parentPhone, setParentPhone] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [halaqaId, setHalaqaId] = useState(halaqas[0]?.id || "h1");
+  const [nationality, setNationality] = useState("Sénégalaise");
   const [etape, setEtape] = useState<EtapePedagogique>(EtapePedagogique.Tahajji);
   const [regime, setRegime] = useState<"internat" | "externat" | "demi-pension">("internat");
   const [rulesAccepted, setRulesAccepted] = useState(false);
@@ -122,7 +123,8 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
       balanceDue: regimePricing[regime].signup, // Initial signup fee due on balance
       monthlyFee: regimePricing[regime].monthly,
       age,
-      regime
+      regime,
+      nationality
     };
 
     onEnrollStudent(newStudent);
@@ -214,6 +216,15 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                     <span>Règlement: Âge requis entre 5 et 10 ans</span>
                   </div>
                 )}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-500">Nationalité</label>
+                <input
+                  type="text"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
+                  placeholder="Ex: Sénégalaise, Mauritanienne..."
+                  value={nationality}
+                  onChange={(e) => setNationality(e.target.value)}
+                />
               </div>
             </div>
           </div>

@@ -298,7 +298,8 @@ export default function ParametresTab({
         monthlyFee: Number(row.monthlyFee || row.tarif || 15000),
         balanceDue: Number(row.balanceDue || row.solde || 0),
         score: Number(row.score || 100),
-        khatmatCount: Number(row.khatmatCount || 0)
+        khatmatCount: Number(row.khatmatCount || 0),
+        nationality: row.nationality || row.nationalite || row.Nationalité || "Sénégalaise"
       }));
 
       if (onImportStudents) {
