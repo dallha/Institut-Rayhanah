@@ -150,7 +150,7 @@ export function formatHizbFraction(fraction: number): string {
   if (fraction === 0.50) return "نصف (0.50)";
   if (fraction === 0.75) return "ثلاثة أرباع (0.75)";
   if (fraction === 1.00) return "كامل (1.00)";
-  return "بدون";
+  return "1.00";
 }
 
 export function formatHizbFractionArabic(fraction: number): string {
@@ -180,3 +180,66 @@ export function getHizbRangeString(startH?: number, startHF?: number, endH?: num
   
   return `Hizb ${startH}${startFracText} ➔ Hizb ${endH}${endFracText}`;
 }
+
+export const HIZBS = [
+  { number: 1, name: "الم ذلك — البقرة" },
+  { number: 2, name: "وإذا لقوا — البقرة" },
+  { number: 3, name: "سيقول السفهاء — البقرة" },
+  { number: 4, name: "واذكروا الله — البقرة" },
+  { number: 5, name: "تلك الرسل — آل عمران" },
+  { number: 6, name: "قل أؤنبئكم — آل عمران" },
+  { number: 7, name: "لن تنالوا البر — آل عمران" },
+  { number: 8, name: "يستبشرون — النساء" },
+  { number: 9, name: "والمحصنات — النساء" },
+  { number: 10, name: "الله لا إله إلا هو — النساء" },
+  { number: 11, name: "لا يحب الله — المائدة" },
+  { number: 12, name: "قال رجلان — المائدة" },
+  { number: 13, name: "لتجدن أشد الناس — الأنعام" },
+  { number: 14, name: "إنما يستجيب — الأنعام" },
+  { number: 15, name: "ولو أننا نزلنا — الأنعام" },
+  { number: 16, name: "المص كتاب — الأعراف" },
+  { number: 17, name: "قال الملأ — الأعراف" },
+  { number: 18, name: "وإذ نتقنا الجبل — الأنفال" },
+  { number: 19, name: "واعلموا — التوبة" },
+  { number: 20, name: "إن كثيراً — التوبة" },
+  { number: 21, name: "إنما السبيل — يونس" },
+  { number: 22, name: "للذين أحسنوا — هود" },
+  { number: 23, name: "وما من دابة — هود" },
+  { number: 24, name: "وإلى مدين — يوسف" },
+  { number: 25, name: "وما أبرئ نفسي — الرعد" },
+  { number: 26, name: "أفمن يعلم — إبراهيم" },
+  { number: 27, name: "ربما — النحل" },
+  { number: 28, name: "وقال الله لا تتخذوا — النحل" },
+  { number: 29, name: "سبحان الذي — الإسراء" },
+  { number: 30, name: "أولم يروا — الكهف" },
+  { number: 31, name: "قال ألم أقل لك — مريم" },
+  { number: 32, name: "طه — طه" },
+  { number: 33, name: "اقترب للناس — الأنبياء" },
+  { number: 34, name: "يا أيها الناس — الحج" },
+  { number: 35, name: "قد أفلح — المؤمنون" },
+  { number: 36, name: "لا تتبعوا — الفرقان" },
+  { number: 37, name: "وقال الذين لا يرجون — الشعراء" },
+  { number: 38, name: "قالوا أنؤمن لك — النمل" },
+  { number: 39, name: "فما كان جواب قومه — القصص" },
+  { number: 40, name: "ولقد وصلنا — العنكبوت" },
+  { number: 41, name: "ولا تجادلوا — الروم" },
+  { number: 42, name: "ومن يسلم — الأحزاب" },
+  { number: 43, name: "ومن يقنت — سبأ" },
+  { number: 44, name: "قل من يرزقكم — فاطر" },
+  { number: 45, name: "وما أنزلنا على قومه — الصافات" },
+  { number: 46, name: "فنبذناه بالعراء — ص" },
+  { number: 47, name: "فمن أظلم — غافر" },
+  { number: 48, name: "ويا قوم ما لي — فصلت" },
+  { number: 49, name: "إليه يرد — الشورى" },
+  { number: 50, name: "قل أولو جئتكم — الدخان" },
+  { number: 51, name: "حم ما خلقنا — محمد" },
+  { number: 52, name: "لقد رضي الله — الحجرات" },
+  { number: 53, name: "قال فما خطبكم — الطور" },
+  { number: 54, name: "الرحمن — الرحمن" },
+  { number: 55, name: "قد سمع الله — المجادلة" },
+  { number: 56, name: "يسبح لله — الجمعة" },
+  { number: 57, name: "تبارك الذي — الملك" },
+  { number: 58, name: "قل أوحي — الجن" },
+  { number: 59, name: "عم يتساءلون — النبأ" },
+  { number: 60, name: "سبح اسم ربك — الأعلى" }
+];

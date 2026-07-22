@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Student, Halaqa, AttendanceStatus, Evaluation, EtapePedagogique, QuranLesson, AttendanceRecord } from "../types";
-import { SURAHS, formatHizbFractionArabic } from "../quranData";
+import { SURAHS, HIZBS, formatHizbFractionArabic } from "../quranData";
 import { CheckCircle, AlertTriangle, XCircle, Save, Lock, ArrowRight, BookOpen, UserCheck } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -287,7 +287,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                   updateRowField(student.id, "endSurah", val);
                                 }}
                               >
-                                {SURAHS.map(s => (
+                                {[...SURAHS].reverse().map(s => (
                                   <option key={s.number} value={s.number}>
                                     {s.number}. {s.name} ({s.arabicName})
                                   </option>
@@ -315,7 +315,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                 value={row.endSurah}
                                 onChange={(e) => updateRowField(student.id, "endSurah", Number(e.target.value))}
                               >
-                                {SURAHS.map(s => (
+                                {[...SURAHS].reverse().map(s => (
                                   <option key={s.number} value={s.number}>
                                     {s.number}. {s.name} ({s.arabicName})
                                   </option>
@@ -346,8 +346,8 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                   updateRowField(student.id, "endHizb", val);
                                 }}
                               >
-                                {Array.from({ length: 60 }, (_, i) => i + 1).map(h => (
-                                  <option key={h} value={h}>{h}</option>
+                                {[...HIZBS].reverse().map(h => (
+                                  <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
                                 ))}
                               </select>
                               <select
@@ -376,8 +376,8 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                                 value={row.endHizb}
                                 onChange={(e) => updateRowField(student.id, "endHizb", Number(e.target.value))}
                               >
-                                {Array.from({ length: 60 }, (_, i) => i + 1).map(h => (
-                                  <option key={h} value={h}>{h}</option>
+                                {[...HIZBS].reverse().map(h => (
+                                  <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
                                 ))}
                               </select>
                               <select

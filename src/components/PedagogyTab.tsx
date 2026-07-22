@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson } from "../types";
-import { SURAHS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
+import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
 import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings } from "lucide-react";
 import { motion } from "motion/react";
 import WeeklySummaryChart from "./WeeklySummaryChart";
@@ -400,7 +400,7 @@ export default function PedagogyTab({
                       value={surahVal}
                       onChange={(e) => setSurahVal(Number(e.target.value))}
                     >
-                      {SURAHS.map((s) => (
+                      {[...SURAHS].reverse().map((s) => (
                         <option key={s.number} value={s.number}>
                           {s.number}. {s.name} ({s.arabicName})
                         </option>
@@ -429,8 +429,10 @@ export default function PedagogyTab({
                       value={hizbVal}
                       onChange={(e) => setHizbVal(Number(e.target.value))}
                     >
-                      {Array.from({ length: 60 }, (_, i) => i + 1).map(h => (
-                        <option key={h} value={h}>Hizb {h}</option>
+                      {[...HIZBS].reverse().map((h) => (
+                        <option key={h.number} value={h.number}>
+                          الحزب {h.number}: {h.name}
+                        </option>
                       ))}
                     </select>
                   </div>
