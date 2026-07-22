@@ -1,0 +1,77 @@
+# Cahier des Charges - Institut Almouyassar
+## Écosystème de Gestion Scolaire, Académique & Coranique (Daara)
+
+---
+
+### 1. Présentation du Projet
+L'**Institut Almouyassar** est un établissement d'excellence qui combine un enseignement académique moderne et un apprentissage approfondi du Saint Coran (Daara). Afin de moderniser son administration, d'optimiser le suivi des élèves, de sécuriser la trésorerie et d'améliorer la communication avec les parents, l'institut déploie cette application web unifiée, conçue selon une approche **Mobile-First** moderne et ultra-fluide.
+
+---
+
+### 2. Objectifs Stratégiques
+* **Centralisation des Données** : Fini la dispersion des informations. Profils académiques, progrès coraniques, trésorerie et effectifs du personnel sont gérés au sein d'une interface unique.
+* **Optimisation de la Trésorerie** : Suivi rigoureux des encaissements (inscriptions, mensualités) avec génération instantanée de reçus officiels imprimables pour éviter toute fuite financière.
+* **Suivi de la Mémorisation** : Suivi précis du parcours coranique de chaque élève de la Daara (nombre de Juz/Hizb mémorisés, Sourates et Versets en cours, évaluations).
+* **Communication Directe** : Intégration d'une passerelle d'alertes SMS (Orange Sénégal, Twilio) pour notifier instantanément les parents d'élèves.
+* **Accessibilité Multi-support** : Interface responsive optimisée en priorité pour les téléphones portables et tablettes (Mobile-First) utilisés par le personnel sur le terrain, tout en restant somptueuse sur grand écran.
+
+---
+
+### 3. Spécifications Fonctionnelles
+
+#### MODULE 1 : Tableau de Bord Analytique (Dashboard)
+* **Indicateurs clés (KPIs)** :
+  * Recettes mensuelles globales contre objectif financier dynamique.
+  * Taux d'inscription par rapport à la capacité d'accueil de l'établissement.
+  * Effectif global des apprenants (Daara vs Académique).
+  * Taux de présence moyen et suivi des alertes SMS expédiées.
+* **Visualisation Graphique (D3/Recharts)** : Un graphique interactif d'évolution mensuelle comparant le chiffre d'affaires réel aux objectifs configurés.
+* **Panier de notifications réseau** : Affichage en direct du statut de livraison des SMS d'évaluation et alertes administratives.
+
+#### MODULE 2 : Gestion de la Daara (Section Coranique)
+* **Registre de progression** : Liste des élèves affectés à la section Coran.
+* **Suivi individuel** :
+  * Nombre de Juz (Hizb) mémorisés (de 1 à 60).
+  * Sourate et Verset actuellement étudiés.
+  * Date de la dernière évaluation par l'Oustaz.
+  * Note de niveau académique coranique (Système de notation A, B, C, D).
+* **Impression de Bulletins** : Génération d'un bulletin scolaire & coranique complet avec observations du conseil des Oustazs.
+
+#### MODULE 3 : Gestion de la Scolarité (Section Académique)
+* **Fiches Élèves** : Informations d'identité, date de naissance, genre, classe attribuée.
+* **Informations Tuteur / Parent** : Nom complet du parent et numéro de téléphone mobile au format international (Sénégal : `+221 ...`).
+* **Nouvelles Inscriptions** : Formulaire modal d'inscription rapide avec attribution directe de la classe et initialisation du niveau coranique.
+
+#### MODULE 4 : Trésorerie & Comptabilité
+* **Registre d'Encaissement** : Saisie rapide de tout flux de trésorerie entrant.
+  * Sélection de l'apprenant.
+  * Type de versement (Mensualité, Inscription, Uniforme, Transport, Autre).
+  * Mode de paiement (Espèces, Wave, Orange Money, Chèque, Virement).
+  * Saisie de commentaires d'administration.
+* **Générateur de Reçu Officiel** : Génération instantanée d'un reçu d'encaissement numéroté, muni d'un filigrane, d'un espace de signature de caisse et d'un cachet d'authenticité officiel de l'Institut Almouyassar, optimisé pour l'impression physique directe.
+
+#### MODULE 5 : Ressources Humaines (RH)
+* **Répertoire du personnel** : Fiches des Oustazs (enseignants coraniques), professeurs académiques et cadres de l'administration.
+* **Suivi de Statut** : Affichage du statut d'activité réseau et coordonnées téléphoniques directes.
+* **Recrutement** : Outil d'enregistrement de nouveau personnel avec désignation précise du rôle et des contacts de communication.
+
+#### MODULE 6 : Configuration & Paramètres Système
+* **Identité Globale** : Personnalisation du nom de l'institut et de l'année scolaire en cours.
+* **Seuils & Objectifs** : Paramétrage dynamique de la cible financière mensuelle (FCFA) et de la capacité maximale de l'établissement (utilisée pour calculer le taux de saturation sur le tableau de bord).
+* **Passerelle SMS** : Sélection de la passerelle active (Orange Sénégal API ou Twilio) pour les campagnes de communication parentales.
+
+---
+
+### 4. Spécifications Techniques & Ergonomiques
+
+#### Interface Utilisateur & Design (UI/UX)
+* **Navigation Inférieure (Bottom Navigation)** : Remplacement de l'ancienne barre latérale de bureau par un menu en bas de l'écran ultra-intuitif et accessible au pouce (idéal pour les smartphones).
+* **En-tête unifiée (Header)** : Logo signature de marque Almouyassar, barre de recherche universelle et raccourci profil du directeur.
+* **Thème Visuel (Slate & Gold)** : Combinaison de blanc pur, d'ombres douces, d'accents vert émeraude (symbole d'excellence et de sérénité) et de touches d'or d'Afrique de l'Ouest pour incarner la rigueur et la modernité.
+
+#### Stack Technique de l'Application
+* **Framework Frontend** : React (v18+) avec Vite pour un temps de réponse instantané.
+* **Type Safety** : Intégration totale de TypeScript pour écarter tout dysfonctionnement à l'exécution.
+* **Moteur Graphique** : Tailwind CSS pour une mise en page fluide, adaptative et respectueuse des standards mobiles modernes.
+* **Librairie d'icônes** : Utilisation stricte de la suite `lucide-react` pour un graphisme homogène.
+* **Animations de transition** : Exploitation de `motion/react` pour l'affichage élégant des composants et modaux.

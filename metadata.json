@@ -1,0 +1,6 @@
+{
+  "name": "Daara ERP",
+  "description": "Système de gestion scolaire et de suivi coranique pour Daaras et Instituts Islamiques",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

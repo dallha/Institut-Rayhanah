@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Student {
+  id                  String             @id @default(uuid())
+  matricule           String             @unique
+  firstName           String
+  lastName            String
+  parentName          String
+  parentPhone         String
+  parentEmail         String?
+  
+  halaqaId            String
+  halaqa              Halaqa             @relation(fields: [halaqaId], references: [id])
+  
+  etape               String             // Enum: Tahajji, Hifz, Murajaah, Tathbit, Khatm, Hafiz
+  
+  // Progress indicators
+  currentSurahNum     Int?
+  currentVersetNum    Int?
+  currentHizbNum      Int?
+  currentHizbFraction Float?
+  
+  // Statistics and Gamification
+  khatmatCount        Int                @default(0)
+  dailyWardHizbs      Int                @default(0)
+  score               Int                @default(0)
+  
+  // Financial status
+  balanceDue          Float              @default(0)
+  monthlyFee          Float              @default(0)
+  age                 Int?
+  regime              String?            // "internat" | "externat" | "demi-pension"
+
+  medals              StudentMedal[]
+  lessons             QuranLesson[]
+  attendance          AttendanceRecord[]
+  payments            PaymentRecord[]
+}
+
+model StudentMedal {
+  id        String   @id @default(uuid())
+  studentId String
+  name      String
+  icon      String
+  date      String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Halaqa {
+  id          String    @id @default(uuid())
+  name        String
+  teacherName String
+  maxCapacity Int       @default(20)
+  students    Student[]
+}
+
+model QuranLesson {
+  id                String  @id @default(uuid())
+  studentId         String
+  student           Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date              String
+  evaluation        String  // Enum: Excellent, Bien, Passable, Faible
+  type              String  // "sourate" | "hizb"
+  
+  // Sourate mode
+  startSurah        Int?
+  startVerset       Int?
+  endSurah          Int?
+  endVerset         Int?
+  
+  // Hizb mode
+  startHizb         Int?
+  startHizbFraction Float?
+  endHizb           Int?
+  endHizbFraction   Float?
+}
+
+model AttendanceRecord {
+  id        String  @id @default(uuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      String
+  status    String  // Enum: Present, Absent, Late
+}
+
+model PaymentRecord {
+  id            String  @id @default(uuid())
+  studentId     String
+  student       Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date          String
+  amount        Float
+  purpose       String
+  receiptNumber String
+  recordedBy    String
+}
