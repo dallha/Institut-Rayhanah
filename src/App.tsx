@@ -429,7 +429,7 @@ export default function App() {
         </div>
 
         {/* Global header search bar */}
-        <div className="flex-1 max-w-md mx-4 w-full sm:w-auto">
+        <div className="flex-1 w-full max-w-md mt-2 sm:mt-0 sm:mx-4">
           <div className="relative">
             <span className="absolute left-3 top-2 text-slate-400">
               <Search className="w-4 h-4" />
