@@ -99,6 +99,7 @@ export default function StudentFile({
     age: student.age ?? 0,
     gender: student.gender ?? "male",
     nationality: student.nationality ?? "Sénégalaise",
+    status: student.status ?? (student.etape === EtapePedagogique.Hafiz ? "hafiz" : "en_cours"),
     halaqaId: student.halaqaId,
     etape: student.etape,
     regime: student.regime ?? "externat",
@@ -320,6 +321,28 @@ export default function StudentFile({
                       />
                     ) : (
                       <p className="text-sm font-semibold text-slate-800">{student.nationality ?? "Sénégalaise"}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Statut Élève</label>
+                    {editing ? (
+                      <select
+                        className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 font-bold"
+                        value={form.status}
+                        onChange={e => setForm(f => ({ ...f, status: e.target.value as any }))}
+                      >
+                        <option value="en_cours">📖 En cours (Actif)</option>
+                        <option value="hafiz">👑 Hafiz(a) Certifié(e)</option>
+                        <option value="abandonne">⚠️ Abandonné / Inactif</option>
+                      </select>
+                    ) : (
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full border inline-block ${
+                        (student.status === "abandonne") ? "bg-rose-100 text-rose-700 border-rose-200" :
+                        (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "bg-amber-100 text-amber-800 border-amber-200" :
+                        "bg-emerald-100 text-emerald-700 border-emerald-200"
+                      }`}>
+                        {student.status === "abandonne" ? "⚠️ Abandonné" : (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "👑 Hafiz(a)" : "📖 En cours"}
+                      </span>
                     )}
                   </div>
                   <div>

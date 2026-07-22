@@ -53,6 +53,7 @@ export interface Student {
   age?: number;
   regime?: "internat" | "externat" | "demi-pension";
   nationality?: string;
+  status?: "en_cours" | "hafiz" | "abandonne";
 }
 
 export interface Halaqa {

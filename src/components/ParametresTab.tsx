@@ -72,8 +72,37 @@ export default function ParametresTab({
   );
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
-  // Student Dossier Viewing State
+  // Student Dossier Viewing & Filtering State
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [studentFilter, setStudentFilter] = useState<"tous" | "en_cours" | "hafiz" | "abandonne">("tous");
+
+  const countEnCours = React.useMemo(() => 
+    students.filter(s => s.status === "en_cours" || (!s.status && s.etape !== EtapePedagogique.Hafiz)).length,
+    [students]
+  );
+  const countHuffaz = React.useMemo(() => 
+    students.filter(s => s.status === "hafiz" || s.etape === EtapePedagogique.Hafiz).length,
+    [students]
+  );
+  const countAbandonne = React.useMemo(() => 
+    students.filter(s => s.status === "abandonne").length,
+    [students]
+  );
+
+  const filteredStudents = React.useMemo(() => {
+    return students.filter(s => {
+      if (studentFilter === "en_cours") {
+        return s.status === "en_cours" || (!s.status && s.etape !== EtapePedagogique.Hafiz);
+      }
+      if (studentFilter === "hafiz") {
+        return s.status === "hafiz" || s.etape === EtapePedagogique.Hafiz;
+      }
+      if (studentFilter === "abandonne") {
+        return s.status === "abandonne";
+      }
+      return true;
+    });
+  }, [students, studentFilter]);
 
   // Halaqa Modal State
   const [isHalaqaModalOpen, setIsHalaqaModalOpen] = useState(false);
@@ -978,6 +1007,29 @@ export default function ParametresTab({
           </div>
         </div>
 
+        {/* Filter buttons */}
+        <div className="flex flex-wrap gap-2 mb-4 bg-slate-50 p-2 rounded-xl border border-slate-200/60">
+          {[
+            { id: "tous", label: "Tous", count: students.length, color: "bg-slate-800 text-white" },
+            { id: "en_cours", label: "📖 En cours", count: countEnCours, color: "bg-emerald-600 text-white" },
+            { id: "hafiz", label: "👑 Huffaz", count: countHuffaz, color: "bg-amber-600 text-white" },
+            { id: "abandonne", label: "⚠️ Abandonnés", count: countAbandonne, color: "bg-rose-600 text-white" },
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setStudentFilter(f.id as any)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                studentFilter === f.id
+                  ? `${f.color} shadow-xs`
+                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              }`}
+            >
+              <span>{f.label}</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${studentFilter === f.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700 font-mono"}`}>{f.count}</span>
+            </button>
+          ))}
+        </div>
+
         {/* Desktop View (Table) */}
         <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left text-sm text-slate-600 whitespace-nowrap">
@@ -993,7 +1045,7 @@ export default function ParametresTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-slate-50/50">
                   <td className="px-4 py-3 font-mono text-xs font-bold text-slate-500">{student.matricule}</td>
                   <td className="px-4 py-3 font-semibold text-slate-800">
@@ -1024,10 +1076,10 @@ export default function ParametresTab({
                   </td>
                 </tr>
               ))}
-              {students.length === 0 && (
+              {filteredStudents.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center text-slate-400 text-xs font-medium">
-                    Aucun élève enregistré.
+                  <td colSpan={7} className="px-4 py-6 text-center text-slate-400 text-xs font-medium">
+                    Aucun élève trouvé pour ce filtre.
                   </td>
                 </tr>
               )}
@@ -1037,7 +1089,7 @@ export default function ParametresTab({
 
         {/* Mobile View (Cards) */}
         <div className="md:hidden space-y-4">
-          {students.map((student) => (
+          {filteredStudents.map((student) => (
             <div key={student.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
               {/* Card Header: Avatar & Info */}
               <div className="p-4 flex items-center space-x-3">
