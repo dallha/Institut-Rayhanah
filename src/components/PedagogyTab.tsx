@@ -75,6 +75,7 @@ export default function PedagogyTab({
   };
 
   const getEtapeLabel = (etape: EtapePedagogique, gender?: string) => {
+    const isFemale = gender === "female" || gender === "F";
     switch (etape) {
       case EtapePedagogique.Tahajji:
         return "Tahajji (التهجي)";
@@ -87,7 +88,7 @@ export default function PedagogyTab({
       case EtapePedagogique.Khatm:
         return "Khatm (الختم)";
       case EtapePedagogique.Hafiz:
-        return gender === 'F' ? "Hafizat (حافظة) 👑" : "Hafiz (حافظ) 👑";
+        return isFemale ? "Hafiza (حافظة) 👑" : "Hafiz (حافظ) 👑";
     }
   };
 

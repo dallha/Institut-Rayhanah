@@ -16,14 +16,15 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 /* ── helpers ─────────────────────────────────────── */
-function getEtapeLabel(e: EtapePedagogique) {
+function getEtapeLabel(e: EtapePedagogique, gender?: string) {
+  const isFemale = gender === "female" || gender === "F";
   const map: Record<EtapePedagogique, string> = {
     [EtapePedagogique.Tahajji]: "Tahajji — التهجي",
     [EtapePedagogique.Hifz]: "Hifz — الحفظ",
     [EtapePedagogique.Murajaah]: "Muraja'ah — المراجعة",
     [EtapePedagogique.Tathbit]: "Tathbit — التثبيت",
     [EtapePedagogique.Khatm]: "Khatm — الختم",
-    [EtapePedagogique.Hafiz]: "Hafiz — حافظ",
+    [EtapePedagogique.Hafiz]: isFemale ? "Hafiza — حافظة" : "Hafiz — حافظ",
   };
   return map[e] ?? e;
 }
@@ -75,6 +76,15 @@ type TabId = "identite" | "pedagogie" | "presences" | "finances";
 export default function StudentFile({
   student, halaqas, attendance, lessons, payments, onClose, onUpdateStudent
 }: StudentFileProps) {
+
+  // Lock body scroll while modal is open to prevent background scroll bleed
+  React.useEffect(() => {
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
 
   const [activeTab, setActiveTab] = useState<TabId>("identite");
   const [editing, setEditing] = useState(false);
@@ -144,12 +154,12 @@ export default function StudentFile({
   ];
 
   return (
-    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4" id="student-file-overlay">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[99999] flex items-center justify-center p-2 sm:p-4 pb-20 sm:pb-4 overflow-y-auto" id="student-file-overlay">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[96vh] flex flex-col overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[82vh] sm:max-h-[92vh] flex flex-col overflow-hidden text-slate-800 border border-slate-200 my-auto shrink-0 relative z-10"
         id={`student-file-${student.id}`}
       >
         {/* ── HEADER ─────────────────────────────────── */}
@@ -177,11 +187,11 @@ export default function StudentFile({
                 </span>
                 {/* Etape badge */}
                 <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border ${getEtapeColor(student.etape)}`}>
-                  {getEtapeLabel(student.etape)}
+                  {getEtapeLabel(student.etape, student.gender)}
                 </span>
                 {student.gender && (
                   <span className="text-[10px] text-emerald-200 font-medium">
-                    {student.gender === "female" ? "♀ Féminin" : "♂ Masculin"}
+                    {student.gender === "female" || student.gender === "F" ? "♀ Féminin" : "♂ Masculin"}
                   </span>
                 )}
               </div>
@@ -409,13 +419,13 @@ export default function StudentFile({
                 {editing ? (
                   <select className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.etape} onChange={e => setForm(f => ({ ...f, etape: e.target.value as EtapePedagogique }))}>
                     {Object.values(EtapePedagogique).map(et => (
-                      <option key={et} value={et}>{getEtapeLabel(et)}</option>
+                      <option key={et} value={et}>{getEtapeLabel(et, form.gender)}</option>
                     ))}
                   </select>
                 ) : (
                   <span className={`inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full border ${getEtapeColor(student.etape)}`}>
                     <GraduationCap className="w-4 h-4" />
-                    {getEtapeLabel(student.etape)}
+                    {getEtapeLabel(student.etape, student.gender)}
                   </span>
                 )}
               </div>
