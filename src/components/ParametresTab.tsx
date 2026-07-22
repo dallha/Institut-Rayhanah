@@ -791,20 +791,21 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
       </div>
       
       {/* SECTION LOGS SYSTEME */}
-      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full mt-8">
-        <div className="mb-6">
-          <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
-            <Activity className="w-5 h-5 text-slate-600" />
+      <div className="bg-white border border-slate-100 p-4 sm:p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full mt-8">
+        <div className="mb-5">
+          <h3 className="font-bold text-base sm:text-lg text-slate-800 flex items-center space-x-2">
+            <Activity className="w-5 h-5 text-slate-600 shrink-0" />
             <span>Journaux d'Audit & Activité Système</span>
           </h3>
           <p className="text-xs text-slate-400 mt-1">Historique des actions critiques effectuées par l'équipe sur la plateforme</p>
         </div>
-        
-        <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+
+        {/* Desktop table */}
+        <div className="hidden sm:block bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-100 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
               <tr>
-                <th className="px-4 py-2.5">Date & Heure</th>
+                <th className="px-4 py-2.5 whitespace-nowrap">Date & Heure</th>
                 <th className="px-4 py-2.5">Utilisateur</th>
                 <th className="px-4 py-2.5">Action Effectuée</th>
               </tr>
@@ -815,7 +816,7 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                   <td className="px-4 py-3 font-mono text-slate-500 whitespace-nowrap">{log.time}</td>
                   <td className="px-4 py-3 font-bold text-slate-700">
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-[#0B1C30] text-white flex items-center justify-center text-[8px]">{log.user.charAt(0)}</span>
+                      <span className="w-5 h-5 rounded-full bg-[#0B1C30] text-white flex items-center justify-center text-[8px] shrink-0">{log.user.charAt(0)}</span>
                       {log.user}
                     </div>
                   </td>
@@ -825,12 +826,30 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
             </tbody>
           </table>
         </div>
+
+        {/* Mobile card list */}
+        <div className="sm:hidden space-y-2">
+          {systemLogs.map(log => (
+            <div key={log.id} className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-[#0B1C30] text-white flex items-center justify-center text-[9px] font-bold shrink-0">{log.user.charAt(0)}</span>
+                  <span className="text-xs font-bold text-slate-700">{log.user}</span>
+                </div>
+                <span className="text-[10px] font-mono text-slate-400">{log.time}</span>
+              </div>
+              <p className="text-xs text-slate-600 pl-8">{log.action}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-4 flex justify-center">
           <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline decoration-emerald-600/30 underline-offset-4 cursor-pointer">
             Voir tout l'historique d'audit
           </button>
         </div>
       </div>
+
 
       {/* MODAL POUR AJOUTER/MODIFIER UN MEMBRE */}
       {/* Global Student List Section */}

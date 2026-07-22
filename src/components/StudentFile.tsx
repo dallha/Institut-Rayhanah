@@ -9,9 +9,9 @@ import React, { useState, useMemo } from "react";
 import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson, PaymentRecord, AttendanceStatus, Evaluation } from "../types";
 import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
 import {
-  X, User, BookOpen, CreditCard, Calendar, Phone, Mail, Edit3, Save, ChevronLeft,
-  Award, Star, TrendingUp, CheckCircle, XCircle, AlertTriangle, Shield, Hash,
-  Users, GraduationCap, Clock, FileText, BadgeCheck
+  X, User, BookOpen, CreditCard, Calendar, Phone, Mail, Edit3, Save,
+  Award, Star, TrendingUp, CheckCircle, XCircle, AlertTriangle, Hash,
+  Users, GraduationCap, FileText, Settings
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
