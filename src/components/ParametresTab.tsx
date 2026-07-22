@@ -415,8 +415,8 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
         )}
       </div>
 
-      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full">
-        <div className="mb-6 flex justify-between items-center">
+      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full overflow-hidden">
+        <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
               <Users className="w-5 h-5 text-[#0B1C30]" />
@@ -432,7 +432,7 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-xs text-slate-500 font-bold uppercase">
               <tr>
@@ -483,6 +483,60 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
       </div>
 
       {/* MODAL POUR AJOUTER/MODIFIER UN MEMBRE */}
+      {/* Global Student List Section */}
+      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full overflow-hidden mt-8">
+        <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
+              <Users className="w-5 h-5 text-[#0B1C30]" />
+              <span>Registre Global des Élèves — سجل الطلاب</span>
+            </h3>
+            <p className="text-xs text-slate-400 mt-1">Liste complète des inscrits de l'institut</p>
+          </div>
+          <div className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold">
+            Total : {students.length}
+          </div>
+        </div>
+
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-sm text-slate-600 whitespace-nowrap">
+            <thead className="bg-slate-50 text-xs text-slate-500 font-bold uppercase">
+              <tr>
+                <th className="px-4 py-3 rounded-tl-lg">Matricule</th>
+                <th className="px-4 py-3">Nom & Prénom</th>
+                <th className="px-4 py-3">Niveau</th>
+                <th className="px-4 py-3">Régime</th>
+                <th className="px-4 py-3 rounded-tr-lg">Contact Parent</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {students.map((student) => (
+                <tr key={student.id} className="hover:bg-slate-50/50">
+                  <td className="px-4 py-3 font-mono text-xs font-bold text-slate-500">{student.matricule}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-800">
+                    {student.firstName} {student.lastName}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-medium border border-emerald-100">
+                      {student.etape}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-slate-500">{student.regime || "Non défini"}</td>
+                  <td className="px-4 py-3 text-xs">{student.parentPhone}</td>
+                </tr>
+              ))}
+              {students.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-6 text-center text-slate-400 text-xs font-medium">
+                    Aucun élève enregistré.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
