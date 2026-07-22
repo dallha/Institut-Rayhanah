@@ -13,10 +13,8 @@ export enum EtapePedagogique {
 }
 
 export enum Evaluation {
-  Excellent = "Excellent", // ممتاز
-  Bien = "Bien",           // جيد
-  Passable = "Passable",   // مقبول
-  Faible = "Faible"        // ضعif
+  Naam = "Naam", // نعم (Validé)
+  Lam = "Lam"    // لم (Non validé)
 }
 
 export enum AttendanceStatus {

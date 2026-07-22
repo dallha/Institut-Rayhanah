@@ -51,7 +51,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
         studentId: student.id,
         status: AttendanceStatus.Present,
         lessonType: "sourate" as const,
-        evaluation: Evaluation.Excellent,
+        evaluation: Evaluation.Naam,
         
         // Populate starting points from current student cursors
         startSurah: student.currentSurahNum || 114,
@@ -402,10 +402,8 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                           value={row.evaluation}
                           onChange={(e) => updateRowField(student.id, "evaluation", e.target.value)}
                         >
-                          <option value={Evaluation.Excellent}>Excellent ممتاز ⭐</option>
-                          <option value={Evaluation.Bien}>Bien جيد</option>
-                          <option value={Evaluation.Passable}>Passable مقبول</option>
-                          <option value={Evaluation.Faible}>Faible ضعيف ⚠️</option>
+                          <option value={Evaluation.Naam}>Oui نعم (Validé) ⭐</option>
+                          <option value={Evaluation.Lam}>Non لم (À refaire) ⚠️</option>
                         </select>
                       </div>
                     </div>

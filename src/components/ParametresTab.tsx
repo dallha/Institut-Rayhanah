@@ -1,7 +1,52 @@
 import React, { useState } from "react";
-import { Settings, Users, Save, Edit, Trash2, X } from "lucide-react";
+import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
+import Papa from "papaparse";
+import { Student, EtapePedagogique } from "../types";
 
-export default function ParametresTab() {
+interface ParametresTabProps {
+  students?: Student[];
+  onImportStudents?: (importedStudents: Partial<Student>[]) => Promise<void>;
+  onUpdateInstituteName?: (name: string) => void;
+}
+
+export default function ParametresTab({ students = [], onImportStudents, onUpdateInstituteName }: ParametresTabProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordAttempt, setPasswordAttempt] = useState("");
+  const [authError, setAuthError] = useState(false);
+
+  // General Settings State
+  const [instituteName, setInstituteName] = useState(() => 
+    localStorage.getItem("daara_institute_name") || "Institut Rayhanah - La Sagesse"
+  );
+  const [academicYear, setAcademicYear] = useState(() => 
+    localStorage.getItem("daara_academic_year") || "2026-2027"
+  );
+  const [settingsSuccess, setSettingsSuccess] = useState(false);
+
+  const handleSaveGeneralSettings = () => {
+    localStorage.setItem("daara_institute_name", instituteName);
+    localStorage.setItem("daara_academic_year", academicYear);
+    if (onUpdateInstituteName) {
+      onUpdateInstituteName(instituteName);
+    }
+    setSettingsSuccess(true);
+    setTimeout(() => setSettingsSuccess(false), 3000);
+  };
+
+  // Le mot de passe par défaut pour accéder à l'administration
+  const ADMIN_PASSWORD = "Cheikh@66#";
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordAttempt === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      setAuthError(false);
+    } else {
+      setAuthError(true);
+      setPasswordAttempt("");
+    }
+  };
+
   const [staffList, setStaffList] = useState([
     { id: 1, name: "Cheikh Baye Kane (شيخ باي كان)", role: "Fondateur (المؤسس)", phone: "+221 77 000 00 01", status: "Actif" },
     { id: 2, name: "Mohamed Sall (محمد صال)", role: "Enseignant Principal (المدرس)", phone: "+221 77 000 00 02", status: "Actif" },
@@ -35,6 +80,95 @@ export default function ParametresTab() {
     setIsModalOpen(false);
   };
 
+  // State for CSV Import
+  const [importPreview, setImportPreview] = useState<any[] | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportError(null);
+    setImportSuccess(null);
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        if (results.errors.length > 0 && results.data.length === 0) {
+          setImportError("Erreur lors de la lecture du fichier CSV. Vérifiez le format.");
+          return;
+        }
+        setImportPreview(results.data);
+      },
+      error: (err) => {
+        setImportError(`Erreur : ${err.message}`);
+      }
+    });
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importPreview || importPreview.length === 0) return;
+    setIsImporting(true);
+    try {
+      const parsedStudents: Partial<Student>[] = importPreview.map((row: any, idx: number) => ({
+        id: row.id || row.matricule || `imp_${Date.now()}_${idx}`,
+        matricule: row.matricule || row.Matricule || `RAY-${1000 + idx}`,
+        firstName: row.firstName || row.prenom || row.Prenom || row["Prénom"] || "Élève",
+        lastName: row.lastName || row.nom || row.Nom || "Inconnu",
+        gender: row.gender || row.sexe || row.Sexe || "M",
+        dateOfBirth: row.dateOfBirth || row.dob || row["Date de Naissance"] || "2015-01-01",
+        halaqaId: row.halaqaId || row.halaqa || row.Halaqa || "h1",
+        etape: (row.etape as EtapePedagogique) || EtapePedagogique.Hifz,
+        currentHizbNum: Number(row.currentHizbNum || row.hizb || row.Hizb) || 60,
+        currentHizbFraction: Number(row.currentHizbFraction || row.fraction || 0),
+        guardianName: row.guardianName || row.tuteur || row.Tuteur || "Tuteur",
+        guardianPhone: row.guardianPhone || row.telephone || row.Telephone || "+221 77 000 00 00",
+        monthlyFee: Number(row.monthlyFee || row.tarif || 15000),
+        balanceDue: Number(row.balanceDue || row.solde || 0),
+        score: Number(row.score || 100),
+        khatmatCount: Number(row.khatmatCount || 0)
+      }));
+
+      if (onImportStudents) {
+        await onImportStudents(parsedStudents);
+      } else {
+        // Fallback fetch API
+        const res = await fetch("/api/students/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ students: parsedStudents })
+        });
+        if (!res.ok) throw new Error("Échec de l'import backend");
+      }
+
+      setImportSuccess(`${parsedStudents.length} élèves importés avec succès !`);
+      setImportPreview(null);
+    } catch (err: any) {
+      setImportError(err.message || "Erreur lors de l'enregistrement de l'import.");
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (!students || students.length === 0) {
+      alert("Aucun élève à exporter.");
+      return;
+    }
+    const csv = Papa.unparse(students);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `ELEVES_INSTITUT_RAYHANAH_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleDelete = (id: number) => {
     if(window.confirm("Voulez-vous vraiment supprimer ce membre du personnel ?")) {
       setStaffList(staffList.filter(s => s.id !== id));
@@ -43,7 +177,45 @@ export default function ParametresTab() {
 
   return (
     <div className="space-y-6 relative">
-      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full">
+      {!isAuthenticated ? (
+        <div className="bg-white border border-slate-100 p-8 rounded-2xl shadow-xs max-w-md mx-auto w-full text-center">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-[#0B1C30]" />
+          </div>
+          <h3 className="font-bold text-xl text-slate-800 mb-2">Accès Restreint</h3>
+          <p className="text-sm text-slate-500 mb-6">
+            L'espace Administration et Ressources Humaines est protégé. Veuillez saisir le mot de passe directeur.
+          </p>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <KeyRound className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                  type="password"
+                  value={passwordAttempt}
+                  onChange={(e) => setPasswordAttempt(e.target.value)}
+                  className={`block w-full pl-10 pr-3 py-2 border ${authError ? 'border-rose-300 ring-rose-100' : 'border-slate-200 focus:border-[#0B1C30]'} rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B1C30]/20 sm:text-sm`}
+                  placeholder="Mot de passe"
+                  autoFocus
+                />
+              </div>
+              {authError && <p className="text-rose-500 text-xs mt-2 font-semibold">Mot de passe incorrect.</p>}
+            </div>
+            
+            <button
+              type="submit"
+              className="w-full bg-[#0B1C30] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-[#142d47] transition-colors cursor-pointer shadow-sm"
+            >
+              Déverrouiller
+            </button>
+          </form>
+        </div>
+      ) : (
+        <>
+          <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full">
         <div className="mb-6">
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <Settings className="w-5 h-5 text-[#0B1C30]" />
@@ -52,19 +224,35 @@ export default function ParametresTab() {
           <p className="text-xs text-slate-400 mt-1">Configuration globale de l'institut et gestion du personnel</p>
         </div>
 
+        {settingsSuccess && (
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-bold flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-600" />
+            <span>Paramètres de l'établissement enregistrés avec succès !</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2">Identité de l'Établissement</h4>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Nom de l'Institut</label>
-                <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700" defaultValue="Institut Rayhanah - La Sagesse" />
+                <input 
+                  type="text" 
+                  value={instituteName}
+                  onChange={(e) => setInstituteName(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#0B1C30]/20" 
+                />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Année Académique</label>
-                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700">
-                  <option>2026-2027</option>
-                  <option>2025-2026</option>
+                <select 
+                  value={academicYear}
+                  onChange={(e) => setAcademicYear(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-semibold focus:outline-none"
+                >
+                  <option value="2026-2027">2026-2027</option>
+                  <option value="2025-2026">2025-2026</option>
                 </select>
               </div>
             </div>
@@ -75,25 +263,156 @@ export default function ParametresTab() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Fournisseur Actif</label>
-                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700">
+                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-medium">
                   <option>Orange Sénégal API</option>
                   <option>Twilio</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Clé d'API</label>
-                <input type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700" defaultValue="****************" />
+                <input type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-medium" defaultValue="****************" />
               </div>
             </div>
           </div>
         </div>
 
         <div className="mt-8 pt-4 border-t border-slate-100 flex justify-end">
-          <button className="bg-[#0B1C30] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#142d47] transition-colors">
+          <button 
+            onClick={handleSaveGeneralSettings}
+            className="bg-[#0B1C30] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#142d47] transition-all shadow-sm cursor-pointer"
+          >
             <Save className="w-4 h-4" />
             Enregistrer les modifications
           </button>
         </div>
+      </div>
+
+      {/* SECTION IMPORT & EXPORT DE DONNÉES (ADMIN UNIQ) */}
+      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full">
+        <div className="mb-4">
+          <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
+            <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+            <span>Gestion des Données & Import/Export — استيراد وتصدير</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">Importation massive d'élèves (CSV / Excel) et sauvegarde complète de la base de données</p>
+        </div>
+
+        {importSuccess && (
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-bold flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-600" />
+            <span>{importSuccess}</span>
+          </div>
+        )}
+
+        {importError && (
+          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600" />
+            <span>{importError}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Import CSV */}
+          <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl flex flex-col justify-between space-y-3">
+            <div>
+              <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Upload className="w-4 h-4 text-emerald-600" />
+                <span>Importer la liste des élèves</span>
+              </h4>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Chargez un fichier CSV (champs : matricule, nom, prenom, etape, hizb, tuteur, telephone...).
+              </p>
+            </div>
+            <div>
+              <label className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                <span>Choisir un fichier CSV...</span>
+                <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
+              </label>
+            </div>
+          </div>
+
+          {/* Export CSV */}
+          <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl flex flex-col justify-between space-y-3">
+            <div>
+              <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Download className="w-4 h-4 text-sky-600" />
+                <span>Exporter les données (Sauvegarde)</span>
+              </h4>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Téléchargez la liste complète de vos {students.length} élèves au format CSV pour sauvegarde ou Excel.
+              </p>
+            </div>
+            <div>
+              <button
+                onClick={handleExportCSV}
+                className="bg-[#0B1C30] hover:bg-[#142d47] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2 cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Télécharger l'Export CSV ({students.length})</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* MODAL / APERÇU DE L'IMPORT */}
+        {importPreview && (
+          <div className="mt-6 p-4 bg-slate-50 border border-emerald-200 rounded-xl space-y-3">
+            <div className="flex justify-between items-center">
+              <h4 className="font-bold text-xs text-slate-800 uppercase flex items-center gap-2">
+                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                <span>Aperçu du fichier : {importPreview.length} ligne(s) détectée(s)</span>
+              </h4>
+              <button onClick={() => setImportPreview(null)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg p-2 text-xs">
+              <table className="w-full text-left text-[11px]">
+                <thead className="bg-slate-100 font-bold text-slate-600">
+                  <tr>
+                    <th className="p-1">#</th>
+                    <th className="p-1">Matricule</th>
+                    <th className="p-1">Prénom & Nom</th>
+                    <th className="p-1">Étape</th>
+                    <th className="p-1">Hizb</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {importPreview.slice(0, 5).map((row, idx) => (
+                    <tr key={idx} className="border-t border-slate-100">
+                      <td className="p-1 text-slate-400">{idx + 1}</td>
+                      <td className="p-1 font-mono">{row.matricule || row.Matricule || "-"}</td>
+                      <td className="p-1 font-semibold">{row.prenom || row.firstName || ""} {row.nom || row.lastName || ""}</td>
+                      <td className="p-1">{row.etape || "Hifz"}</td>
+                      <td className="p-1">{row.hizb || row.currentHizbNum || 60}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {importPreview.length > 5 && (
+                <p className="text-[10px] text-slate-400 italic mt-1">+ {importPreview.length - 5} autres élèves...</p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setImportPreview(null)}
+                className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-800"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmImport}
+                disabled={isImporting}
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-bold rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Check className="w-4 h-4" />
+                <span>{isImporting ? "Importation..." : "Valider et importer"}</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-xs max-w-4xl mx-auto w-full">
@@ -241,6 +560,8 @@ export default function ParametresTab() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

@@ -178,10 +178,8 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
         const dayIdx = getWeekdayIndex(cleanDate);
         if (dayIdx >= 0 && dayIdx < 7) {
           days[dayIdx].totalLessons += 1;
-          if (lesson.evaluation === Evaluation.Excellent) {
+          if (lesson.evaluation === Evaluation.Naam) {
             days[dayIdx].excellentLessons += 1;
-          } else if (lesson.evaluation === Evaluation.Bien) {
-            days[dayIdx].bienLessons += 1;
           } else {
             days[dayIdx].otherLessons += 1;
           }

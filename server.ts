@@ -55,6 +55,32 @@ app.post("/api/students", async (req, res) => {
   }
 });
 
+// POST batch import students
+app.post("/api/students/import", async (req, res) => {
+  try {
+    const { students } = req.body;
+    if (!Array.isArray(students)) {
+      return res.status(400).json({ error: "Invalid data format" });
+    }
+
+    const createdStudents = [];
+    for (const studentData of students) {
+      const { medals, ...data } = studentData;
+      // Upsert student by id or matricule
+      const student = await prisma.student.upsert({
+        where: { id: data.id || `imp_${Date.now()}` },
+        update: data,
+        create: data
+      });
+      createdStudents.push(student);
+    }
+    res.json({ success: true, count: createdStudents.length });
+  } catch (error) {
+    console.error("Error importing students:", error);
+    res.status(500).json({ error: "Error during batch import" });
+  }
+});
+
 // PUT student
 app.put("/api/students/:id", async (req, res) => {
   try {
