@@ -102,9 +102,9 @@ export default function PilotageTab({
   return (
     <div className="space-y-6" id="pilotage-tab-container">
       {/* Welcome Banner Card */}
-      <div className="bg-white border border-slate-100 shadow-xs rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col justify-center min-h-[220px]" id="pilotage-welcome-card">
+      <div className="bg-white border border-slate-100 shadow-xs rounded-3xl p-5 sm:p-8 relative overflow-hidden flex flex-col justify-center min-h-[200px]" id="pilotage-welcome-card">
         <div className="relative z-10 max-w-xl">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 leading-tight">
+          <h2 className="text-xl sm:text-3xl font-extrabold text-slate-800 leading-tight">
             Assalamu alaykum, <br />
             de retour sur <span className="text-[#D0A21C] font-serif">Rayhanah</span>, <span className="font-serif">Vitaliy</span> !
           </h2>
@@ -196,9 +196,9 @@ export default function PilotageTab({
       </div>
 
       {/* Quick Shortcuts Grid */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-xs" id="pilotage-quick-actions">
+      <div className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 shadow-xs" id="pilotage-quick-actions">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Raccourcis de Pilotage Directs</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           <button 
             onClick={() => onNavigateToTab("daara", "pedagogy")}
             className="flex flex-col items-center justify-center p-3.5 bg-slate-50 hover:bg-[#0B1C30]/5 border border-slate-100 rounded-xl transition-all text-center group cursor-pointer"

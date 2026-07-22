@@ -34,7 +34,7 @@ export default function ScolariteModule({
   return (
     <div className="space-y-6" id="scolarite-module-container">
       {/* Sub-navigation for Scolarité */}
-      <div className="flex bg-white/85 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-slate-200/60 shadow-xs justify-center gap-3 max-w-4xl mx-auto w-full overflow-x-auto" id="scolarite-sub-tabs">
+      <div className="flex bg-white/85 backdrop-blur-xs px-2 sm:px-4 py-2.5 rounded-2xl border border-slate-200/60 shadow-xs justify-start sm:justify-center gap-2 sm:gap-3 max-w-4xl mx-auto w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" id="scolarite-sub-tabs">
         {[
           { id: "inscriptions", label: "Inscriptions & Liste Élèves", icon: <UserPlus className="w-4 h-4" /> },
           { id: "tresorerie", label: "Trésorerie & Frais de Scolarité", icon: <CreditCard className="w-4 h-4" /> }

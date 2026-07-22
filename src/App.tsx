@@ -413,7 +413,7 @@ export default function App() {
       </div>
 
       {/* Main Header / TopAppBar following requested style */}
-      <header className="bg-white shadow-xs border-b border-slate-100 py-4 px-4 md:px-8 sticky top-0 z-30 flex flex-col sm:flex-row justify-between items-center gap-4" id="daara-main-header">
+      <header className="bg-white shadow-xs border-b border-slate-100 py-3 sm:py-4 px-3 sm:px-4 md:px-8 sticky top-0 z-30 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4" id="daara-main-header">
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="h-12 flex-shrink-0 flex items-center justify-start gap-3">
             <img 
@@ -464,7 +464,7 @@ export default function App() {
       </header>
 
       {/* Main Container Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8" id="daara-main-workspace">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 md:p-8" id="daara-main-workspace">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -550,8 +550,8 @@ export default function App() {
       </main>
 
       {/* BOTTOM NAVIGATION (5 Separate Spaces) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-40 pb-safe">
-        <div className="flex justify-around items-center h-16 max-w-7xl mx-auto px-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-40 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex justify-around items-center h-16 max-w-7xl mx-auto px-1 sm:px-2">
           <button 
             onClick={() => setActiveTab("pilotage")}
             className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors cursor-pointer ${activeTab === "pilotage" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
