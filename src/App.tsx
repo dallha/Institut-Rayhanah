@@ -136,36 +136,53 @@ export default function App() {
   const [pendingSyncs, setPendingSyncs] = useState<number>(getQueueCount());
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
-  // Bidirectional Hash Routing
+  // Read hash once synchronously at init so the correct tab is restored on refresh
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const hash = window.location.hash;
+    if (!hash) return "pilotage";
+    const main = hash.replace("#/", "").split("/")[0];
+    return ["pilotage", "daara", "tresorerie", "honneur", "parametres"].includes(main)
+      ? main
+      : "pilotage";
+  });
+  const [activeDaaraSubTab, setActiveDaaraSubTab] = useState<string>(() => {
+    const hash = window.location.hash;
+    if (!hash) return "pedagogy";
+    const parts = hash.replace("#/", "").split("/");
+    const main = parts[0];
+    const sub = parts[1];
+    if (main === "daara" && sub && ["pedagogy", "attendance", "bulletins", "stats", "kashf", "motivation", "inscriptions"].includes(sub)) {
+      return sub;
+    }
+    return "pedagogy";
+  });
+
+  // Bidirectional Hash Routing — only listen to browser back/forward navigation
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash || "#/pilotage";
       const parts = hash.replace("#/", "").split("/");
       const main = parts[0];
       const sub = parts[1];
-
       if (["pilotage", "daara", "tresorerie", "honneur", "parametres"].includes(main)) {
         setActiveTab(main);
         if (main === "daara" && sub) {
-          if (["pedagogy", "attendance", "kashf", "motivation", "inscriptions"].includes(sub)) {
+          if (["pedagogy", "attendance", "bulletins", "stats", "kashf", "motivation", "inscriptions"].includes(sub)) {
             setActiveDaaraSubTab(sub);
           }
         }
       }
     };
-
-    handleHashChange();
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  // Update hash when tabs/subtabs change
+  // Keep URL hash in sync when user clicks tabs
   useEffect(() => {
     let hash = `#/${activeTab}`;
     if (activeTab === "daara") {
       hash += `/${activeDaaraSubTab}`;
     }
-    
     if (window.location.hash !== hash) {
       window.location.hash = hash;
     }
