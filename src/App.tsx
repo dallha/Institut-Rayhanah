@@ -105,8 +105,6 @@ export default function App() {
 
   const isAppAuthenticated = !!session;
 
-  const [activeTab, setActiveTab] = useState<string>("pilotage");
-  const [activeDaaraSubTab, setActiveDaaraSubTab] = useState<string>("pedagogy");
 
   // Core global state loaded from local storage for durability
   const [students, setStudents] = useState<Student[]>(() => {
