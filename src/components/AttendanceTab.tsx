@@ -191,222 +191,214 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
             return (
               <div
                 key={student.id}
-                className={`p-5 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${isAbsent ? "bg-slate-50/70 opacity-75" : "hover:bg-slate-50/30"}`}
+                className={`transition-all ${isAbsent ? "opacity-60" : ""}`}
                 id={`attendance-row-${student.id}`}
               >
-                {/* 1. Student Identity and Level */}
-                <div className="flex items-center space-x-3 w-full lg:w-auto lg:min-w-[200px]" id={`row-identity-${student.id}`}>
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-sm">
-                    {student.firstName[0]}
+                {/* ── Top bar: identity + presence ── */}
+                <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 pt-4 pb-3 ${isAbsent ? "bg-slate-50" : "bg-white"}`}>
+                  <div className="flex items-center space-x-3" id={`row-identity-${student.id}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${isAbsent ? "bg-slate-200 text-slate-400" : "bg-emerald-100 text-emerald-800"}`}>
+                      {student.firstName[0]}
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-slate-800">{student.firstName} {student.lastName}</h5>
+                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">{student.matricule}</p>
+                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded mt-1 inline-block">
+                        {student.etape}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="text-sm font-bold text-slate-800">{student.firstName} {student.lastName}</h5>
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">{student.matricule}</p>
-                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded mt-1 inline-block">
-                      {student.etape}
-                    </span>
-                  </div>
-                </div>
 
-                {/* 2. Attendance Selection (P, R, A) */}
-                <div className="space-y-1" id={`row-attendance-${student.id}`}>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Présence</span>
-                  <div className="flex items-center space-x-1.5 bg-slate-100/70 p-1 rounded-lg w-max" id={`attendance-btns-${student.id}`}>
+                  <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl w-max" id={`attendance-btns-${student.id}`}>
                     <button
                       onClick={() => updateRowStatus(student.id, AttendanceStatus.Present)}
                       id={`btn-present-${student.id}`}
-                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center space-x-1 ${row.status === AttendanceStatus.Present ? "bg-white text-emerald-700 shadow-xs" : "text-slate-500 hover:text-slate-800"}`}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${row.status === AttendanceStatus.Present ? "bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-200" : "text-slate-500 hover:text-slate-800"}`}
                     >
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>PRÉSENT</span>
+                      PRÉSENT
                     </button>
                     <button
                       onClick={() => updateRowStatus(student.id, AttendanceStatus.Late)}
                       id={`btn-late-${student.id}`}
-                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center space-x-1 ${row.status === AttendanceStatus.Late ? "bg-white text-amber-700 shadow-xs" : "text-slate-500 hover:text-slate-800"}`}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${row.status === AttendanceStatus.Late ? "bg-white text-amber-700 shadow-sm ring-1 ring-amber-200" : "text-slate-500 hover:text-slate-800"}`}
                     >
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                      <span>RETARD</span>
+                      RETARD
                     </button>
                     <button
                       onClick={() => updateRowStatus(student.id, AttendanceStatus.Absent)}
                       id={`btn-absent-${student.id}`}
-                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center space-x-1 ${row.status === AttendanceStatus.Absent ? "bg-rose-500 text-white shadow-xs" : "text-slate-500 hover:text-rose-600"}`}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${row.status === AttendanceStatus.Absent ? "bg-rose-500 text-white shadow-sm" : "text-slate-500 hover:text-rose-600"}`}
                     >
                       <XCircle className="w-3.5 h-3.5" />
-                      <span>ABSENT</span>
+                      ABSENT
                     </button>
                   </div>
                 </div>
 
-                {/* 2. Pedagogical Inputs (if present) */}
-                <div className="flex-1 w-full lg:w-auto lg:min-w-[280px]" id={`row-lesson-inputs-${student.id}`}>
+                {/* ── Dars section (prominent card) ── */}
+                <div className="px-4 pb-4 pt-1" id={`row-lesson-inputs-${student.id}`}>
                   {isAbsent ? (
-                    <div className="flex items-center space-x-2 text-slate-400 bg-slate-100/50 p-3 rounded-lg border border-dashed border-slate-200">
-                      <Lock className="w-4 h-4 text-slate-300" />
-                      <span className="text-xs font-medium italic">Saisie bloquée car l'élève est déclaré ABSENT.</span>
+                    <div className="flex items-center gap-2 bg-slate-100 border border-dashed border-slate-300 p-3 rounded-xl text-slate-400">
+                      <Lock className="w-4 h-4 shrink-0" />
+                      <span className="text-xs italic">Saisie bloquée — élève absent.</span>
                     </div>
                   ) : isTahajji ? (
-                    <div className="flex items-center space-x-2 text-sky-700 bg-sky-50/50 p-3 rounded-lg border border-sky-100">
-                      <BookOpen className="w-4 h-4 text-sky-500" />
-                      <span className="text-xs font-medium">Phase d'alphabétisation (Tahajji) - Pas de leçon Coranique requise.</span>
+                    <div className="flex items-center gap-2 bg-sky-50 border border-sky-200 p-3 rounded-xl text-sky-700">
+                      <BookOpen className="w-4 h-4 shrink-0 text-sky-500" />
+                      <span className="text-xs font-medium">Phase Tahajji — pas de leçon coranique requise.</span>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id={`lesson-inputs-grid-${student.id}`}>
-                      {/* Range details */}
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-[10px] text-slate-400 font-bold uppercase">Leçon du Jour (Dars)</span>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => updateRowField(student.id, "lessonType", "sourate")}
-                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${row.lessonType === "sourate" ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-500"}`}
-                            >
-                              Sourate
-                            </button>
-                            <button
-                              onClick={() => updateRowField(student.id, "lessonType", "hizb")}
-                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${row.lessonType === "hizb" ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-500"}`}
-                            >
-                              Hizb
-                            </button>
-                          </div>
+                    <div className="border-2 border-emerald-300 rounded-xl overflow-hidden shadow-sm" id={`lesson-inputs-grid-${student.id}`}>
+                      {/* Green header bar */}
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-emerald-600">
+                        <div className="flex items-center gap-2 text-white">
+                          <BookOpen className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-widest">الدرس — Leçon du Jour</span>
                         </div>
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => updateRowField(student.id, "lessonType", "sourate")}
+                            className={`text-[10px] font-bold px-3 py-1 rounded-full transition-all ${row.lessonType === "sourate" ? "bg-white text-emerald-800 shadow-sm" : "bg-emerald-700 text-emerald-100 hover:bg-emerald-500"}`}
+                          >
+                            Sourate
+                          </button>
+                          <button
+                            onClick={() => updateRowField(student.id, "lessonType", "hizb")}
+                            className={`text-[10px] font-bold px-3 py-1 rounded-full transition-all ${row.lessonType === "hizb" ? "bg-white text-emerald-800 shadow-sm" : "bg-emerald-700 text-emerald-100 hover:bg-emerald-500"}`}
+                          >
+                            Hizb
+                          </button>
+                        </div>
+                      </div>
 
+                      {/* Body */}
+                      <div className="p-3 bg-emerald-50 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                        {/* Sourate mode */}
                         {row.lessonType === "sourate" ? (
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
-                            {/* Start Surah */}
-                            <div className="flex items-center space-x-1.5 bg-slate-50/50 p-1.5 rounded-lg border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 flex-1">
-                              <span className="text-[10px] text-slate-400 font-bold uppercase min-w-[36px]">Début:</span>
-                              <select
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] flex-1 focus:outline-hidden font-medium"
-                                value={row.startSurah}
-                                onChange={(e) => {
-                                  const val = Number(e.target.value);
-                                  updateRowField(student.id, "startSurah", val);
-                                  updateRowField(student.id, "endSurah", val);
-                                }}
-                              >
-                                {SURAHS.map(s => (
-                                  <option key={s.number} value={s.number}>
-                                    {s.number}. {s.name} ({s.arabicName})
-                                  </option>
-                                ))}
-                              </select>
-                              <span className="text-slate-400 text-[10px]">v.</span>
-                              <input
-                                type="number"
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] w-14 focus:outline-hidden text-center font-semibold"
-                                min={1}
-                                value={row.startVerset}
-                                onChange={(e) => updateRowField(student.id, "startVerset", Number(e.target.value))}
-                              />
+                          <div className="md:col-span-2 grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Début</label>
+                              <div className="flex gap-1">
+                                <select
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
+                                  value={row.startSurah}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    updateRowField(student.id, "startSurah", val);
+                                    updateRowField(student.id, "endSurah", val);
+                                  }}
+                                >
+                                  {SURAHS.map(s => (
+                                    <option key={s.number} value={s.number}>{s.number}. {s.arabicName}</option>
+                                  ))}
+                                </select>
+                                <input
+                                  type="number"
+                                  placeholder="v."
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs w-14 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-center font-bold"
+                                  min={1}
+                                  value={row.startVerset}
+                                  onChange={(e) => updateRowField(student.id, "startVerset", Number(e.target.value))}
+                                />
+                              </div>
                             </div>
-                            
-                            <div className="hidden sm:block">
-                              <ArrowRight className="w-3.5 h-3.5 text-slate-400 mx-0.5" />
-                            </div>
-
-                            {/* End Surah */}
-                            <div className="flex items-center space-x-1.5 bg-slate-50/50 p-1.5 rounded-lg border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 flex-1">
-                              <span className="text-[10px] text-slate-400 font-bold uppercase min-w-[36px]">Fin:</span>
-                              <select
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] flex-1 focus:outline-hidden font-medium"
-                                value={row.endSurah}
-                                onChange={(e) => updateRowField(student.id, "endSurah", Number(e.target.value))}
-                              >
-                                {SURAHS.map(s => (
-                                  <option key={s.number} value={s.number}>
-                                    {s.number}. {s.name} ({s.arabicName})
-                                  </option>
-                                ))}
-                              </select>
-                              <span className="text-slate-400 text-[10px]">v.</span>
-                              <input
-                                type="number"
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] w-14 focus:outline-hidden text-center font-semibold"
-                                min={1}
-                                value={row.endVerset}
-                                onChange={(e) => updateRowField(student.id, "endVerset", Number(e.target.value))}
-                              />
+                            <div>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Fin</label>
+                              <div className="flex gap-1">
+                                <select
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
+                                  value={row.endSurah}
+                                  onChange={(e) => updateRowField(student.id, "endSurah", Number(e.target.value))}
+                                >
+                                  {SURAHS.map(s => (
+                                    <option key={s.number} value={s.number}>{s.number}. {s.arabicName}</option>
+                                  ))}
+                                </select>
+                                <input
+                                  type="number"
+                                  placeholder="v."
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs w-14 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-center font-bold"
+                                  min={1}
+                                  value={row.endVerset}
+                                  onChange={(e) => updateRowField(student.id, "endVerset", Number(e.target.value))}
+                                />
+                              </div>
                             </div>
                           </div>
                         ) : (
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
-                            {/* Start Hizb */}
-                            <div className="flex items-center space-x-1.5 bg-slate-50/50 p-1.5 rounded-lg border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 flex-1">
-                              <span className="text-[10px] text-slate-400 font-bold uppercase min-w-[36px]">Début:</span>
-                              <span className="text-slate-400 text-[10px]">H.</span>
-                              <select
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] w-14 focus:outline-hidden text-center font-semibold"
-                                value={row.startHizb}
-                                onChange={(e) => {
-                                  const val = Number(e.target.value);
-                                  updateRowField(student.id, "startHizb", val);
-                                  updateRowField(student.id, "endHizb", val);
-                                }}
-                              >
-                                {HIZBS.map(h => (
-                                  <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
-                                ))}
-                              </select>
-                              <select
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] flex-1 focus:outline-hidden font-medium"
-                                value={row.startHizbFraction}
-                                onChange={(e) => updateRowField(student.id, "startHizbFraction", Number(e.target.value))}
-                              >
-                                <option value={0}>Début (بداية)</option>
-                                <option value={0.25}>1/4 (ربع)</option>
-                                <option value={0.50}>1/2 (نصف)</option>
-                                <option value={0.75}>3/4 (ثلاثة)</option>
-                                <option value={1.00}>Complet (حزب كامل)</option>
-                              </select>
+                          /* Hizb mode */
+                          <div className="md:col-span-2 grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Début</label>
+                              <div className="flex gap-1">
+                                <select
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
+                                  value={row.startHizb}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    updateRowField(student.id, "startHizb", val);
+                                    updateRowField(student.id, "endHizb", val);
+                                  }}
+                                >
+                                  {HIZBS.map(h => (
+                                    <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
+                                  ))}
+                                </select>
+                                <select
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs w-20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                  value={row.startHizbFraction}
+                                  onChange={(e) => updateRowField(student.id, "startHizbFraction", Number(e.target.value))}
+                                >
+                                  <option value={0}>بداية</option>
+                                  <option value={0.25}>ربع</option>
+                                  <option value={0.50}>نصف</option>
+                                  <option value={0.75}>ثلاثة</option>
+                                  <option value={1.00}>كامل</option>
+                                </select>
+                              </div>
                             </div>
-
-                            <div className="hidden sm:block">
-                              <ArrowRight className="w-3.5 h-3.5 text-slate-400 mx-0.5" />
-                            </div>
-
-                            {/* End Hizb */}
-                            <div className="flex items-center space-x-1.5 bg-slate-50/50 p-1.5 rounded-lg border border-slate-100 sm:bg-transparent sm:p-0 sm:border-0 flex-1">
-                              <span className="text-[10px] text-slate-400 font-bold uppercase min-w-[36px]">Fin:</span>
-                              <span className="text-slate-400 text-[10px]">H.</span>
-                              <select
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] w-14 focus:outline-hidden text-center font-semibold"
-                                value={row.endHizb}
-                                onChange={(e) => updateRowField(student.id, "endHizb", Number(e.target.value))}
-                              >
-                                {HIZBS.map(h => (
-                                  <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
-                                ))}
-                              </select>
-                              <select
-                                className="bg-white border border-slate-200 rounded p-1.5 text-[11px] flex-1 focus:outline-hidden font-medium"
-                                value={row.endHizbFraction}
-                                onChange={(e) => updateRowField(student.id, "endHizbFraction", Number(e.target.value))}
-                              >
-                                <option value={0}>Début (بداية)</option>
-                                <option value={0.25}>1/4 (ربع)</option>
-                                <option value={0.50}>1/2 (نصف)</option>
-                                <option value={0.75}>3/4 (ثلاثة)</option>
-                                <option value={1.00}>Complet (حزب كامل)</option>
-                              </select>
+                            <div>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Fin</label>
+                              <div className="flex gap-1">
+                                <select
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
+                                  value={row.endHizb}
+                                  onChange={(e) => updateRowField(student.id, "endHizb", Number(e.target.value))}
+                                >
+                                  {HIZBS.map(h => (
+                                    <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
+                                  ))}
+                                </select>
+                                <select
+                                  className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs w-20 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                  value={row.endHizbFraction}
+                                  onChange={(e) => updateRowField(student.id, "endHizbFraction", Number(e.target.value))}
+                                >
+                                  <option value={0}>بداية</option>
+                                  <option value={0.25}>ربع</option>
+                                  <option value={0.50}>نصف</option>
+                                  <option value={0.75}>ثلاثة</option>
+                                  <option value={1.00}>كامل</option>
+                                </select>
+                              </div>
                             </div>
                           </div>
                         )}
-                      </div>
 
-                      {/* Evaluation selection */}
-                      <div className="flex flex-col justify-end">
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Évaluation</span>
-                        <select
-                          className="bg-white border border-slate-200 rounded p-1.5 text-xs text-slate-700 font-semibold focus:outline-hidden w-full"
-                          value={row.evaluation}
-                          onChange={(e) => updateRowField(student.id, "evaluation", e.target.value)}
-                        >
-                          <option value={Evaluation.Naam}>Oui نعم (Validé) ⭐</option>
-                          <option value={Evaluation.Lam}>Non لم (À refaire) ⚠️</option>
-                        </select>
+                        {/* Evaluation */}
+                        <div>
+                          <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Évaluation</label>
+                          <select
+                            className={`w-full border-2 rounded-lg px-2 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all ${row.evaluation === Evaluation.Naam ? "bg-amber-50 border-amber-400 text-amber-800" : "bg-rose-50 border-rose-300 text-rose-700"}`}
+                            value={row.evaluation}
+                            onChange={(e) => updateRowField(student.id, "evaluation", e.target.value)}
+                          >
+                            <option value={Evaluation.Naam}>⭐ نعم — Validé</option>
+                            <option value={Evaluation.Lam}>⚠️ لم — À refaire</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   )}
