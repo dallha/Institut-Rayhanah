@@ -180,44 +180,77 @@ export default function App() {
   }, [activeTab, activeDaaraSubTab]);
 
 
-  const fetchAllData = () => {
+  const fetchAllData = async () => {
     setIsSyncing(true);
-    Promise.all([
-      fetch("/api/students").then(res => res.ok ? res.json() : null),
-      fetch("/api/halaqas").then(res => res.ok ? res.json() : null),
-      fetch("/api/attendance").then(res => res.ok ? res.json() : null),
-      fetch("/api/lessons").then(res => res.ok ? res.json() : null),
-      fetch("/api/payments").then(res => res.ok ? res.json() : null)
-    ]).then(([studentsData, halaqasData, attendanceData, lessonsData, paymentsData]) => {
-      // Only update state & localStorage if server returns valid non-empty data
-      // This prevents overwriting local data when the API returns [] or fails
-      if (studentsData && Array.isArray(studentsData) && studentsData.length > 0) {
-        setStudents(studentsData);
+    try {
+      const [
+        { data: studentsData, error: sErr },
+        { data: halaqasData, error: hErr },
+        { data: attendanceData },
+        { data: lessonsData },
+        { data: paymentsData }
+      ] = await Promise.all([
+        supabase.from("Student").select("*"),
+        supabase.from("Halaqa").select("*"),
+        supabase.from("AttendanceRecord").select("*"),
+        supabase.from("QuranLesson").select("*"),
+        supabase.from("PaymentRecord").select("*")
+      ]);
+
+      if (!sErr && studentsData && Array.isArray(studentsData) && studentsData.length > 0) {
+        setStudents(studentsData as any);
         localStorage.setItem("daara_students", JSON.stringify(studentsData));
       }
-      if (halaqasData && Array.isArray(halaqasData) && halaqasData.length > 0) {
-        setHalaqas(halaqasData);
+      if (!hErr && halaqasData && Array.isArray(halaqasData) && halaqasData.length > 0) {
+        setHalaqas(halaqasData as any);
         localStorage.setItem("daara_halaqas", JSON.stringify(halaqasData));
       }
-      if (attendanceData && Array.isArray(attendanceData)) {
-        setAttendance(attendanceData);
+      if (attendanceData && Array.isArray(attendanceData) && attendanceData.length > 0) {
+        setAttendance(attendanceData as any);
         localStorage.setItem("daara_attendance", JSON.stringify(attendanceData));
       }
-      if (lessonsData && Array.isArray(lessonsData)) {
-        setLessons(lessonsData);
+      if (lessonsData && Array.isArray(lessonsData) && lessonsData.length > 0) {
+        setLessons(lessonsData as any);
         localStorage.setItem("daara_lessons", JSON.stringify(lessonsData));
       }
-      if (paymentsData && Array.isArray(paymentsData)) {
-        setPayments(paymentsData);
+      if (paymentsData && Array.isArray(paymentsData) && paymentsData.length > 0) {
+        setPayments(paymentsData as any);
         localStorage.setItem("daara_payments", JSON.stringify(paymentsData));
       }
-    }).catch(err => {
-      console.error("Error fetching data (might be offline):", err);
-    }).finally(() => {
+    } catch (err) {
+      console.warn("Supabase fetch error, fallback to local cache:", err);
+    } finally {
       setIsSyncing(false);
-    });
+    }
   };
 
+  const handleSyncToSupabase = async () => {
+    setIsSyncing(true);
+    try {
+      if (halaqas.length > 0) {
+        await supabase.from("Halaqa").upsert(halaqas);
+      }
+      if (students.length > 0) {
+        const cleanStudents = students.map(({ medals, ...s }) => s);
+        await supabase.from("Student").upsert(cleanStudents);
+      }
+      if (payments.length > 0) {
+        await supabase.from("PaymentRecord").upsert(payments);
+      }
+      if (lessons.length > 0) {
+        await supabase.from("QuranLesson").upsert(lessons);
+      }
+      if (attendance.length > 0) {
+        await supabase.from("AttendanceRecord").upsert(attendance);
+      }
+      alert("✅ Sauvegarde réussie sur Supabase Cloud !\nToutes vos données (élèves, halaqas, règlements) sont synchronisées sur tous vos appareils.");
+    } catch (err: any) {
+      console.error("Error saving to Supabase:", err);
+      alert("Erreur de sauvegarde Supabase : " + (err.message || "Problème réseau"));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     fetchAllData();
@@ -258,25 +291,15 @@ export default function App() {
   };
 
   const handleUpdateStudent = async (updatedStudent: Student) => {
-    // Optimistic UI Update
     const newStudents = students.map((s) => (s.id === updatedStudent.id ? updatedStudent : s));
     setStudents(newStudents);
     localStorage.setItem("daara_students", JSON.stringify(newStudents));
 
     try {
-      const res = await fetch(`/api/students/${updatedStudent.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedStudent)
-      });
-      if (!res.ok) throw new Error("API Error");
-      const saved = await res.json();
-      const finalStudents = newStudents.map((s) => (s.id === saved.id ? saved : s));
-      setStudents(finalStudents);
-      localStorage.setItem("daara_students", JSON.stringify(finalStudents));
+      const { medals, ...cleanStudent } = updatedStudent;
+      await supabase.from("Student").upsert(cleanStudent);
     } catch (err) {
-      console.warn("Offline or error updating student. Queuing request...");
-      enqueueRequest(`/api/students/${updatedStudent.id}`, "PUT", updatedStudent);
+      console.warn("Error updating student in Supabase:", err);
     }
   };
 
@@ -285,13 +308,9 @@ export default function App() {
     setHalaqas(updated);
     localStorage.setItem("daara_halaqas", JSON.stringify(updated));
     try {
-      await fetch("/api/halaqas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newHalaqa)
-      });
+      await supabase.from("Halaqa").upsert(newHalaqa);
     } catch (err) {
-      enqueueRequest("/api/halaqas", "POST", newHalaqa);
+      console.warn("Error adding halaqa to Supabase:", err);
     }
   };
 
@@ -300,13 +319,9 @@ export default function App() {
     setHalaqas(updated);
     localStorage.setItem("daara_halaqas", JSON.stringify(updated));
     try {
-      await fetch(`/api/halaqas/${updatedHalaqa.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedHalaqa)
-      });
+      await supabase.from("Halaqa").upsert(updatedHalaqa);
     } catch (err) {
-      enqueueRequest(`/api/halaqas/${updatedHalaqa.id}`, "PUT", updatedHalaqa);
+      console.warn("Error updating halaqa in Supabase:", err);
     }
   };
 
@@ -315,50 +330,32 @@ export default function App() {
     setHalaqas(updated);
     localStorage.setItem("daara_halaqas", JSON.stringify(updated));
     try {
-      await fetch(`/api/halaqas/${halaqaId}`, { method: "DELETE" });
+      await supabase.from("Halaqa").delete().eq("id", halaqaId);
     } catch (err) {
-      enqueueRequest(`/api/halaqas/${halaqaId}`, "DELETE", { id: halaqaId });
+      console.warn("Error deleting halaqa from Supabase:", err);
     }
   };
 
   const handleEnrollStudent = async (newStudent: Student) => {
-    // Optimistic UI Update
     const newStudents = [...students, newStudent];
     setStudents(newStudents);
     localStorage.setItem("daara_students", JSON.stringify(newStudents));
 
     try {
-      const res = await fetch("/api/students", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newStudent)
-      });
-      if (!res.ok) throw new Error("API Error");
-      const saved = await res.json();
-      const finalStudents = students.map(s => s.id === newStudent.id ? saved : s); // Replace optimistic with real
-      if (!students.find(s => s.id === newStudent.id)) finalStudents.push(saved);
-      setStudents(finalStudents);
-      localStorage.setItem("daara_students", JSON.stringify(finalStudents));
+      const { medals, ...cleanStudent } = newStudent;
+      await supabase.from("Student").upsert(cleanStudent);
     } catch (err) {
-      console.warn("Offline or error enrolling student. Queuing request...");
-      enqueueRequest("/api/students", "POST", newStudent);
+      console.warn("Error enrolling student in Supabase:", err);
     }
   };
 
   const handleImportStudents = async (importedStudents: Partial<Student>[]) => {
     try {
-      const res = await fetch("/api/students/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ students: importedStudents })
-      });
-      if (!res.ok) throw new Error("Échec import");
-      
-      // Re-fetch all students after import
-      const refreshed = await fetch("/api/students").then(res => res.json());
-      setStudents(refreshed);
+      const cleanStudents = importedStudents.map(({ medals, ...s }: any) => s);
+      await supabase.from("Student").upsert(cleanStudents);
+      fetchAllData();
     } catch (err) {
-      console.error("Error importing students", err);
+      console.error("Error importing students to Supabase", err);
       throw err;
     }
   };
@@ -653,6 +650,21 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleSyncToSupabase}
+              disabled={isSyncing}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                isSyncing
+                  ? "bg-amber-100 text-amber-800 border border-amber-300"
+                  : "bg-emerald-700 hover:bg-emerald-800 text-white"
+              }`}
+              title="Sauvegarder et synchroniser toutes les données sur Supabase Cloud"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">
+                {isSyncing ? "Enregistrement..." : "💾 Sauvegarder Supabase"}
+              </span>
+            </button>
             <button
               onClick={() => setIsDesignerModalOpen(true)}
               className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-xl transition-colors hidden md:block"
