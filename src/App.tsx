@@ -411,30 +411,25 @@ export default function App() {
     
     // Update balance optimistically
     const student = students.find(s => s.id === newPayment.studentId);
+    let updatedStudent: Student | null = null;
     if (student) {
-      const updatedStudent = {
+      updatedStudent = {
         ...student,
         balanceDue: Math.max(0, student.balanceDue - newPayment.amount)
       };
-      setStudents(students.map(s => s.id === updatedStudent.id ? updatedStudent : s));
-      localStorage.setItem("daara_students", JSON.stringify(students.map(s => s.id === updatedStudent.id ? updatedStudent : s)));
+      const finalStudents = students.map(s => s.id === updatedStudent!.id ? updatedStudent! : s);
+      setStudents(finalStudents);
+      localStorage.setItem("daara_students", JSON.stringify(finalStudents));
     }
 
     try {
-      const res = await fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPayment)
-      });
-      if (!res.ok) throw new Error("API error");
-      const saved = await res.json();
-      const finalPayments = payments.map(p => p.id === newPayment.id ? saved : p);
-      if (!payments.find(p => p.id === newPayment.id)) finalPayments.push(saved);
-      setPayments(finalPayments);
-      localStorage.setItem("daara_payments", JSON.stringify(finalPayments));
+      await supabase.from("PaymentRecord").upsert(newPayment);
+      if (updatedStudent) {
+        const { medals, ...cleanStudent } = updatedStudent;
+        await supabase.from("Student").upsert(cleanStudent);
+      }
     } catch (err) {
-      console.warn("Offline or error adding payment. Queuing request...");
-      enqueueRequest("/api/payments", "POST", newPayment);
+      console.warn("Error saving payment to Supabase:", err);
     }
   };
 
@@ -444,16 +439,11 @@ export default function App() {
     localStorage.setItem("daara_attendance", JSON.stringify(newAttendance));
     
     try {
-      const res = await fetch("/api/attendance/batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ records })
-      });
-      if (!res.ok) throw new Error("API error");
-      const saved = await res.json();
+      if (records.length > 0) {
+        await supabase.from("AttendanceRecord").upsert(records);
+      }
     } catch (err) {
-      console.warn("Offline or error saving attendance. Queuing request...");
-      enqueueRequest("/api/attendance/batch", "POST", { records });
+      console.warn("Error saving attendance to Supabase:", err);
     }
   };
 
@@ -463,20 +453,9 @@ export default function App() {
     localStorage.setItem("daara_lessons", JSON.stringify(newLessons));
 
     try {
-      const res = await fetch("/api/lessons", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lesson)
-      });
-      if (!res.ok) throw new Error("API Error");
-      const saved = await res.json();
-      const finalLessons = lessons.map(l => l.id === lesson.id ? saved : l);
-      if (!lessons.find(l => l.id === lesson.id)) finalLessons.push(saved);
-      setLessons(finalLessons);
-      localStorage.setItem("daara_lessons", JSON.stringify(finalLessons));
+      await supabase.from("QuranLesson").upsert(lesson);
     } catch (err) {
-      console.warn("Offline or error saving lesson. Queuing request...");
-      enqueueRequest("/api/lessons", "POST", lesson);
+      console.warn("Error saving lesson to Supabase:", err);
     }
   };
 
@@ -515,27 +494,18 @@ export default function App() {
     localStorage.setItem("daara_students", JSON.stringify(updatedStudents));
 
     try {
-      const res = await fetch("/api/cloture-day", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attendanceRecords, newLessons, updatedStudents: updatedStudents.filter(s => newLessons.some(l => l.studentId === s.id)) })
-      });
-      if (!res.ok) throw new Error("API error");
-      // Refresh all state to ensure consistency
-      const [finalAtt, finalLes, finalStu] = await Promise.all([
-        fetch("/api/attendance").then(res => res.json()),
-        fetch("/api/lessons").then(res => res.json()),
-        fetch("/api/students").then(res => res.json()),
-      ]);
-      setAttendance(finalAtt);
-      setLessons(finalLes);
-      setStudents(finalStu);
-      localStorage.setItem("daara_attendance", JSON.stringify(finalAtt));
-      localStorage.setItem("daara_lessons", JSON.stringify(finalLes));
-      localStorage.setItem("daara_students", JSON.stringify(finalStu));
+      if (attendanceRecords.length > 0) {
+        await supabase.from("AttendanceRecord").upsert(attendanceRecords);
+      }
+      if (newLessons.length > 0) {
+        await supabase.from("QuranLesson").upsert(newLessons);
+      }
+      if (updatedStudents.length > 0) {
+        const cleanStudents = updatedStudents.map(({ medals, ...s }) => s);
+        await supabase.from("Student").upsert(cleanStudents);
+      }
     } catch (err) { 
-      console.warn("Offline or error closing day. Queuing request...");
-      enqueueRequest("/api/cloture-day", "POST", { attendanceRecords, newLessons, updatedStudents: updatedStudents.filter(s => newLessons.some(l => l.studentId === s.id)) });
+      console.warn("Error closing day in Supabase:", err);
     }
   };
 
