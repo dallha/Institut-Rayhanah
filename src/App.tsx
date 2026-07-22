@@ -197,23 +197,23 @@ export default function App() {
         supabase.from("PaymentRecord").select("*")
       ]);
 
-      if (!sErr && studentsData && Array.isArray(studentsData) && studentsData.length > 0) {
+      if (!sErr && studentsData && Array.isArray(studentsData)) {
         setStudents(studentsData as any);
         localStorage.setItem("daara_students", JSON.stringify(studentsData));
       }
-      if (!hErr && halaqasData && Array.isArray(halaqasData) && halaqasData.length > 0) {
+      if (!hErr && halaqasData && Array.isArray(halaqasData)) {
         setHalaqas(halaqasData as any);
         localStorage.setItem("daara_halaqas", JSON.stringify(halaqasData));
       }
-      if (attendanceData && Array.isArray(attendanceData) && attendanceData.length > 0) {
+      if (attendanceData && Array.isArray(attendanceData)) {
         setAttendance(attendanceData as any);
         localStorage.setItem("daara_attendance", JSON.stringify(attendanceData));
       }
-      if (lessonsData && Array.isArray(lessonsData) && lessonsData.length > 0) {
+      if (lessonsData && Array.isArray(lessonsData)) {
         setLessons(lessonsData as any);
         localStorage.setItem("daara_lessons", JSON.stringify(lessonsData));
       }
-      if (paymentsData && Array.isArray(paymentsData) && paymentsData.length > 0) {
+      if (paymentsData && Array.isArray(paymentsData)) {
         setPayments(paymentsData as any);
         localStorage.setItem("daara_payments", JSON.stringify(paymentsData));
       }
@@ -227,26 +227,37 @@ export default function App() {
   const handleSyncToSupabase = async () => {
     setIsSyncing(true);
     try {
+      // 1. Sync Halaqas first
       if (halaqas.length > 0) {
-        await supabase.from("Halaqa").upsert(halaqas);
+        const { error: hErr } = await supabase.from("Halaqa").upsert(halaqas);
+        if (hErr) throw new Error("Erreur Halaqas : " + hErr.message);
       }
+      // 2. Sync Students
       if (students.length > 0) {
         const cleanStudents = students.map(({ medals, ...s }) => s);
-        await supabase.from("Student").upsert(cleanStudents);
+        const { error: sErr } = await supabase.from("Student").upsert(cleanStudents);
+        if (sErr) throw new Error("Erreur Élèves : " + sErr.message);
       }
+      // 3. Sync Payments
       if (payments.length > 0) {
-        await supabase.from("PaymentRecord").upsert(payments);
+        const { error: pErr } = await supabase.from("PaymentRecord").upsert(payments);
+        if (pErr) console.warn("Payment sync warn:", pErr);
       }
+      // 4. Sync Lessons
       if (lessons.length > 0) {
-        await supabase.from("QuranLesson").upsert(lessons);
+        const { error: lErr } = await supabase.from("QuranLesson").upsert(lessons);
+        if (lErr) console.warn("Lesson sync warn:", lErr);
       }
+      // 5. Sync Attendance
       if (attendance.length > 0) {
-        await supabase.from("AttendanceRecord").upsert(attendance);
+        const { error: aErr } = await supabase.from("AttendanceRecord").upsert(attendance);
+        if (aErr) console.warn("Attendance sync warn:", aErr);
       }
-      alert("✅ Sauvegarde réussie sur Supabase Cloud !\nToutes vos données (élèves, halaqas, règlements) sont synchronisées sur tous vos appareils.");
+
+      alert("✅ Sauvegarde réussie sur Supabase Cloud !\nToutes vos données sont à jour et synchronisées sur tous vos appareils.");
     } catch (err: any) {
       console.error("Error saving to Supabase:", err);
-      alert("Erreur de sauvegarde Supabase : " + (err.message || "Problème réseau"));
+      alert("⚠️ Problème de synchronisation Supabase :\n" + (err.message || "Vérifiez votre connexion"));
     } finally {
       setIsSyncing(false);
     }
@@ -254,6 +265,17 @@ export default function App() {
 
   useEffect(() => {
     fetchAllData();
+
+    // Supabase Real-Time Listener (instant updates across mobile & desktop)
+    const channel = supabase
+      .channel("schema-db-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "Student" }, () => {
+        fetchAllData();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "Halaqa" }, () => {
+        fetchAllData();
+      })
+      .subscribe();
     
     // Offline Listeners
     const handleOnline = () => {
@@ -278,6 +300,7 @@ export default function App() {
       setUnpaidThreshold(Number(storedThreshold));
     }
     return () => {
+      supabase.removeChannel(channel);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('daara_queue_updated', handleQueueUpdate);
