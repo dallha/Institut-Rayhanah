@@ -216,6 +216,8 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                     <span>Règlement: Âge requis entre 5 et 10 ans</span>
                   </div>
                 )}
+              </div>
+
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-slate-500">Nationalité</label>
                 <input
