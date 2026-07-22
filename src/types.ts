@@ -63,6 +63,14 @@ export interface Halaqa {
   maxCapacity: number;
 }
 
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  phone: string;
+  status: string;
+}
+
 export interface QuranLesson {
   id: string;
   studentId: string;

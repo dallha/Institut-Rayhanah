@@ -3,6 +3,7 @@ import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Downloa
 import Papa from "papaparse";
 import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique } from "../types";
 import StudentFile from "./StudentFile";
+import { supabase } from "../lib/supabase";
 
 function getEtapeLabelFormat(etape: EtapePedagogique, gender?: string) {
   const isFemale = gender === "female" || gender === "F";
@@ -288,8 +289,34 @@ export default function ParametresTab({
     setTimeout(() => setSmsTestStatus('success'), 1500);
   };
 
+  // Supabase Staff Cloud Sync & Realtime Listener
+  React.useEffect(() => {
+    supabase.from("Staff").select("*").then(({ data, error }) => {
+      if (!error && data && data.length > 0) {
+        setStaffList(data);
+        localStorage.setItem("daara_staff_list", JSON.stringify(data));
+      }
+    });
+
+    const channel = supabase
+      .channel("staff-db-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "Staff" }, () => {
+        supabase.from("Staff").select("*").then(({ data, error }) => {
+          if (!error && data) {
+            setStaffList(data);
+            localStorage.setItem("daara_staff_list", JSON.stringify(data));
+          }
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<any>(null);
   const [formData, setFormData] = useState({ name: "", role: "", phone: "", status: "Actif" });
 
   const handleOpenModal = (staff?: any) => {
@@ -303,17 +330,26 @@ export default function ParametresTab({
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.role) return;
+    const targetId = editingId !== null ? String(editingId) : `st_${Date.now()}`;
+    const newMember = { id: targetId, ...formData };
+
     let updatedStaff;
     if (editingId !== null) {
-      updatedStaff = staffList.map(s => s.id === editingId ? { ...s, ...formData } : s);
+      updatedStaff = staffList.map(s => String(s.id) === String(editingId) ? newMember : s);
     } else {
-      updatedStaff = [...staffList, { id: Date.now(), ...formData }];
+      updatedStaff = [...staffList, newMember];
     }
     setStaffList(updatedStaff);
     localStorage.setItem("daara_staff_list", JSON.stringify(updatedStaff));
     setIsModalOpen(false);
+
+    try {
+      await supabase.from("Staff").upsert(newMember);
+    } catch (err) {
+      console.warn("Error saving staff member to Supabase:", err);
+    }
   };
 
   // State for CSV Import
@@ -406,11 +442,17 @@ export default function ParametresTab({
     document.body.removeChild(link);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: any) => {
     if (window.confirm("Voulez-vous vraiment supprimer ce membre du personnel ?")) {
-      const updatedStaff = staffList.filter(s => s.id !== id);
+      const updatedStaff = staffList.filter(s => String(s.id) !== String(id));
       setStaffList(updatedStaff);
       localStorage.setItem("daara_staff_list", JSON.stringify(updatedStaff));
+
+      try {
+        await supabase.from("Staff").delete().eq("id", String(id));
+      } catch (err) {
+        console.warn("Error deleting staff member from Supabase:", err);
+      }
     }
   };
 

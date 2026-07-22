@@ -102,3 +102,11 @@ model PaymentRecord {
   receiptNumber String
   recordedBy    String
 }
+
+model Staff {
+  id     String @id @default(uuid())
+  name   String
+  role   String
+  phone  String
+  status String @default("Actif")
+}

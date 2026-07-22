@@ -253,6 +253,16 @@ export default function App() {
         const { error: aErr } = await supabase.from("AttendanceRecord").upsert(attendance);
         if (aErr) console.warn("Attendance sync warn:", aErr);
       }
+      // 6. Sync Staff Members
+      const cachedStaff = localStorage.getItem("daara_staff_list");
+      if (cachedStaff) {
+        const staffArr = JSON.parse(cachedStaff);
+        if (Array.isArray(staffArr) && staffArr.length > 0) {
+          const formattedStaff = staffArr.map((s: any) => ({ ...s, id: String(s.id) }));
+          const { error: stErr } = await supabase.from("Staff").upsert(formattedStaff);
+          if (stErr) console.warn("Staff sync warn:", stErr);
+        }
+      }
 
       alert("✅ Sauvegarde réussie sur Supabase Cloud !\nToutes vos données sont à jour et synchronisées sur tous vos appareils.");
     } catch (err: any) {
