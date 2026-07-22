@@ -59,7 +59,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
               </div>
               <h4 className="font-bold text-slate-800 text-lg">{student.firstName} {student.lastName}</h4>
               <p className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1 rounded-full inline-block mt-2">
-                Hafiz al-Quran
+                {student.gender === 'F' ? 'Hafizat al-Quran' : 'Hafiz al-Quran'}
               </p>
               <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium space-y-1">
                 <p>Halaqa : {getHalaqaName(student.halaqaId)}</p>

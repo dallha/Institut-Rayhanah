@@ -70,7 +70,7 @@ export default function PedagogyTab({
     }
   };
 
-  const getEtapeLabel = (etape: EtapePedagogique) => {
+  const getEtapeLabel = (etape: EtapePedagogique, gender?: string) => {
     switch (etape) {
       case EtapePedagogique.Tahajji:
         return "Tahajji (التهجي)";
@@ -83,7 +83,7 @@ export default function PedagogyTab({
       case EtapePedagogique.Khatm:
         return "Khatm (الختم)";
       case EtapePedagogique.Hafiz:
-        return "Hafiz (حافظ) 👑";
+        return gender === 'F' ? "Hafizat (حافظة) 👑" : "Hafiz (حافظ) 👑";
     }
   };
 
@@ -260,7 +260,7 @@ export default function PedagogyTab({
                     </p>
                   </div>
                   <span className={`text-[11px] px-2.5 py-1 rounded-full border ${getEtapeBadgeColor(student.etape)}`}>
-                    {getEtapeLabel(student.etape)}
+                    {getEtapeLabel(student.etape, student.gender)}
                   </span>
                 </div>
 

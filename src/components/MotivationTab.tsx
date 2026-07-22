@@ -234,7 +234,7 @@ export default function MotivationTab({ students, halaqas, onAwardMedal }: Motiv
                   onClick={() => setCertType("hafiz")}
                   className={`p-3 border rounded-xl text-center transition-all ${certType === "hafiz" ? "border-emerald-500 bg-emerald-50 text-emerald-900" : "border-slate-100 text-slate-600"}`}
                 >
-                  <span className="block font-bold text-xs">Hafiz</span>
+                  <span className="block font-bold text-xs">Hafiz(at)</span>
                   <span className="text-[10px] text-slate-400 block mt-1">Clôture (100%)</span>
                 </button>
               </div>
@@ -323,7 +323,7 @@ export default function MotivationTab({ students, halaqas, onAwardMedal }: Motiv
 
                 {certType === "hafiz" && (
                   <p className="italic">
-                    A accompli la mémorisation intégrale des **60 Hizbs** du Livre Saint d'Allah (Al-Khatm), accédant au titre honorable de **Hafiz (حافظ)**, avec une récitation conforme aux standards traditionnels.
+                    A accompli la mémorisation intégrale des **60 Hizbs** du Livre Saint d'Allah (Al-Khatm), accédant au titre honorable de **{selectedCertStudent.gender === 'F' ? "Hafizat (حافظة)" : "Hafiz (حافظ)"}**, avec une récitation conforme aux standards traditionnels.
                   </p>
                 )}
               </div>

@@ -31,6 +31,7 @@ export interface Student {
   parentName: string;
   parentPhone: string;
   parentEmail?: string;
+  gender?: string;
   halaqaId: string;
   etape: EtapePedagogique;
   
