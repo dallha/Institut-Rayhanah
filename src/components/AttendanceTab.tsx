@@ -195,7 +195,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                 id={`attendance-row-${student.id}`}
               >
                 {/* 1. Student Identity and Level */}
-                <div className="flex items-center space-x-3 min-w-[200px]" id={`row-identity-${student.id}`}>
+                <div className="flex items-center space-x-3 w-full lg:w-auto lg:min-w-[200px]" id={`row-identity-${student.id}`}>
                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-sm">
                     {student.firstName[0]}
                   </div>
@@ -239,8 +239,8 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                   </div>
                 </div>
 
-                {/* 3. Lesson progression input */}
-                <div className="flex-1 min-w-[280px]" id={`row-lesson-inputs-${student.id}`}>
+                {/* 2. Pedagogical Inputs (if present) */}
+                <div className="flex-1 w-full lg:w-auto lg:min-w-[280px]" id={`row-lesson-inputs-${student.id}`}>
                   {isAbsent ? (
                     <div className="flex items-center space-x-2 text-slate-400 bg-slate-100/50 p-3 rounded-lg border border-dashed border-slate-200">
                       <Lock className="w-4 h-4 text-slate-300" />

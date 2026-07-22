@@ -367,7 +367,7 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="max-h-40 overflow-y-auto bg-white border border-slate-200 rounded-lg p-2 text-xs">
+            <div className="max-h-40 overflow-y-auto overflow-x-auto bg-white border border-slate-200 rounded-lg p-2 text-xs">
               <table className="w-full text-left text-[11px]">
                 <thead className="bg-slate-100 font-bold text-slate-600">
                   <tr>

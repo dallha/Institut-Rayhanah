@@ -268,7 +268,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
           <select
             value={selectedWeekKey}
             onChange={(e) => setSelectedWeekKey(e.target.value)}
-            className="bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs font-bold text-slate-700 focus:outline-hidden flex-1 md:flex-none text-center min-w-[210px]"
+            className="bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs font-bold text-slate-700 focus:outline-hidden flex-1 md:flex-none text-center min-w-0 w-full max-w-[210px]"
           >
             {availableWeeks.map((w) => (
               <option key={w.key} value={w.key}>

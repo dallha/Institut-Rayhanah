@@ -406,7 +406,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-slate-800 flex flex-col font-sans pb-24" id="daara-erp-root">
+    <div className="min-h-screen bg-[#FDFBF7] text-slate-800 flex flex-col font-sans pb-24 overflow-x-hidden w-full relative" id="daara-erp-root">
       {/* Decorative premium gold & navy top line */}
       <div className="h-1.5 bg-[#0B1C30] w-full relative" id="top-emerald-accent">
         <div className="absolute top-0 right-0 left-1/2 h-full bg-[#D0A21C] w-1/2"></div>
