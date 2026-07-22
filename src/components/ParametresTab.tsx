@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
+import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown } from "lucide-react";
 import Papa from "papaparse";
 import { Student, EtapePedagogique } from "../types";
 
@@ -432,7 +432,8 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
           </button>
         </div>
 
-        <div className="overflow-x-auto w-full">
+        {/* Desktop View (Table) */}
+        <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-xs text-slate-500 font-bold uppercase">
               <tr>
@@ -479,6 +480,63 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View (Cards) */}
+        <div className="md:hidden space-y-4 mt-4">
+          {staffList.map((staff, index) => (
+            <div key={staff.id} className={`bg-white border rounded-xl overflow-hidden shadow-sm ${index === 0 ? "border-amber-200" : "border-slate-200"}`}>
+              {/* Card Header: Avatar & Info */}
+              <div className={`p-4 flex items-center space-x-3 ${index === 0 ? "bg-amber-50/30" : ""}`}>
+                <div className={`w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0 ${index === 0 ? "bg-amber-600" : "bg-[#0B1C30]"}`}>
+                  {staff.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-1.5">
+                    <span className={`font-bold text-sm truncate uppercase ${index === 0 ? "text-[#0B1C30]" : "text-slate-800"}`}>
+                      {staff.name}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="inline-block bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-bold uppercase truncate max-w-full">
+                      {staff.role}
+                    </span>
+                    <span className={`inline-block text-[9px] px-1.5 py-0.5 rounded font-bold border ${staff.status === "Actif" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-rose-100 text-rose-700 border-rose-200"}`}>
+                      {staff.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Card Body: Data Rows */}
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex justify-between items-center">
+                <span className="font-bold text-slate-400">CONTACT</span>
+                <div className="flex items-center space-x-1 font-semibold text-slate-800">
+                  <span className="font-mono">{staff.phone}</span>
+                </div>
+              </div>
+              
+              {/* Actions Row */}
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex flex-col justify-center">
+                <span className="font-bold text-slate-400 mb-2">ACTIONS</span>
+                <div className="flex items-center space-x-2">
+                  <button onClick={() => handleOpenModal(staff)} className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-600 hover:text-[#0B1C30] hover:bg-slate-50 rounded-lg transition-colors font-semibold">
+                    <Edit className="w-3.5 h-3.5" />
+                    <span>Modifier</span>
+                  </button>
+                  <button onClick={() => handleDelete(staff.id)} className="flex items-center gap-1.5 px-3 py-1.5 border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-semibold">
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Supprimer</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          {staffList.length === 0 && (
+            <div className="text-center py-8 text-slate-400 text-sm border border-slate-100 rounded-xl">
+              Aucun personnel enregistré.
+            </div>
+          )}
         </div>
       </div>
 
@@ -595,6 +653,18 @@ export default function ParametresTab({ students = [], onImportStudents, onUpdat
                 <span className="font-semibold text-slate-700 uppercase">
                   {student.regime || "-"}
                 </span>
+              </div>
+              
+              {/* Actions Row (Matching User Request) */}
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex flex-col justify-center">
+                <span className="font-bold text-slate-400 mb-2">ACTIONS</span>
+                <div className="flex items-center">
+                  <button className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors font-semibold shadow-sm">
+                    <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Dossier</span>
+                    <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-50" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
