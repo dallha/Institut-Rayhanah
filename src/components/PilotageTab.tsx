@@ -256,8 +256,8 @@ export default function PilotageTab({
           <WeeklySummaryChart students={students} attendance={attendance} lessons={lessons} />
         </div>
 
-        {/* Bottom logs grid: 3-column layout on desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pilotage-logs-area">
+        {/* Bottom logs grid: 2-column layout on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="pilotage-logs-area">
           {/* Notifications panel */}
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-xs">
             <div className="flex justify-between items-center border-b border-slate-50 pb-3 mb-4">
@@ -317,71 +317,6 @@ export default function PilotageTab({
                 })}
               </div>
             )}
-          </div>
-
-          {/* Services Annexes column (Boarding, canteen menu and communications) */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-xs space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-50 pb-3 mb-1">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">État des Services Annexes</h3>
-              <span className="text-[10px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-100">
-                Opérationnel
-              </span>
-            </div>
-
-            {/* Boarding space info */}
-            <div className="p-3 border border-slate-50 bg-slate-50/30 rounded-xl text-xs space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-slate-700">
-                <Bed className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Internat & Chambres</span>
-              </div>
-              <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                4 Dortoirs surveillés actifs (Al-Azhar, Médine, Touba, Tivaouane). Capacité : {students.length} pensionnaires hébergés.
-              </p>
-              <button 
-                onClick={() => onNavigateToTab("vie", "internat")}
-                className="text-[10px] text-indigo-600 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
-              >
-                Consulter les lits
-                <ArrowRight className="w-2.5 h-2.5" />
-              </button>
-            </div>
-
-            {/* Canteen menu */}
-            <div className="p-3 border border-slate-50 bg-slate-50/30 rounded-xl text-xs space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-slate-700">
-                <Coffee className="w-3.5 h-3.5 text-amber-600" />
-                <span>Menu Cantine du Jour</span>
-              </div>
-              <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                <strong>Déjeuner :</strong> Riz au Poisson Sénégalais (Thiéboudienne).<br />
-                <strong>Dîner :</strong> Bouillie de mil traditionnelle (Lakh).
-              </p>
-              <button 
-                onClick={() => onNavigateToTab("vie", "cantine")}
-                className="text-[10px] text-amber-600 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
-              >
-                Voir le calendrier des repas
-                <ArrowRight className="w-2.5 h-2.5" />
-              </button>
-            </div>
-
-            {/* Parent Chat */}
-            <div className="p-3 border border-slate-50 bg-slate-50/30 rounded-xl text-xs space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-slate-700">
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Discussions Parents</span>
-              </div>
-              <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                Canaux d'échange directs et diffusions SMS de masse actifs pour les {students.length} familles de l'institut.
-              </p>
-              <button 
-                onClick={() => onNavigateToTab("echanges", "chat")}
-                className="text-[10px] text-emerald-600 font-bold hover:underline cursor-pointer flex items-center gap-0.5"
-              >
-                Ouvrir la messagerie
-                <ArrowRight className="w-2.5 h-2.5" />
-              </button>
-            </div>
           </div>
 
         </div>
