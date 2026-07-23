@@ -8,6 +8,7 @@ import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson, Payme
 import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
 import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen, Users, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslation } from "react-i18next";
 import WeeklySummaryChart from "./WeeklySummaryChart";
 import StudentFile from "./StudentFile";
 
@@ -28,6 +29,7 @@ export default function PedagogyTab({
   lessons,
   payments = []
 }: PedagogyTabProps) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedHalaqa, setSelectedHalaqa] = useState("all");
   const [selectedEtape, setSelectedEtape] = useState("all");
@@ -349,9 +351,9 @@ export default function PedagogyTab({
                           </span>
                         </div>
                         <div>
-                          <span className="text-slate-400 block font-medium">Hizb / Fraction</span>
+                          <span className="text-slate-400 block font-medium">{t('pedagogy.hizbFraction')}</span>
                           <span className="text-slate-700 font-semibold block mt-0.5 truncate">
-                            {student.currentHizbNum ? `Hizb ${student.currentHizbNum} (${formatHizbFractionArabic(student.currentHizbFraction || 0)})` : "Non défini"}
+                            {student.currentHizbNum ? `Hizb ${student.currentHizbNum} (${formatHizbFractionArabic(student.currentHizbFraction || 0)})` : t('pedagogy.undefined')}
                           </span>
                         </div>
                       </div>
@@ -360,8 +362,8 @@ export default function PedagogyTab({
                     <div className="bg-sky-50/50 border border-sky-100 p-3 rounded-lg text-xs text-sky-800 flex items-start space-x-2">
                       <span className="text-sky-600 font-bold text-base mt-0.5 font-serif">ا</span>
                       <div>
-                        <p className="font-bold">Phase d'Alphabétisation</p>
-                        <p className="text-[11px] text-sky-600/90 mt-0.5">Apprentissage de l'alphabet (Abjadiyya) et règles de phonétique (Qaidah Nooraniyah).</p>
+                        <p className="font-bold">{t('pedagogy.alphabeticPhase')}</p>
+                        <p className="text-[11px] text-sky-600/90 mt-0.5">{t('pedagogy.alphabeticDesc')}</p>
                       </div>
                     </div>
                   )}
@@ -370,10 +372,10 @@ export default function PedagogyTab({
                   <div className="pt-2 flex justify-between items-center text-xs border-t border-slate-100 mt-2 text-slate-500">
                     <span className="flex items-center space-x-1">
                       <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Objectif quotidien (Ward)</span>
+                      <span>{t('pedagogy.dailyObjective')}</span>
                     </span>
                     <span className="font-bold text-slate-700">
-                      {student.dailyWardHizbs > 0 ? `${student.dailyWardHizbs} Hizb(s)` : "Aucun"}
+                      {student.dailyWardHizbs > 0 ? `${student.dailyWardHizbs} Hizb(s)` : t('pedagogy.noWard')}
                     </span>
                   </div>
 
@@ -381,10 +383,10 @@ export default function PedagogyTab({
                     <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
                       <span className="flex items-center space-x-1">
                         <Award className="w-3.5 h-3.5 text-amber-500" />
-                        <span>Khatmats complétées</span>
+                        <span>{t('pedagogy.khatmatCount')}</span>
                       </span>
                       <span className="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-mono">
-                        {student.khatmatCount} Clôtures
+                        {student.khatmatCount} {t('pedagogy.closures')}
                       </span>
                     </div>
                   )}
@@ -398,7 +400,7 @@ export default function PedagogyTab({
                     className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     <FolderOpen className="w-3.5 h-3.5" />
-                    <span>Dossier</span>
+                    <span>{t('pedagogy.openFile')}</span>
                   </button>
                   <button
                     onClick={() => openEditModal(student)}
@@ -406,7 +408,7 @@ export default function PedagogyTab({
                     className="bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Settings className="w-3.5 h-3.5" />
-                    <span>Progression</span>
+                    <span>{t('pedagogy.edit')}</span>
                   </button>
                 </div>
               </div>
