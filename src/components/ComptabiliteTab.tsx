@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { Student, PaymentRecord } from "../types";
 import { Receipt, CreditCard, ShieldAlert, CheckCircle, Printer, FileText, Plus } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 interface ComptabiliteTabProps {
   students: Student[];
@@ -23,6 +24,7 @@ export default function ComptabiliteTab({
   unpaidThreshold,
   onUpdateThreshold
 }: ComptabiliteTabProps) {
+  const { t } = useTranslation();
   const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || "");
   const [paymentAmount, setPaymentAmount] = useState<number>(15000);
   const [paymentPurpose, setPaymentPurpose] = useState<string>("Mensualité Juillet 2026");
@@ -73,21 +75,21 @@ export default function ComptabiliteTab({
           <div>
             <h3 className="font-bold text-base text-slate-800 flex items-center space-x-1.5">
               <CreditCard className="w-5 h-5 text-emerald-600" />
-              <span>Caisse & Reçus Électroniques</span>
+              <span>{t('treasury.recordPayment')}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Saisie d'un versement et validation en caisse</p>
+            <p className="text-xs text-slate-400 mt-1">{t('treasury.subtitle')}</p>
           </div>
 
           {receiptSuccess && activeReceipt && (
             <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg text-emerald-800 text-xs font-semibold flex items-center space-x-2" id="payment-success-msg">
               <CheckCircle className="w-4 h-4 text-emerald-600" />
-              <span>Encaissement validé ! Reçu {activeReceipt.receiptNumber} émis.</span>
+              <span>{t('treasury.receiptSuccess')} Reçu {activeReceipt.receiptNumber} émis.</span>
             </div>
           )}
 
           <form onSubmit={handleRecordPayment} className="space-y-4 text-slate-700 text-sm" id="payment-form">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Élève concerné</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('treasury.selectStudent')}</label>
               <select
                 className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg p-2.5 text-xs focus:outline-hidden font-semibold"
                 value={selectedStudentId}
@@ -99,7 +101,7 @@ export default function ComptabiliteTab({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Montant versé (FCFA)</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('treasury.amount')}</label>
                 <input
                   type="number"
                   className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg p-2 text-xs focus:outline-hidden font-bold text-emerald-700"
@@ -109,7 +111,7 @@ export default function ComptabiliteTab({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Encaissé par</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('treasury.recordedBy')}</label>
                 <input
                   type="text"
                   className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg p-2 text-xs focus:outline-hidden"
@@ -120,7 +122,7 @@ export default function ComptabiliteTab({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Motif de versement</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('treasury.purpose')}</label>
               <input
                 type="text"
                 className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg p-2 text-xs focus:outline-hidden"
@@ -135,7 +137,7 @@ export default function ComptabiliteTab({
               className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
-              <span>Valider le Versement</span>
+              <span>{t('treasury.validateReceipt')}</span>
             </button>
           </form>
         </div>
@@ -197,7 +199,7 @@ export default function ComptabiliteTab({
                 className="w-full py-2 bg-white border border-emerald-800 text-emerald-800 hover:bg-emerald-50 font-bold rounded-lg transition-colors flex items-center justify-center space-x-1.5 text-[10px] cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
-                <span>Imprimer le Reçu</span>
+                <span>{t('treasury.printReceipt')}</span>
               </button>
             </div>
           ) : (
@@ -215,16 +217,16 @@ export default function ComptabiliteTab({
           <div>
             <h3 className="font-bold text-base text-slate-800 flex items-center space-x-1.5">
               <ShieldAlert className="w-5 h-5 text-rose-500" />
-              <span>Tableau de Recouvrement (Relance)</span>
+              <span>{t('treasury.debtorsList')}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Liste des élèves ayant des mensualités impayées</p>
+            <p className="text-xs text-slate-400 mt-1">{t('treasury.noDebtors')}</p>
           </div>
 
           {/* Global Threshold Settings Widget */}
           <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3 text-xs w-full sm:w-auto" id="comptabilite-threshold-settings">
             <div className="flex flex-col">
               <label htmlFor="threshold-input" className="block text-[9px] font-bold text-slate-500 uppercase tracking-wide">
-                Seuil d'alerte global (FCFA)
+                {t('treasury.alertThreshold')}
               </label>
               <span className="text-[10px] font-mono font-bold text-rose-600">
                 &gt; {unpaidThreshold.toLocaleString()} FCFA

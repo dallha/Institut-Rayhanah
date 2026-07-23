@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Student, Halaqa, PaymentRecord, AttendanceRecord, QuranLesson } from "../types";
 import InscriptionTab from "./InscriptionTab";
 import ComptabiliteTab from "./ComptabiliteTab";
@@ -29,6 +30,7 @@ export default function ScolariteModule({
   onUpdateThreshold,
   initialSubTab = "inscriptions"
 }: ScolariteModuleProps) {
+  const { t } = useTranslation();
   const [subTab, setSubTab] = useState<string>(initialSubTab);
 
   return (
@@ -36,8 +38,8 @@ export default function ScolariteModule({
       {/* Sub-navigation for Scolarité */}
       <div className="flex bg-white/85 backdrop-blur-xs px-2 sm:px-4 py-2.5 rounded-2xl border border-slate-200/60 shadow-xs justify-start sm:justify-center gap-2 sm:gap-3 max-w-4xl mx-auto w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" id="scolarite-sub-tabs">
         {[
-          { id: "inscriptions", label: "Inscriptions & Liste Élèves", icon: <UserPlus className="w-4 h-4" /> },
-          { id: "tresorerie", label: "Trésorerie & Frais de Scolarité", icon: <CreditCard className="w-4 h-4" /> }
+          { id: "inscriptions", label: t('school.inscriptions'), icon: <UserPlus className="w-4 h-4" /> },
+          { id: "tresorerie", label: t('school.treasury'), icon: <CreditCard className="w-4 h-4" /> }
         ].map((tab) => (
           <button
             key={tab.id}

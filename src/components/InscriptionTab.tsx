@@ -22,6 +22,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 interface InscriptionTabProps {
   students: Student[];
@@ -30,6 +31,7 @@ interface InscriptionTabProps {
 }
 
 export default function InscriptionTab({ students, halaqas, onEnrollStudent }: InscriptionTabProps) {
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [age, setAge] = useState<number>(7);
@@ -51,9 +53,9 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
 
   // Pricing scheme as specified in PDF
   const regimePricing = {
-    internat: { monthly: 110000, signup: 150000, label: "Internat Complet", desc: "Logé, nourri, encadrement 24h/7" },
-    externat: { monthly: 35000, signup: 50000, label: "Externat Simple", desc: "Cours uniquement en journée" },
-    "demi-pension": { monthly: 50000, signup: 50000, label: "Demi-Pension", desc: "Repas du midi inclus" }
+    internat: { monthly: 110000, signup: 150000, label: t('school.regimeInternat'), desc: "Logé, nourri, encadrement 24h/7" },
+    externat: { monthly: 35000, signup: 50000, label: t('school.regimeExternat'), desc: "Cours uniquement en journée" },
+    "demi-pension": { monthly: 50000, signup: 50000, label: t('school.regimeDemi'), desc: "Repas du midi inclus" }
   };
 
   const handleDragCert = (e: React.DragEvent) => {
@@ -159,26 +161,26 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           <div>
             <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-1.5">
               <UserPlus className="w-5 h-5 text-[#0B1C30]" />
-              <span>Fiche d'Inscription Officielle</span>
+              <span>{t('school.enrollFormTitle')}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Saisie administrative d'un nouvel élève en conformité avec le Règlement Intérieur</p>
+            <p className="text-xs text-slate-400 mt-1">{t('school.enrollFormSub')}</p>
           </div>
         </div>
 
         {successMsg && (
           <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl text-emerald-800 text-xs font-semibold flex items-center space-x-2" id="scolarite-success-alert">
             <FileCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span>Élève inscrit sous matricule officiel unique. Les frais de dossier d'inscription ont été imputés à sa scolarité.</span>
+            <span>{t('school.successMsg')}</span>
           </div>
         )}
 
         <form onSubmit={handleEnroll} className="space-y-6 text-slate-700 text-sm" id="enroll-form">
           {/* Section: Identity */}
           <div className="space-y-3">
-            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">1. Identité de l'élève</span>
+            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">{t('school.identityTitle')}</span>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="form-identity-sec">
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">Prénom *</label>
+                <label className="block text-xs font-bold text-slate-500">{t('school.firstName')}</label>
                 <input
                   type="text"
                   required
@@ -189,7 +191,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">Nom de famille *</label>
+                <label className="block text-xs font-bold text-slate-500">{t('school.lastName')}</label>
                 <input
                   type="text"
                   required
@@ -199,74 +201,77 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                   onChange={(e) => setLastName(e.target.value)}
                 />
               </div>
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">Âge *</label>
-                <input
-                  type="number"
-                  required
-                  min="3"
-                  max="18"
-                  className={`w-full bg-slate-50 border rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30] ${!isAgeValid ? "border-amber-300" : "border-slate-200"}`}
-                  value={age}
-                  onChange={(e) => setAge(Number(e.target.value))}
-                />
-                {!isAgeValid && (
-                  <div className="flex items-center space-x-1 text-[10px] text-amber-600 font-semibold pt-0.5">
-                    <AlertTriangle className="w-3 h-3" />
-                    <span>Règlement: Âge requis entre 5 et 10 ans</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">Nationalité</label>
-                <input
-                  type="text"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
-                  placeholder="Ex: Sénégalaise, Mauritanienne..."
-                  value={nationality}
-                  onChange={(e) => setNationality(e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-500">{t('school.age')}</label>
+                  <input
+                    type="number"
+                    min="5"
+                    max="10"
+                    required
+                    className={`w-full bg-slate-50 border rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30] ${
+                      !isAgeValid ? "border-rose-300 ring-rose-100 bg-rose-50" : "border-slate-200"
+                    }`}
+                    value={age}
+                    onChange={(e) => setAge(parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-500">{t('school.nationality')}</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
+                    value={nationality}
+                    onChange={(e) => setNationality(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Section: Filiation details */}
-          <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-3" id="form-parental-sec">
-            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider mb-1">2. Renseignements de la Filiation (Parent / Tuteur)</span>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">{t('school.parentTitle')}</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="form-parent-sec">
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-500">Nom complet du Parent/Tuteur légal *</label>
-                <input
-                  type="text"
-                  required
-                  className="w-full bg-white border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
-                  placeholder="Ex: Moustapha Sall"
-                  value={parentName}
-                  onChange={(e) => setParentName(e.target.value)}
-                />
+                <label className="block text-xs font-bold text-slate-500">{t('school.parentName')}</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400"><Users className="w-4 h-4" /></span>
+                  <input
+                    type="text"
+                    required
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
+                    placeholder="Ex: M. Ousmane Sall"
+                    value={parentName}
+                    onChange={(e) => setParentName(e.target.value)}
+                  />
+                </div>
               </div>
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-500">Téléphone Parent/Tuteur *</label>
+                <label className="block text-xs font-bold text-slate-500">{t('school.phone')}</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400"><Phone className="w-4 h-4" /></span>
+                  <input
+                    type="tel"
+                    required
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
+                    placeholder="Ex: +221 77 123 45 67"
+                    value={parentPhone}
+                    onChange={(e) => setParentPhone(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-500">{t('school.email')}</label>
                 <input
-                  type="tel"
-                  required
-                  className="w-full bg-white border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
-                  placeholder="Ex: +221 77 663 32 42"
-                  value={parentPhone}
-                  onChange={(e) => setParentPhone(e.target.value)}
+                  type="email"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
+                  placeholder="contact@parent.com"
+                  value={parentEmail}
+                  onChange={(e) => setParentEmail(e.target.value)}
                 />
               </div>
-            </div>
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-500">Email Parent (Optionnel)</label>
-              <input
-                type="email"
-                className="w-full bg-white border border-slate-200 rounded-lg p-2 focus:outline-hidden"
-                placeholder="parent@example.com"
-                value={parentEmail}
-                onChange={(e) => setParentEmail(e.target.value)}
-              />
             </div>
           </div>
 
@@ -322,9 +327,9 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-500 uppercase">Niveau (Test d'entrée)</label>
+              <label className="block text-xs font-bold text-slate-500">{t('school.etapeLabel')}</label>
               <select
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
                 value={etape}
                 onChange={(e) => setEtape(e.target.value as EtapePedagogique)}
               >
@@ -334,20 +339,13 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           </div>
 
           {/* Section: Required Documents File Uploads */}
-          <div className="space-y-2">
-            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">4. Pièces Justificatives Obligatoires</span>
-            <p className="text-[11px] text-slate-400">Veuillez joindre les documents de l'élève en glissant-déposant ou en cliquant.</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Document 1: Student Birth Cert */}
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">{t('school.docsTitle')}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4" id="form-documents-sec">
+              {/* Dropzone Extrait Naissance */}
               <div 
-                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
-                  birthCertFile ? "border-emerald-400 bg-emerald-50/10" : isDragCert ? "border-[#D0A21C] bg-amber-50/10" : "border-slate-200 hover:border-slate-300"
-                }`}
-                onDragEnter={handleDragCert}
-                onDragOver={handleDragCert}
-                onDragLeave={handleDragCert}
-                onDrop={handleDropCert}
+                className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${isDragCert ? "border-[#0B1C30] bg-[#0B1C30]/5" : "border-slate-200 hover:bg-slate-50"}`}
+                onDragEnter={handleDragCert} onDragOver={handleDragCert} onDragLeave={handleDragCert} onDrop={handleDropCert}
                 onClick={() => document.getElementById("birthCertInput")?.click()}
               >
                 <input 
@@ -360,8 +358,8 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                 <div className="flex flex-col items-center space-y-2">
                   <Upload className={`w-6 h-6 ${birthCertFile ? "text-emerald-500" : "text-slate-400"}`} />
                   <div>
-                    <p className="text-xs font-bold text-slate-700">Extrait de Naissance / Passeport</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Glissez-déposez ou cliquez pour charger (PDF, Image)</p>
+                    <p className="text-xs font-bold text-slate-700">{t('school.birthCert')}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{t('school.dropFiles')}</p>
                   </div>
                   {birthCertFile && (
                     <div className="inline-flex items-center space-x-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md mt-1">
@@ -393,8 +391,8 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                 <div className="flex flex-col items-center space-y-2">
                   <Upload className={`w-6 h-6 ${parentIdFile ? "text-emerald-500" : "text-slate-400"}`} />
                   <div>
-                    <p className="text-xs font-bold text-slate-700">Pièce d'Identité du Responsable</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Glissez-déposez ou cliquez pour charger (père, mère ou tuteur)</p>
+                    <p className="text-xs font-bold text-slate-700">{t('school.parentId')}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{t('school.dropFiles')}</p>
                   </div>
                   {parentIdFile && (
                     <div className="inline-flex items-center space-x-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md mt-1">
@@ -411,7 +409,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3" id="reglement-interieur-panel">
             <div className="flex items-center space-x-2 border-b border-slate-200 pb-2">
               <ShieldCheck className="w-4 h-4 text-[#D0A21C]" />
-              <span className="text-xs font-extrabold text-[#0B1C30] uppercase tracking-wider">5. Règlement Intérieur — Conditions Générales</span>
+              <span className="text-xs font-extrabold text-[#0B1C30] uppercase tracking-wider">{t('school.internalRules')}</span>
             </div>
             
             <div className="text-[11px] text-slate-500 leading-relaxed max-h-32 overflow-y-auto pr-1 space-y-2 no-scrollbar">
@@ -432,7 +430,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                 onChange={(e) => setRulesAccepted(e.target.checked)}
               />
               <label htmlFor="acceptRules" className="text-xs font-semibold text-slate-600 select-none cursor-pointer">
-                Je soussigné(e) certifie avoir pris connaissance du Règlement Intérieur de l'Institut Rayhana et m'engage à le respecter et à le faire respecter par mon enfant. *
+                {t('school.certify')}
               </label>
             </div>
           </div>
@@ -447,7 +445,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             }`}
           >
-            <span>VALIDER L'INSCRIPTION ET MATRICULER L'ÉLÈVE</span>
+            <span>{t('school.submitEnroll')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
