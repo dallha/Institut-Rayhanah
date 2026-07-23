@@ -38,6 +38,13 @@ model Student {
   age                 Int?
   regime              String?            // "internat" | "externat" | "demi-pension"
   nationality         String?
+  fatherName          String?
+  fatherPhone         String?
+  motherName          String?
+  motherPhone         String?
+  guardianName        String?
+  guardianPhone       String?
+  guardianRelation    String?
   status              String?            // "en_cours" | "hafiz" | "abandonne"
 
   medals              StudentMedal[]

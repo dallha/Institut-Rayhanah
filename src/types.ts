@@ -53,6 +53,13 @@ export interface Student {
   age?: number;
   regime?: "internat" | "externat" | "demi-pension";
   nationality?: string;
+  fatherName?: string;
+  fatherPhone?: string;
+  motherName?: string;
+  motherPhone?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  guardianRelation?: string;
   status?: "en_cours" | "hafiz" | "abandonne";
 }
 

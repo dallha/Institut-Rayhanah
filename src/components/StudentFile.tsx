@@ -98,6 +98,13 @@ export default function StudentFile({
     parentName: student.parentName,
     parentPhone: student.parentPhone,
     parentEmail: student.parentEmail ?? "",
+    fatherName: student.fatherName ?? "",
+    fatherPhone: student.fatherPhone ?? "",
+    motherName: student.motherName ?? "",
+    motherPhone: student.motherPhone ?? "",
+    guardianName: student.guardianName ?? "",
+    guardianPhone: student.guardianPhone ?? "",
+    guardianRelation: student.guardianRelation ?? "",
     age: student.age ?? 0,
     gender: student.gender ?? "male",
     nationality: student.nationality ?? "Sénégalaise",
@@ -354,40 +361,107 @@ export default function StudentFile({
                 </div>
               </div>
 
-              {/* Parent info */}
+              {/* Parent & Guardian info */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {t('studentFile.parentContact')}</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.parentName')}</label>
-                    {editing ? (
-                      <input className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentName} onChange={e => setForm(f => ({ ...f, parentName: e.target.value }))} />
-                    ) : (
-                      <p className="text-sm font-semibold text-slate-800">{student.parentName}</p>
-                    )}
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Information des Parents & Filiation</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Père */}
+                  <div className="bg-white p-3 rounded-lg border border-slate-200/60 space-y-2">
+                    <span className="text-xs font-bold text-slate-700 block border-b pb-1">Père</span>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Nom du Père</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.fatherName} onChange={e => setForm(f => ({ ...f, fatherName: e.target.value }))} />
+                      ) : (
+                        <p className="text-xs font-semibold text-slate-800">{student.fatherName || "—"}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Téléphone Père</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.fatherPhone} onChange={e => setForm(f => ({ ...f, fatherPhone: e.target.value }))} />
+                      ) : student.fatherPhone ? (
+                        <a href={`tel:${student.fatherPhone}`} className="text-xs font-semibold text-emerald-700 hover:underline flex items-center gap-1">
+                          <Phone className="w-3 h-3" /> {student.fatherPhone}
+                        </a>
+                      ) : (
+                        <p className="text-xs text-slate-400">—</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.phone')}</label>
-                    {editing ? (
-                      <input className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentPhone} onChange={e => setForm(f => ({ ...f, parentPhone: e.target.value }))} />
-                    ) : (
-                      <a href={`tel:${student.parentPhone}`} className="text-sm font-semibold text-emerald-700 hover:underline flex items-center gap-1">
-                        <Phone className="w-3.5 h-3.5" /> {student.parentPhone}
-                      </a>
-                    )}
+
+                  {/* Mère */}
+                  <div className="bg-white p-3 rounded-lg border border-slate-200/60 space-y-2">
+                    <span className="text-xs font-bold text-slate-700 block border-b pb-1">Mère</span>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Nom de la Mère</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.motherName} onChange={e => setForm(f => ({ ...f, motherName: e.target.value }))} />
+                      ) : (
+                        <p className="text-xs font-semibold text-slate-800">{student.motherName || "—"}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Téléphone Mère</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.motherPhone} onChange={e => setForm(f => ({ ...f, motherPhone: e.target.value }))} />
+                      ) : student.motherPhone ? (
+                        <a href={`tel:${student.motherPhone}`} className="text-xs font-semibold text-emerald-700 hover:underline flex items-center gap-1">
+                          <Phone className="w-3 h-3" /> {student.motherPhone}
+                        </a>
+                      ) : (
+                        <p className="text-xs text-slate-400">—</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.email')}</label>
-                    {editing ? (
-                      <input type="email" className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentEmail} onChange={e => setForm(f => ({ ...f, parentEmail: e.target.value }))} />
-                    ) : student.parentEmail ? (
-                      <a href={`mailto:${student.parentEmail}`} className="text-sm font-semibold text-emerald-700 hover:underline flex items-center gap-1">
-                        <Mail className="w-3.5 h-3.5" /> {student.parentEmail}
-                      </a>
-                    ) : (
-                      <p className="text-sm text-slate-400 italic">—</p>
-                    )}
+                </div>
+
+                {/* Tuteur (Si différent) */}
+                <div className="bg-white p-3 rounded-lg border border-slate-200/60 space-y-2">
+                  <span className="text-xs font-bold text-slate-700 block border-b pb-1">Tuteur Légal / Contact Principal</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Nom du Tuteur</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.guardianName} onChange={e => setForm(f => ({ ...f, guardianName: e.target.value }))} placeholder="Ex: Oncle, Organisme..." />
+                      ) : (
+                        <p className="text-xs font-semibold text-slate-800">{student.guardianName || student.parentName || "—"}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Téléphone Tuteur</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.guardianPhone} onChange={e => setForm(f => ({ ...f, guardianPhone: e.target.value }))} />
+                      ) : (student.guardianPhone || student.parentPhone) ? (
+                        <a href={`tel:${student.guardianPhone || student.parentPhone}`} className="text-xs font-semibold text-emerald-700 hover:underline flex items-center gap-1">
+                          <Phone className="w-3 h-3" /> {student.guardianPhone || student.parentPhone}
+                        </a>
+                      ) : (
+                        <p className="text-xs text-slate-400">—</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">Lien de parenté</label>
+                      {editing ? (
+                        <input className="w-full border border-emerald-300 rounded-lg px-2 py-1 text-xs" value={form.guardianRelation} onChange={e => setForm(f => ({ ...f, guardianRelation: e.target.value }))} placeholder="Ex: Oncle, Tante" />
+                      ) : (
+                        <p className="text-xs font-semibold text-slate-800">{student.guardianRelation || "—"}</p>
+                      )}
+                    </div>
                   </div>
+                </div>
+
+                <div className="pt-2">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.email')}</label>
+                  {editing ? (
+                    <input type="email" className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentEmail} onChange={e => setForm(f => ({ ...f, parentEmail: e.target.value }))} />
+                  ) : student.parentEmail ? (
+                    <a href={`mailto:${student.parentEmail}`} className="text-sm font-semibold text-emerald-700 hover:underline flex items-center gap-1">
+                      <Mail className="w-3.5 h-3.5" /> {student.parentEmail}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-slate-400 italic">—</p>
+                  )}
                 </div>
               </div>
 

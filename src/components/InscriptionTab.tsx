@@ -38,6 +38,17 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
   const [parentName, setParentName] = useState("");
   const [parentPhone, setParentPhone] = useState("");
   const [parentEmail, setParentEmail] = useState("");
+
+  // Detailed Filiation & Guardian
+  const [fatherName, setFatherName] = useState("");
+  const [fatherPhone, setFatherPhone] = useState("");
+  const [motherName, setMotherName] = useState("");
+  const [motherPhone, setMotherPhone] = useState("");
+  const [hasDifferentGuardian, setHasDifferentGuardian] = useState(false);
+  const [guardianName, setGuardianName] = useState("");
+  const [guardianPhone, setGuardianPhone] = useState("");
+  const [guardianRelation, setGuardianRelation] = useState("Oncle/Tante");
+
   const [halaqaId, setHalaqaId] = useState(halaqas[0]?.id || "h1");
   const [nationality, setNationality] = useState("Sénégalaise");
   const [etape, setEtape] = useState<EtapePedagogique>(EtapePedagogique.Tahajji);
@@ -108,14 +119,24 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
     const count = students.length + 1;
     const matricule = `IRY-${String(count).padStart(4, "0")}`;
 
+    const mainParentName = parentName || fatherName || (hasDifferentGuardian ? guardianName : "");
+    const mainParentPhone = parentPhone || fatherPhone || (hasDifferentGuardian ? guardianPhone : "");
+
     const newStudent: Student = {
       id: `s_${Date.now()}`,
       matricule,
       firstName,
       lastName,
-      parentName,
-      parentPhone,
+      parentName: mainParentName,
+      parentPhone: mainParentPhone,
       parentEmail: parentEmail || undefined,
+      fatherName: fatherName || undefined,
+      fatherPhone: fatherPhone || undefined,
+      motherName: motherName || undefined,
+      motherPhone: motherPhone || undefined,
+      guardianName: hasDifferentGuardian ? (guardianName || undefined) : undefined,
+      guardianPhone: hasDifferentGuardian ? (guardianPhone || undefined) : undefined,
+      guardianRelation: hasDifferentGuardian ? guardianRelation : undefined,
       halaqaId,
       etape,
       khatmatCount: 0,
@@ -138,6 +159,13 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
     setParentName("");
     setParentPhone("");
     setParentEmail("");
+    setFatherName("");
+    setFatherPhone("");
+    setMotherName("");
+    setMotherPhone("");
+    setHasDifferentGuardian(false);
+    setGuardianName("");
+    setGuardianPhone("");
     setRulesAccepted(false);
     setBirthCertFile(null);
     setParentIdFile(null);
@@ -230,48 +258,83 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
             </div>
           </div>
 
-          {/* Section: Filiation details */}
-          <div className="space-y-3 pt-4 border-t border-slate-100">
-            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">{t('school.parentTitle')}</span>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="form-parent-sec">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">{t('school.parentName')}</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-slate-400"><Users className="w-4 h-4" /></span>
-                  <input
-                    type="text"
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
-                    placeholder="Ex: M. Ousmane Sall"
-                    value={parentName}
-                    onChange={(e) => setParentName(e.target.value)}
-                  />
+          {/* Section: Filiation & Parents details */}
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">Information des Parents & Filiation</span>
+            
+            {/* Father & Mother info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-blue-600" /> Père</span>
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Nom & Prénom du Père</label>
+                    <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: Ousmane Sall" value={fatherName} onChange={e => setFatherName(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Téléphone du Père</label>
+                    <input type="tel" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: +221 77 123 45 67" value={fatherPhone} onChange={e => setFatherPhone(e.target.value)} />
+                  </div>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">{t('school.phone')}</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-slate-400"><Phone className="w-4 h-4" /></span>
-                  <input
-                    type="tel"
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
-                    placeholder="Ex: +221 77 123 45 67"
-                    value={parentPhone}
-                    onChange={(e) => setParentPhone(e.target.value)}
-                  />
+
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-pink-600" /> Mère</span>
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Nom & Prénom de la Mère</label>
+                    <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: Aminata Diallo" value={motherName} onChange={e => setMotherName(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Téléphone de la Mère</label>
+                    <input type="tel" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: +221 78 987 65 43" value={motherPhone} onChange={e => setMotherPhone(e.target.value)} />
+                  </div>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-500">{t('school.email')}</label>
+            </div>
+
+            {/* Checkbox for separate guardian */}
+            <div className="pt-2">
+              <label className="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer">
                 <input
-                  type="email"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
-                  placeholder="contact@parent.com"
-                  value={parentEmail}
-                  onChange={(e) => setParentEmail(e.target.value)}
+                  type="checkbox"
+                  checked={hasDifferentGuardian}
+                  onChange={(e) => setHasDifferentGuardian(e.target.checked)}
+                  className="rounded text-[#0B1C30] focus:ring-[#0B1C30] h-4 w-4"
                 />
+                <span>Le tuteur légal est différent des parents (ex: Oncle, Tante, Organisme...)</span>
+              </label>
+            </div>
+
+            {hasDifferentGuardian && (
+              <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-200/80 space-y-3">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-amber-700" /> Tuteur Légal / Responsable</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Nom & Prénom du Tuteur *</label>
+                    <input type="text" required={hasDifferentGuardian} className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: Mamadou Sow" value={guardianName} onChange={e => setGuardianName(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Téléphone Tuteur *</label>
+                    <input type="tel" required={hasDifferentGuardian} className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: +221 70 111 22 33" value={guardianPhone} onChange={e => setGuardianPhone(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Lien de parenté</label>
+                    <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs" placeholder="Ex: Oncle, Grand-père..." value={guardianRelation} onChange={e => setGuardianRelation(e.target.value)} />
+                  </div>
+                </div>
               </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-500">{t('school.email')} (Optionnel)</label>
+              <input
+                type="email"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden focus:ring-1 focus:ring-[#0B1C30]"
+                placeholder="contact@parent.com"
+                value={parentEmail}
+                onChange={(e) => setParentEmail(e.target.value)}
+              />
             </div>
           </div>
 
