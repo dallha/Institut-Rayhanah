@@ -1455,6 +1455,7 @@ export default function ParametresTab({
                 <th className="px-4 py-3">{t('settings.firstLastName')}</th>
                 <th className="px-4 py-3">{t('studentFile.gender')}</th>
                 <th className="px-4 py-3">{t('settings.level')}</th>
+                <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3">{t('studentFile.regime')}</th>
                 <th className="px-4 py-3">{t('settings.parentContact')}</th>
                 <th className="px-4 py-3 rounded-tr-lg text-right">{t('settings.actions')}</th>
@@ -1477,6 +1478,15 @@ export default function ParametresTab({
                   <td className="px-4 py-3 text-xs">
                     <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-medium border border-emerald-100">
                       {getEtapeLabelFormat(student.etape, student.gender)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    <span className={`px-2 py-1 rounded font-bold border ${
+                      (student.status === "abandonne") ? "bg-rose-100 text-rose-700 border-rose-200" :
+                      (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "bg-amber-100 text-amber-800 border-amber-200" :
+                      "bg-emerald-100 text-emerald-700 border-emerald-200"
+                    }`}>
+                      {student.status === "abandonne" ? "⚠️ Abandonné" : (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "👑 Hafiz(a)" : "📖 En cours"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500">{student.regime || "Non défini"}</td>
@@ -1545,6 +1555,17 @@ export default function ParametresTab({
                 <span className="font-bold text-slate-400">PARCOURS CORAN</span>
                 <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                   {getEtapeLabelFormat(student.etape, student.gender)}
+                </span>
+              </div>
+              
+              <div className="border-t border-slate-100 px-4 py-3 text-xs flex justify-between items-center">
+                <span className="font-bold text-slate-400">STATUT</span>
+                <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider border ${
+                  (student.status === "abandonne") ? "bg-rose-100 text-rose-700 border-rose-200" :
+                  (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "bg-amber-100 text-amber-800 border-amber-200" :
+                  "bg-emerald-100 text-emerald-700 border-emerald-200"
+                }`}>
+                  {student.status === "abandonne" ? "⚠️ Abandonné" : (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "👑 Hafiz(a)" : "📖 En cours"}
                 </span>
               </div>
               
