@@ -68,6 +68,7 @@ export default function PedagogieModule({
           students={students}
           halaqas={halaqas}
           onUpdateStudent={onUpdateStudent}
+          onClotureDay={onClotureDay}
           attendance={attendance}
           lessons={lessons}
           payments={payments}

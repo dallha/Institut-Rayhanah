@@ -6,16 +6,18 @@
 import React, { useState } from "react";
 import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson, PaymentRecord } from "../types";
 import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
-import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen, Users, ShieldAlert } from "lucide-react";
+import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen, Users, ShieldAlert, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
 import WeeklySummaryChart from "./WeeklySummaryChart";
 import StudentFile from "./StudentFile";
+import HalaqaDetailView from "./HalaqaDetailView";
 
 interface PedagogyTabProps {
   students: Student[];
   halaqas: Halaqa[];
   onUpdateStudent: (updated: Student) => void;
+  onClotureDay?: (attendance: AttendanceRecord[], lessons: QuranLesson[]) => void;
   attendance: AttendanceRecord[];
   lessons: QuranLesson[];
   payments?: PaymentRecord[];
@@ -25,6 +27,7 @@ export default function PedagogyTab({
   students, 
   halaqas, 
   onUpdateStudent,
+  onClotureDay,
   attendance,
   lessons,
   payments = []
@@ -35,6 +38,7 @@ export default function PedagogyTab({
   const [selectedEtape, setSelectedEtape] = useState("all");
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [selectedHalaqaForDetail, setSelectedHalaqaForDetail] = useState<string | null>(null);
 
   // Edit progress state
   const [etapeVal, setEtapeVal] = useState<EtapePedagogique>(EtapePedagogique.Hifz);
@@ -143,6 +147,22 @@ export default function PedagogyTab({
     : 0;
   const hafizCount = students.filter(s => s.etape === EtapePedagogique.Hafiz).length;
   const tahajjiCount = students.filter(s => s.etape === EtapePedagogique.Tahajji).length;
+
+  // ── Early return: Halaqa detail drill-down ─────────────────────────────
+  if (selectedHalaqaForDetail) {
+    const halaqa = halaqas.find(h => h.id === selectedHalaqaForDetail);
+    if (halaqa && onClotureDay) {
+      return (
+        <HalaqaDetailView
+          halaqa={halaqa}
+          students={students}
+          onBack={() => setSelectedHalaqaForDetail(null)}
+          onUpdateStudent={onUpdateStudent}
+          onClotureDay={onClotureDay}
+        />
+      );
+    }
+  }
 
   return (
     <div className="space-y-6" id="pedagogy-container">
@@ -255,21 +275,32 @@ export default function PedagogyTab({
                   </div>
                 </div>
 
-                {/* Badges & Action */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                {/* Badges & Actions */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
                     <span>👑 {hafizInHalaqaCount} Hafiz</span>
                   </div>
-                  <button
-                    onClick={() => setSelectedHalaqa(selectedHalaqa === h.id ? "all" : h.id)}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      selectedHalaqa === h.id 
-                        ? "bg-[#0B1C30] text-white" 
-                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                    }`}
-                  >
-                    {selectedHalaqa === h.id ? "Affiché ✓" : "Filtrer"}
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {onClotureDay && (
+                      <button
+                        onClick={() => setSelectedHalaqaForDetail(h.id)}
+                        className="flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#0B1C30] to-[#1a3554] text-white hover:from-[#142d47] cursor-pointer transition-all shadow-sm"
+                      >
+                        <ArrowRight className="w-3.5 h-3.5" />
+                        Gérer
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setSelectedHalaqa(selectedHalaqa === h.id ? "all" : h.id)}
+                      className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        selectedHalaqa === h.id 
+                          ? "bg-slate-200 text-slate-800" 
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {selectedHalaqa === h.id ? "Affiché ✓" : "Filtrer"}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
