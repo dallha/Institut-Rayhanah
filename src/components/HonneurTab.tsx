@@ -3,6 +3,7 @@ import { Student, EtapePedagogique, Halaqa } from "../types";
 import { Award, Star, TrendingUp, Crown, GraduationCap } from "lucide-react";
 import { calculateWestAfricanProgress } from "../quranData";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 interface HonneurTabProps {
   students: Student[];
@@ -10,7 +11,8 @@ interface HonneurTabProps {
 }
 
 export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
-  const getHalaqaName = (id: string) => halaqas.find((h) => h.id === id)?.name || "Inconnue";
+  const { t } = useTranslation();
+  const getHalaqaName = (id: string) => halaqas.find((h) => h.id === id)?.name || t('honneur.unknown');
 
   // Categorize students
   const huffaz = students.filter(s => s.etape === EtapePedagogique.Hafiz).sort((a, b) => b.khatmatCount - a.khatmatCount);
@@ -35,8 +37,8 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
         </div>
         <div className="relative z-10">
           <Award className="w-12 h-12 text-[#D0A21C] mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white uppercase tracking-wider mb-2">Tableau d'Honneur</h2>
-          <p className="text-emerald-400 font-medium">Institut Rayhanah pour l'enseignement coranique</p>
+          <h2 className="text-2xl font-bold text-white uppercase tracking-wider mb-2">{t('honneur.title')}</h2>
+          <p className="text-emerald-400 font-medium">{t('honneur.subtitle')}</p>
         </div>
       </div>
 
@@ -44,7 +46,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <GraduationCap className="w-6 h-6 text-rose-600" />
-          <h3 className="text-lg font-bold text-slate-800">Nos Huffaz Certifiés 👑</h3>
+          <h3 className="text-lg font-bold text-slate-800">{t('honneur.certifiedHuffaz')}</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {huffaz.map(student => (
@@ -59,7 +61,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
               </div>
               <h4 className="font-bold text-slate-800 text-lg">{student.firstName} {student.lastName}</h4>
               <p className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1 rounded-full inline-block mt-2">
-                {(student.gender === 'female' || student.gender === 'F') ? 'Hafizat al-Quran (حافظة القرأن)' : 'Hafiz al-Quran (حافظ القرأن)'}
+                {(student.gender === 'female' || student.gender === 'F') ? t('honneur.hafizat') : t('honneur.hafiz')}
               </p>
               <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium space-y-1">
                 <p>Halaqa : {getHalaqaName(student.halaqaId)}</p>
@@ -69,7 +71,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
           ))}
           {huffaz.length === 0 && (
             <div className="col-span-full text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-              <p className="text-slate-400 text-sm font-medium">Aucun Hafiz certifié pour le moment.</p>
+              <p className="text-slate-400 text-sm font-medium">{t('honneur.noHafiz')}</p>
             </div>
           )}
         </div>
@@ -79,7 +81,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <Star className="w-6 h-6 text-amber-500" />
-          <h3 className="text-lg font-bold text-slate-800">Proches du Khatm 🔥 (Hizbs 1 à 10)</h3>
+          <h3 className="text-lg font-bold text-slate-800">{t('honneur.nearKhatm')}</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {nearKhatm.map(student => (
@@ -101,7 +103,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
           ))}
           {nearKhatm.length === 0 && (
             <div className="col-span-full text-center py-6 bg-slate-50 rounded-xl text-slate-400 text-sm">
-              Aucun élève dans la dernière ligne droite.
+              {t('honneur.noNearKhatm')}
             </div>
           )}
         </div>
@@ -111,7 +113,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <TrendingUp className="w-6 h-6 text-emerald-500" />
-          <h3 className="text-lg font-bold text-slate-800">Meilleurs Mémorisants (Top 5)</h3>
+          <h3 className="text-lg font-bold text-slate-800">{t('honneur.topMemorizers')}</h3>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-xs">
           {activeMemorizers.map((student, index) => (

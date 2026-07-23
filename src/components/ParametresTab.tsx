@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique } from "../types";
 import StudentFile from "./StudentFile";
 import { supabase } from "../lib/supabase";
+import { useTranslation } from "react-i18next";
 
 function getEtapeLabelFormat(etape: EtapePedagogique, gender?: string) {
   const isFemale = gender === "female" || gender === "F";
@@ -52,6 +53,7 @@ export default function ParametresTab({
   onUpdateHalaqa,
   onDeleteHalaqa
 }: ParametresTabProps) {
+  const { t } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem("daara_admin_auth") === "true";
   });
@@ -481,9 +483,9 @@ export default function ParametresTab({
           <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-[#0B1C30]" />
           </div>
-          <h3 className="font-bold text-xl text-slate-800 mb-2">Accès Restreint</h3>
+          <h3 className="font-bold text-xl text-slate-800 mb-2">{t('settings.restrictedAccess')}</h3>
           <p className="text-sm text-slate-500 mb-6">
-            L'espace Administration et Ressources Humaines est protégé. Veuillez saisir le mot de passe directeur.
+            {t('settings.restrictedDesc')}
           </p>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -508,7 +510,7 @@ export default function ParametresTab({
               type="submit"
               className="w-full bg-[#0B1C30] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-[#142d47] transition-colors cursor-pointer shadow-sm"
             >
-              Déverrouiller
+              {t('settings.unlock')}
             </button>
           </form>
 
@@ -519,7 +521,7 @@ export default function ParametresTab({
                 className="w-full bg-slate-50 border border-slate-200 text-[#0B1C30] px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-colors flex justify-center items-center gap-2 cursor-pointer"
               >
                 <Fingerprint className="w-5 h-5 text-emerald-600" />
-                Se connecter avec Face ID / Touch ID
+                {t('settings.bioLogin')}
               </button>
             </div>
           )}
@@ -530,9 +532,9 @@ export default function ParametresTab({
         <div className="mb-6">
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <Settings className="w-5 h-5 text-[#0B1C30]" />
-            <span>Administration Globale du Système</span>
+            <span>{t('settings.globalAdmin')}</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">Paramètres vitaux, sécurité et identité de l'institut</p>
+          <p className="text-xs text-slate-400 mt-1">{t('settings.globalAdminDesc')}</p>
         </div>
 
         {settingsSuccess && (
@@ -544,10 +546,10 @@ export default function ParametresTab({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">
-            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2">Identité de l'Établissement</h4>
+            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2">{t('settings.schoolIdentity')}</h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Nom de l'Institut</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.instituteName')}</label>
                 <input 
                   type="text" 
                   value={instituteName}
@@ -556,7 +558,7 @@ export default function ParametresTab({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Année Académique</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.academicYear')}</label>
                 <select 
                   value={academicYear}
                   onChange={(e) => setAcademicYear(e.target.value)}
@@ -570,17 +572,17 @@ export default function ParametresTab({
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2">Passerelle SMS</h4>
+            <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2">{t('settings.smsGateway')}</h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Fournisseur Actif</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.activeProvider')}</label>
                 <select className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-medium">
                   <option>Orange Sénégal API</option>
                   <option>Twilio</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Clé d'API</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.apiKey')}</label>
                 <input type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-700 font-medium" defaultValue="****************" />
               </div>
               <div>
@@ -595,7 +597,7 @@ export default function ParametresTab({
                   ) : smsTestStatus === 'success' ? (
                     <><Check className="w-3.5 h-3.5 text-emerald-600" /> Connexion Réussie !</>
                   ) : (
-                    "Tester la connexion API"
+                    t('settings.testConnection')
                   )}
                 </button>
               </div>
@@ -605,11 +607,11 @@ export default function ParametresTab({
           <div className="space-y-4">
             <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2 flex items-center gap-2">
               <Fingerprint className="w-4 h-4 text-emerald-600" />
-              Sécurité & Accès
+              {t('settings.securityAccess')}
             </h4>
             <div className="space-y-3">
               <p className="text-[11px] text-slate-500 leading-tight">
-                Activez l'authentification biométrique (Face ID, Touch ID, Windows Hello) pour déverrouiller ce panneau d'administration sans mot de passe.
+                {t('settings.bioDesc')}
               </p>
               
               {!hasBiometric ? (
@@ -618,13 +620,13 @@ export default function ParametresTab({
                   className="w-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex justify-center items-center gap-1.5 cursor-pointer"
                 >
                   <Fingerprint className="w-4 h-4" />
-                  Activer la Biométrie (WebAuthn)
+                  {t('settings.enableBio')}
                 </button>
               ) : (
                 <div className="w-full bg-slate-50 border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold flex justify-between items-center">
                   <div className="flex items-center gap-1.5">
                     <Check className="w-4 h-4 text-emerald-600" />
-                    <span>Biométrie active</span>
+                    <span>{t('settings.bioActive')}</span>
                   </div>
                   <button 
                     onClick={() => {
@@ -633,7 +635,7 @@ export default function ParametresTab({
                     }}
                     className="text-rose-500 hover:text-rose-700 text-[10px] underline cursor-pointer"
                   >
-                    Désactiver
+                    {t('settings.disable')}
                   </button>
                 </div>
               )}
@@ -647,7 +649,7 @@ export default function ParametresTab({
             className="bg-[#0B1C30] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#142d47] transition-all shadow-sm cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            Enregistrer les modifications
+            {t('settings.saveChanges')}
           </button>
         </div>
       </div>
@@ -657,18 +659,18 @@ export default function ParametresTab({
         <div className="mb-6">
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <BookOpen className="w-5 h-5 text-indigo-600" />
-            <span>Configuration Pédagogique (Halaqas & Gamification)</span>
+            <span>{t('settings.pedagogyConfig')}</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">Paramétrage des groupes, des points de motivation et du cursus coranique</p>
+          <p className="text-xs text-slate-400 mt-1">{t('settings.pedagogyConfigDesc')}</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2 flex items-center gap-2">
-              <Users className="w-4 h-4 text-indigo-500" /> Gestion des Halaqas
+              <Users className="w-4 h-4 text-indigo-500" /> {t('settings.halaqaManagement')}
             </h4>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-              <p className="text-[11px] text-slate-500">Les groupes (Halaqas) permettent de diviser les élèves par enseignant ou par niveau.</p>
+              <p className="text-[11px] text-slate-500">{t('settings.halaqaDesc')}</p>
               
               {halaqas.map((h) => {
                 const count = students.filter(s => s.halaqaId === h.id).length;
@@ -694,32 +696,32 @@ export default function ParametresTab({
                 onClick={openNewHalaqaModal}
                 className="w-full py-2.5 bg-white border-2 border-dashed border-indigo-300 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 hover:border-indigo-400 transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <span>+ Créer une nouvelle Halaqa</span>
+                <span>{t('settings.createHalaqa')}</span>
               </button>
             </div>
           </div>
           
           <div className="space-y-4">
             <h4 className="text-sm font-bold text-[#0B1C30] border-b border-slate-100 pb-2 flex items-center gap-2">
-              <Award className="w-4 h-4 text-amber-500" /> Barème de Points (Gamification)
+              <Award className="w-4 h-4 text-amber-500" /> {t('settings.pointsScale')}
             </h4>
             <div className="bg-amber-50/30 p-4 rounded-xl border border-amber-100 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Points pour l'achèvement d'un Hizb</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">{t('settings.pointsHizb')}</label>
                 <div className="flex items-center gap-2">
                   <input type="number" value={pointsHizb} onChange={(e) => setPointsHizb(Number(e.target.value))} className="w-24 bg-white border border-slate-200 rounded-lg p-2 text-sm text-center font-bold" />
                   <span className="text-xs text-slate-500">points attribués à l'élève</span>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Points pour un Dars 'Naam' (Sourate)</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">{t('settings.pointsSurah')}</label>
                 <div className="flex items-center gap-2">
                   <input type="number" value={pointsSurah} onChange={(e) => setPointsSurah(Number(e.target.value))} className="w-24 bg-white border border-slate-200 rounded-lg p-2 text-sm text-center font-bold" />
                   <span className="text-xs text-slate-500">points de récompense par leçon réussie</span>
                 </div>
               </div>
               <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors w-full cursor-pointer shadow-sm">
-                Sauvegarder le barème
+                {t('settings.saveScale')}
               </button>
             </div>
           </div>
@@ -731,9 +733,9 @@ export default function ParametresTab({
         <div className="mb-4">
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
-            <span>Gestion des Données & Import/Export — استيراد وتصدير</span>
+            <span>{t('settings.dataManagement')}</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">Importation massive d'élèves (CSV / Excel) et sauvegarde complète de la base de données</p>
+          <p className="text-xs text-slate-400 mt-1">{t('settings.dataDesc')}</p>
         </div>
 
         {importSuccess && (
@@ -756,7 +758,7 @@ export default function ParametresTab({
             <div>
               <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <Upload className="w-4 h-4 text-emerald-600" />
-                <span>Importer la liste des élèves</span>
+                <span>{t('settings.importStudents')}</span>
               </h4>
               <p className="text-[11px] text-slate-500 mt-1">
                 Chargez un fichier CSV (champs : matricule, nom, prenom, etape, hizb, tuteur, telephone...).
@@ -776,7 +778,7 @@ export default function ParametresTab({
             <div>
               <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <Download className="w-4 h-4 text-sky-600" />
-                <span>Exporter les données (Sauvegarde)</span>
+                <span>{t('settings.exportData')}</span>
               </h4>
               <p className="text-[11px] text-slate-500 mt-1">
                 Téléchargez la liste complète de vos {students.length} élèves au format CSV pour sauvegarde ou Excel.
@@ -788,7 +790,7 @@ export default function ParametresTab({
                 className="bg-[#0B1C30] hover:bg-[#142d47] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex justify-center items-center gap-2 cursor-pointer w-full shadow-sm"
               >
                 <Download className="w-4 h-4" />
-                <span>Exporter CSV complet ({students.length})</span>
+                <span>{t('settings.exportCsv')} ({students.length})</span>
               </button>
               
               <div className="mt-4 pt-4 border-t border-slate-200/60">
@@ -798,7 +800,7 @@ export default function ParametresTab({
                   className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold px-4 py-2 rounded-lg transition-colors flex justify-center items-center gap-2 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span>Vider le Cache Local</span>
+                  <span>{t('settings.clearCache')}</span>
                 </button>
               </div>
             </div>
