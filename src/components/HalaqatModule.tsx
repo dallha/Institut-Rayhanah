@@ -4,15 +4,16 @@
  */
 
 import React, { useState, useMemo } from "react";
-import { Halaqa, Student, EtapePedagogique } from "../types";
+import { Halaqa, Student, EtapePedagogique, AttendanceRecord, QuranLesson } from "../types";
 import { supabase } from "../lib/supabase";
 import {
   Users, Plus, Edit3, Trash2, CheckCircle, XCircle, Save,
-  BookOpen, Phone, Building2, Calendar, ShieldAlert, User,
-  RefreshCw, Award, ChevronDown, ChevronUp, Search, AlertTriangle
+  BookOpen, Phone, Building2, Calendar, User,
+  RefreshCw, ChevronDown, ChevronUp, Search, AlertTriangle, ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { calculateWestAfricanProgress } from "../quranData";
+import HalaqaDetailView from "./HalaqaDetailView";
 
 interface HalaqatModuleProps {
   halaqas: Halaqa[];
@@ -20,6 +21,8 @@ interface HalaqatModuleProps {
   onAddHalaqa: (h: Halaqa) => void;
   onUpdateHalaqa: (h: Halaqa) => void;
   onDeleteHalaqa: (id: string) => void;
+  onUpdateStudent: (s: Student) => void;
+  onClotureDay: (attendance: AttendanceRecord[], lessons: QuranLesson[]) => void;
 }
 
 const LEVEL_OPTIONS = [
@@ -58,6 +61,8 @@ export default function HalaqatModule({
   onAddHalaqa,
   onUpdateHalaqa,
   onDeleteHalaqa,
+  onUpdateStudent,
+  onClotureDay,
 }: HalaqatModuleProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,6 +73,7 @@ export default function HalaqatModule({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [searchStudentTerm, setSearchStudentTerm] = useState("");
   const [syncStatus, setSyncStatus] = useState<null | "syncing" | "ok" | "error">(null);
+  const [selectedHalaqaId, setSelectedHalaqaId] = useState<string | null>(null);
 
   // ── Computed per-halaqa data ──────────────────────────────────────────────
   const halaqaStats = useMemo(() => {
@@ -202,6 +208,22 @@ export default function HalaqatModule({
       default: return "bg-gray-100 text-gray-600";
     }
   };
+
+  // ── Drill-down into a specific Halaqa ────────────────────────────────────
+  if (selectedHalaqaId) {
+    const halaqa = halaqas.find(h => h.id === selectedHalaqaId);
+    if (halaqa) {
+      return (
+        <HalaqaDetailView
+          halaqa={halaqa}
+          students={students}
+          onBack={() => setSelectedHalaqaId(null)}
+          onUpdateStudent={onUpdateStudent}
+          onClotureDay={onClotureDay}
+        />
+      );
+    }
+  }
 
   return (
     <div className="space-y-6" id="halaqat-module-container">
@@ -501,12 +523,20 @@ export default function HalaqatModule({
 
                   {/* Action buttons */}
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    {/* PRIMARY: Enter Halaqa */}
+                    <button
+                      onClick={() => setSelectedHalaqaId(h.id)}
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold text-white bg-gradient-to-r from-[#0B1C30] to-[#1a3554] hover:from-[#142d47] hover:to-[#224270] rounded-xl cursor-pointer transition-all shadow-sm"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" />
+                      Gérer ce Cercle
+                    </button>
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : h.id)}
                       className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-all"
                     >
                       <Users className="w-3.5 h-3.5" />
-                      Liste des élèves
+                      Aperçu élèves
                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                     <button

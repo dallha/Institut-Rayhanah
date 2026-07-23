@@ -89,6 +89,8 @@ export default function PedagogieModule({
           onAddHalaqa={onAddHalaqa}
           onUpdateHalaqa={onUpdateHalaqa}
           onDeleteHalaqa={onDeleteHalaqa}
+          onUpdateStudent={onUpdateStudent}
+          onClotureDay={onClotureDay}
         />
       )}
 
