@@ -115,6 +115,10 @@ export default function ParametresTab({
     gender: "M",
     parentName: "",
     parentPhone: "",
+    parentEmail: "",
+    nationality: "Sénégalaise",
+    age: 7,
+    regime: "internat",
     halaqaId: halaqas[0]?.id || "",
     etape: EtapePedagogique.Tahajji,
     khatmatCount: 0,
@@ -214,6 +218,10 @@ export default function ParametresTab({
         gender: "M",
         parentName: "",
         parentPhone: "",
+        parentEmail: "",
+        nationality: "Sénégalaise",
+        age: 7,
+        regime: "internat",
         halaqaId: halaqas[0]?.id || "",
         etape: EtapePedagogique.Tahajji,
         khatmatCount: 0,
@@ -888,8 +896,12 @@ export default function ParametresTab({
                       <input type="text" required className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.lastName} onChange={e => setNewStudentData({...newStudentData, lastName: e.target.value})} />
                     </div>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Âge</label>
+                      <input type="number" min="4" max="30" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.age} onChange={e => setNewStudentData({...newStudentData, age: Number(e.target.value)})} />
+                    </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">Genre</label>
                       <select className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.gender} onChange={e => setNewStudentData({...newStudentData, gender: e.target.value})}>
@@ -898,11 +910,26 @@ export default function ParametresTab({
                       </select>
                     </div>
                     <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Nationalité</label>
+                      <input type="text" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.nationality} onChange={e => setNewStudentData({...newStudentData, nationality: e.target.value})} />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">Halaqa *</label>
                       <select required className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.halaqaId} onChange={e => setNewStudentData({...newStudentData, halaqaId: e.target.value})}>
                         {halaqas.map(h => (
                           <option key={h.id} value={h.id}>{h.name}</option>
                         ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Régime</label>
+                      <select className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.regime} onChange={e => setNewStudentData({...newStudentData, regime: e.target.value as any})}>
+                        <option value="internat">Internat</option>
+                        <option value="externat">Externat</option>
+                        <option value="demi-pension">Demi-pension</option>
                       </select>
                     </div>
                   </div>
@@ -918,7 +945,7 @@ export default function ParametresTab({
                   
                   <div className="pt-2 border-t border-slate-100">
                     <h4 className="text-xs font-bold text-slate-500 uppercase mb-3">Parent / Tuteur</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-1">Nom du parent</label>
                         <input type="text" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentName} onChange={e => setNewStudentData({...newStudentData, parentName: e.target.value})} />
@@ -926,6 +953,10 @@ export default function ParametresTab({
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-1">Téléphone</label>
                         <input type="tel" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentPhone} onChange={e => setNewStudentData({...newStudentData, parentPhone: e.target.value})} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Email (Optionnel)</label>
+                        <input type="email" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentEmail} onChange={e => setNewStudentData({...newStudentData, parentEmail: e.target.value})} />
                       </div>
                     </div>
                   </div>
