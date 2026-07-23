@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson, PaymentRecord } from "../types";
 import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
-import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen } from "lucide-react";
+import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen, Users, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import WeeklySummaryChart from "./WeeklySummaryChart";
 import StudentFile from "./StudentFile";
@@ -53,6 +53,10 @@ export default function PedagogyTab({
 
   const getHalaqaName = (id: string) => {
     return halaqas.find((h) => h.id === id)?.name || "Non affecté";
+  };
+
+  const getHalaqaOccupancy = (halaqaId: string) => {
+    return students.filter(s => s.halaqaId === halaqaId && s.status === 'en_cours').length;
   };
 
   const getEtapeBadgeColor = (etape: EtapePedagogique) => {
@@ -189,6 +193,58 @@ export default function PedagogyTab({
 
       {/* Weekly summary visualization dashboard */}
       <WeeklySummaryChart students={students} attendance={attendance} lessons={lessons} />
+
+      {/* Halaqa Capacities Chart */}
+      <div className="bg-white border border-slate-100 p-5 rounded-2xl shadow-xs space-y-4" id="halaqa-occupancy-panel">
+        <div>
+          <h3 className="font-bold text-base text-slate-800 flex items-center space-x-1.5">
+            <Users className="w-5 h-5 text-[#0B1C30]" />
+            <span>Gestion des Effectifs Halaqas</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">Capacités et taux de remplissage par classe</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="halaqa-capacities-list">
+          {halaqas.map((h) => {
+            const occupied = getHalaqaOccupancy(h.id);
+            const percentage = Math.round((occupied / h.maxCapacity) * 100);
+            const isFull = occupied >= h.maxCapacity;
+
+            return (
+              <div key={h.id} className="border border-slate-100 p-4 rounded-xl space-y-2 relative" id={`halaqa-stat-${h.id}`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-700">{h.name}</h4>
+                    <p className="text-[10px] text-slate-400 font-medium">Oustaz : {h.teacherName}</p>
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isFull ? "bg-rose-100 text-rose-800" : "bg-[#0B1C30]/5 text-[#0B1C30]"}`}>
+                    {occupied} / {h.maxCapacity} élèves
+                  </span>
+                </div>
+
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${isFull ? "bg-rose-500" : percentage > 80 ? "bg-amber-500" : "bg-[#D0A21C]"}`}
+                    style={{ width: `${Math.min(100, percentage)}%` }}
+                  ></div>
+                </div>
+
+                <div className="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
+                  <span>Occupation</span>
+                  <span>{percentage}% de remplissage</span>
+                </div>
+
+                {isFull && (
+                  <div className="flex items-center space-x-1 text-[10px] text-rose-600 font-semibold pt-1">
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span>Capacité maximale atteinte.</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Filter and Search Bar */}
       <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4" id="pedagogy-filter-bar">
