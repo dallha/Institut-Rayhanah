@@ -116,6 +116,13 @@ export default function ParametresTab({
     parentName: "",
     parentPhone: "",
     parentEmail: "",
+    fatherName: "",
+    fatherPhone: "",
+    motherName: "",
+    motherPhone: "",
+    guardianName: "",
+    guardianPhone: "",
+    guardianRelation: "",
     nationality: "Sénégalaise",
     age: 7,
     regime: "internat",
@@ -201,8 +208,13 @@ export default function ParametresTab({
     const count = students.length + 1;
     const matricule = `IRY-${String(count).padStart(4, "0")}`;
     
+    const mainParentName = newStudentData.parentName || newStudentData.fatherName || newStudentData.guardianName || "";
+    const mainParentPhone = newStudentData.parentPhone || newStudentData.fatherPhone || newStudentData.guardianPhone || "";
+
     const studentToSave: Partial<Student> = {
       ...newStudentData,
+      parentName: mainParentName,
+      parentPhone: mainParentPhone,
       id: `s_${Date.now()}`,
       matricule,
       status: "en_cours",
@@ -219,6 +231,13 @@ export default function ParametresTab({
         parentName: "",
         parentPhone: "",
         parentEmail: "",
+        fatherName: "",
+        fatherPhone: "",
+        motherName: "",
+        motherPhone: "",
+        guardianName: "",
+        guardianPhone: "",
+        guardianRelation: "",
         nationality: "Sénégalaise",
         age: 7,
         regime: "internat",
@@ -943,21 +962,52 @@ export default function ParametresTab({
                     </select>
                   </div>
                   
-                  <div className="pt-2 border-t border-slate-100">
-                    <h4 className="text-xs font-bold text-slate-500 uppercase mb-3">Parent / Tuteur</h4>
-                    <div className="grid grid-cols-3 gap-3">
+                  <div className="pt-2 border-t border-slate-100 space-y-3">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase">Information Filiation & Tuteur</h4>
+                    
+                    <div className="grid grid-cols-2 gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Nom du parent</label>
-                        <input type="text" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentName} onChange={e => setNewStudentData({...newStudentData, parentName: e.target.value})} />
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Nom du Père</label>
+                        <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs" value={newStudentData.fatherName} onChange={e => setNewStudentData({...newStudentData, fatherName: e.target.value})} placeholder="Nom Père" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Téléphone</label>
-                        <input type="tel" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentPhone} onChange={e => setNewStudentData({...newStudentData, parentPhone: e.target.value})} />
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Tél Père</label>
+                        <input type="tel" className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs" value={newStudentData.fatherPhone} onChange={e => setNewStudentData({...newStudentData, fatherPhone: e.target.value})} placeholder="Tél Père" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Nom de la Mère</label>
+                        <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs" value={newStudentData.motherName} onChange={e => setNewStudentData({...newStudentData, motherName: e.target.value})} placeholder="Nom Mère" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">Email (Optionnel)</label>
-                        <input type="email" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentEmail} onChange={e => setNewStudentData({...newStudentData, parentEmail: e.target.value})} />
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Tél Mère</label>
+                        <input type="tel" className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs" value={newStudentData.motherPhone} onChange={e => setNewStudentData({...newStudentData, motherPhone: e.target.value})} placeholder="Tél Mère" />
                       </div>
+                    </div>
+
+                    <div className="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60 space-y-2">
+                      <span className="text-[11px] font-bold text-amber-900 block">Tuteur Légal (Si différent)</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Nom Tuteur</label>
+                          <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-1 text-xs" value={newStudentData.guardianName} onChange={e => setNewStudentData({...newStudentData, guardianName: e.target.value})} placeholder="Tuteur" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Tél Tuteur</label>
+                          <input type="tel" className="w-full bg-white border border-slate-200 rounded-lg p-1 text-xs" value={newStudentData.guardianPhone} onChange={e => setNewStudentData({...newStudentData, guardianPhone: e.target.value})} placeholder="Tél" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Lien</label>
+                          <input type="text" className="w-full bg-white border border-slate-200 rounded-lg p-1 text-xs" value={newStudentData.guardianRelation} onChange={e => setNewStudentData({...newStudentData, guardianRelation: e.target.value})} placeholder="Ex: Oncle" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Email (Optionnel)</label>
+                      <input type="email" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentEmail} onChange={e => setNewStudentData({...newStudentData, parentEmail: e.target.value})} />
                     </div>
                   </div>
                 </form>
