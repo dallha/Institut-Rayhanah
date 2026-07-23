@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown, Fingerprint, BookOpen, Award, Shield, Activity, RefreshCw } from "lucide-react";
+import { Settings, Users, Save, Edit, Trash2, X, Lock, KeyRound, Upload, Download, FileSpreadsheet, Check, AlertCircle, FolderOpen, ChevronDown, Fingerprint, BookOpen, Award, Shield, Activity, RefreshCw, UserPlus } from "lucide-react";
 import Papa from "papaparse";
 import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique } from "../types";
 import StudentFile from "./StudentFile";
@@ -107,6 +107,23 @@ export default function ParametresTab({
     });
   }, [students, studentFilter]);
 
+  // Quick Add Student State
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [newStudentData, setNewStudentData] = useState<Partial<Student>>({
+    firstName: "",
+    lastName: "",
+    gender: "M",
+    parentName: "",
+    parentPhone: "",
+    halaqaId: halaqas[0]?.id || "",
+    etape: EtapePedagogique.Tahajji,
+    khatmatCount: 0,
+    dailyWardHizbs: 0,
+    score: 50,
+    balanceDue: 0,
+    monthlyFee: 0,
+  });
+
   // Halaqa Modal State
   const [isHalaqaModalOpen, setIsHalaqaModalOpen] = useState(false);
   const [editingHalaqa, setEditingHalaqa] = useState<Halaqa | null>(null);
@@ -168,6 +185,44 @@ export default function ParametresTab({
     } else {
       setAuthError(true);
       setPasswordAttempt("");
+    }
+  };
+
+  const handleQuickAddStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStudentData.firstName || !newStudentData.lastName || !newStudentData.halaqaId) {
+      alert("Veuillez remplir les champs obligatoires.");
+      return;
+    }
+    const count = students.length + 1;
+    const matricule = `IRY-${String(count).padStart(4, "0")}`;
+    
+    const studentToSave: Partial<Student> = {
+      ...newStudentData,
+      id: `s_${Date.now()}`,
+      matricule,
+      status: "en_cours",
+      medals: []
+    };
+
+    if (onImportStudents) {
+      await onImportStudents([studentToSave]);
+      setShowAddStudentModal(false);
+      setNewStudentData({
+        firstName: "",
+        lastName: "",
+        gender: "M",
+        parentName: "",
+        parentPhone: "",
+        halaqaId: halaqas[0]?.id || "",
+        etape: EtapePedagogique.Tahajji,
+        khatmatCount: 0,
+        dailyWardHizbs: 0,
+        score: 50,
+        balanceDue: 0,
+        monthlyFee: 0,
+      });
+      alert("Élève ajouté avec succès !");
     }
   };
 
@@ -807,6 +862,88 @@ export default function ParametresTab({
           </div>
         </div>
 
+        {/* MODAL AJOUT RAPIDE ELEVE */}
+        {showAddStudentModal && (
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
+                  <UserPlus className="w-5 h-5 text-emerald-600" />
+                  Ajouter un Élève
+                </h3>
+                <button onClick={() => setShowAddStudentModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-4 sm:p-6 overflow-y-auto">
+                <form id="quick-add-student-form" onSubmit={handleQuickAddStudent} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Prénom *</label>
+                      <input type="text" required className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.firstName} onChange={e => setNewStudentData({...newStudentData, firstName: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Nom *</label>
+                      <input type="text" required className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.lastName} onChange={e => setNewStudentData({...newStudentData, lastName: e.target.value})} />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Genre</label>
+                      <select className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.gender} onChange={e => setNewStudentData({...newStudentData, gender: e.target.value})}>
+                        <option value="M">Garçon</option>
+                        <option value="F">Fille</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Halaqa *</label>
+                      <select required className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.halaqaId} onChange={e => setNewStudentData({...newStudentData, halaqaId: e.target.value})}>
+                        {halaqas.map(h => (
+                          <option key={h.id} value={h.id}>{h.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Étape (Niveau)</label>
+                    <select className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.etape} onChange={e => setNewStudentData({...newStudentData, etape: e.target.value as EtapePedagogique})}>
+                      {Object.values(EtapePedagogique).map(etape => (
+                        <option key={etape} value={etape}>{getEtapeLabelFormat(etape)}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="pt-2 border-t border-slate-100">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase mb-3">Parent / Tuteur</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Nom du parent</label>
+                        <input type="text" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentName} onChange={e => setNewStudentData({...newStudentData, parentName: e.target.value})} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Téléphone</label>
+                        <input type="tel" className="w-full border border-slate-200 rounded-lg p-2 text-sm" value={newStudentData.parentPhone} onChange={e => setNewStudentData({...newStudentData, parentPhone: e.target.value})} />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              
+              <div className="p-4 sm:p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                <button onClick={() => setShowAddStudentModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-lg text-sm font-bold transition-colors">
+                  Annuler
+                </button>
+                <button type="submit" form="quick-add-student-form" className="px-4 py-2 bg-[#0B1C30] hover:bg-[#142d47] text-white rounded-lg text-sm font-bold transition-colors">
+                  Enregistrer l'élève
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* MODAL / APERÇU DE L'IMPORT */}
         {importPreview && (
           <div className="mt-6 p-4 bg-slate-50 border border-emerald-200 rounded-xl space-y-3">
@@ -1071,8 +1208,16 @@ export default function ParametresTab({
             </h3>
             <p className="text-xs text-slate-400 mt-1">{t('settings.registryDesc')}</p>
           </div>
-          <div className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold">
-            Total : {students.length}
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold">
+              Total : {students.length}
+            </div>
+            <button
+              onClick={() => setShowAddStudentModal(true)}
+              className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors cursor-pointer"
+            >
+              + Ajouter
+            </button>
           </div>
         </div>
 

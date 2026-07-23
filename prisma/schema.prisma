@@ -82,6 +82,18 @@ model QuranLesson {
   startHizbFraction Float?
   endHizb           Int?
   endHizbFraction   Float?
+
+  // Enhancements
+  versesCount       Int?
+  
+  // Muraja'ah
+  murajaahStartHizb     Int?
+  murajaahStartFraction Float?
+  murajaahEndHizb       Int?
+  murajaahEndFraction   Float?
+  murajaahEvaluation    String?
+
+  comments          String?
 }
 
 model AttendanceRecord {
