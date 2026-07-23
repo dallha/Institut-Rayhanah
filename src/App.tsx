@@ -53,7 +53,9 @@ import {
   X as XIcon,
   Wifi,
   WifiOff,
-  RefreshCw
+  RefreshCw,
+  Phone,
+  ShieldAlert
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { enqueueRequest, processQueue, getQueueCount } from "./utils/offlineQueue";
@@ -112,13 +114,99 @@ export default function App() {
     return localStorage.getItem("daara_user_mode") === "famille";
   });
 
+  // Family Portal Authentication State
+  const [familyLoginInput, setFamilyLoginInput] = useState("");
+  const [familyAuthLoading, setFamilyAuthLoading] = useState(false);
+  const [familyAuthError, setFamilyAuthError] = useState<string | null>(null);
+  const [familyAuthenticatedStudentIds, setFamilyAuthenticatedStudentIds] = useState<string[]>(() => {
+    const cached = localStorage.getItem("daara_family_session");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        return parsed.studentIds || [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
   const handleLogout = async () => {
     localStorage.removeItem("daara_user_mode");
     setIsFamilyModeActive(false);
     await supabase.auth.signOut();
   };
 
-  const isAppAuthenticated = !!session;
+  const handleFamilyLogout = () => {
+    setFamilyAuthenticatedStudentIds([]);
+    localStorage.removeItem("daara_family_session");
+    setIsFamilyModeActive(false);
+    localStorage.removeItem("daara_user_mode");
+  };
+
+  const handleFamilyLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const rawVal = familyLoginInput.trim();
+    if (!rawVal) {
+      setFamilyAuthError("Veuillez saisir un matricule ou numéro de téléphone.");
+      return;
+    }
+
+    setFamilyAuthLoading(true);
+    setFamilyAuthError(null);
+
+    const cleanDigits = rawVal.replace(/\D/g, "");
+
+    try {
+      // 1. Query Supabase cloud first
+      const { data: supaStudents, error } = await supabase
+        .from("Student")
+        .select("*");
+
+      let matches: Student[] = [];
+
+      if (!error && supaStudents && supaStudents.length > 0) {
+        matches = (supaStudents as Student[]).filter((s) => {
+          const matMatch = s.matricule?.toLowerCase().includes(rawVal.toLowerCase());
+          const phones = [s.parentPhone, s.fatherPhone, s.motherPhone, s.guardianPhone].filter(Boolean) as string[];
+          const phoneMatch = phones.some((p) => {
+            const digits = p.replace(/\D/g, "");
+            return p.includes(rawVal) || (cleanDigits.length >= 6 && digits.includes(cleanDigits));
+          });
+          return matMatch || phoneMatch;
+        });
+      }
+
+      // 2. Fallback to local students cache if Supabase returned no match or offline
+      if (matches.length === 0 && students.length > 0) {
+        matches = students.filter((s) => {
+          const matMatch = s.matricule?.toLowerCase().includes(rawVal.toLowerCase());
+          const phones = [s.parentPhone, s.fatherPhone, s.motherPhone, s.guardianPhone].filter(Boolean) as string[];
+          const phoneMatch = phones.some((p) => {
+            const digits = p.replace(/\D/g, "");
+            return p.includes(rawVal) || (cleanDigits.length >= 6 && digits.includes(cleanDigits));
+          });
+          return matMatch || phoneMatch;
+        });
+      }
+
+      if (matches.length === 0) {
+        setFamilyAuthError("Aucun élève trouvé avec ce matricule ou numéro de téléphone.");
+      } else {
+        const studentIds = matches.map((m) => m.id);
+        setFamilyAuthenticatedStudentIds(studentIds);
+        localStorage.setItem("daara_family_session", JSON.stringify({ code: rawVal, studentIds }));
+        setIsFamilyModeActive(true);
+        localStorage.setItem("daara_user_mode", "famille");
+      }
+    } catch (err: any) {
+      setFamilyAuthError("Erreur de connexion : " + (err.message || err));
+    } finally {
+      setFamilyAuthLoading(false);
+    }
+  };
+
+  const isAppAuthenticated = !!session || (isFamilyModeActive && familyAuthenticatedStudentIds.length > 0);
 
 
   // Core global state loaded from local storage for durability
@@ -593,28 +681,60 @@ export default function App() {
             </div>
 
             {isFamilyModeActive ? (
-              <div className="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-pink-100 text-center space-y-5">
-                <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto border border-pink-100 text-pink-600">
-                  <Heart className="w-8 h-8 fill-pink-500" />
-                </div>
-                <div>
+              <div className="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-pink-100 space-y-5">
+                <div className="text-center space-y-2">
+                  <div className="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto border border-pink-100 text-pink-600">
+                    <Heart className="w-7 h-7 fill-pink-500" />
+                  </div>
                   <h3 className="font-extrabold text-lg text-slate-800">Espace Suivi Parental & Famille</h3>
-                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                    Consultez en lecture seule la progression coranique, l'assiduité et les reçus de vos enfants.
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Saisissez le **matricule de l'élève** (ex: <code className="bg-slate-100 px-1 py-0.5 rounded text-emerald-700 font-bold">IRY-0001</code>) ou le **numéro de téléphone du parent**.
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsFamilyModeActive(true);
-                    localStorage.setItem("daara_user_mode", "famille");
-                  }}
-                  className="w-full bg-gradient-to-r from-[#0B1C30] via-[#142d47] to-[#0B1C30] text-white px-4 py-3.5 rounded-xl font-bold hover:shadow-lg transition-all flex justify-center items-center gap-2 text-sm cursor-pointer"
-                >
-                  <Users className="w-4 h-4 text-[#D0A21C]" />
-                  <span>Accéder au Portail Famille</span>
-                </button>
+                <form onSubmit={handleFamilyLogin} className="space-y-4 text-left">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Code Élève (Matricule) ou N° Téléphone Parent *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Phone className="h-5 w-5 text-pink-500" />
+                      </div>
+                      <input
+                        type="text"
+                        value={familyLoginInput}
+                        onChange={(e) => {
+                          setFamilyLoginInput(e.target.value);
+                          setFamilyAuthError(null);
+                        }}
+                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all font-semibold text-slate-800 text-sm"
+                        placeholder="Ex: IRY-0001 ou +221 77 123 45 67"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {familyAuthError && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-rose-500 shrink-0" />
+                      <span>{familyAuthError}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={familyAuthLoading}
+                    className="w-full bg-gradient-to-r from-[#0B1C30] via-[#142d47] to-[#0B1C30] text-white px-4 py-4 rounded-xl font-bold hover:shadow-lg transition-all flex justify-center items-center gap-2 text-sm cursor-pointer disabled:opacity-60"
+                  >
+                    {familyAuthLoading ? (
+                      <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Recherche Supabase en cours...</>
+                    ) : (
+                      <><Users className="w-4 h-4 text-[#D0A21C]" />Accéder à la Fiche de mon Enfant</>
+                    )}
+                  </button>
+                </form>
               </div>
             ) : (
               <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-slate-100 relative">
@@ -889,13 +1009,18 @@ export default function App() {
             )}
 
             {/* PORTAIL FAMILLE TAB */}
-            {activeTab === "famille" && (
+            {(activeTab === "famille" || isFamilyModeActive) && (
               <PortailFamille
-                students={students}
+                students={
+                  familyAuthenticatedStudentIds.length > 0
+                    ? students.filter((s) => familyAuthenticatedStudentIds.includes(s.id))
+                    : students
+                }
                 halaqas={halaqas}
                 attendance={attendance}
                 lessons={lessons}
                 payments={payments}
+                onLogoutParent={handleFamilyLogout}
               />
             )}
 

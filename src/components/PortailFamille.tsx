@@ -62,6 +62,7 @@ interface PortailFamilleProps {
   attendance: AttendanceRecord[];
   lessons: QuranLesson[];
   payments: PaymentRecord[];
+  onLogoutParent?: () => void;
 }
 
 export default function PortailFamille({
@@ -69,7 +70,8 @@ export default function PortailFamille({
   halaqas,
   attendance,
   lessons,
-  payments
+  payments,
+  onLogoutParent
 }: PortailFamilleProps) {
   const { t } = useTranslation();
 
@@ -144,22 +146,34 @@ export default function PortailFamille({
             </p>
           </div>
 
-          {/* Child Selector Dropdown / Badges */}
-          <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 w-full md:w-auto">
-            <label className="block text-[10px] font-extrabold uppercase text-[#D0A21C] mb-1 tracking-wider">
-              Enfant sélectionné :
-            </label>
-            <select
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full bg-[#0B1C30] text-white border border-[#D0A21C]/40 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#D0A21C]"
-            >
-              {students.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.firstName} {s.lastName} ({s.matricule})
-                </option>
-              ))}
-            </select>
+          {/* Child Selector & Parent Logout */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 flex-1 md:w-auto">
+              <label className="block text-[10px] font-extrabold uppercase text-[#D0A21C] mb-1 tracking-wider">
+                Enfant sélectionné :
+              </label>
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                className="w-full bg-[#0B1C30] text-white border border-[#D0A21C]/40 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#D0A21C]"
+              >
+                {students.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.firstName} {s.lastName} ({s.matricule})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {onLogoutParent && (
+              <button
+                onClick={onLogoutParent}
+                className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40 px-3 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                title="Quitter l'Espace Parent"
+              >
+                <span>Déconnexion Parent</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
