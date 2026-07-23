@@ -656,6 +656,9 @@ export default function App() {
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">
                 Institut Rayhana pour l'enseignement coranique et l'éducation Islamique
               </p>
+              <p className="text-[#D0A21C] text-[11px] font-bold mt-1.5 uppercase tracking-widest">
+                Fondé par Cheikh Baye Kane
+              </p>
             </div>
 
             {/* Mode Switcher Tabs on Login */}
@@ -1045,8 +1048,10 @@ export default function App() {
         </AnimatePresence>
 
         {/* Discrete Footer Copyright Link */}
-        <div className="py-4 text-center text-xs text-slate-400 font-medium">
-          <span>© {new Date().getFullYear()} {instituteName} — Tous droits réservés • </span>
+        <div className="py-4 text-center text-xs text-slate-400 font-medium space-y-1">
+          <div>Fondé par <span className="font-bold text-[#D0A21C]">Cheikh Baye Kane</span></div>
+          <div>
+            <span>© {new Date().getFullYear()} {instituteName} — Tous droits réservés • </span>
           <button
             onClick={() => setIsDesignerModalOpen(true)}
             className="text-[#0B1C30] hover:text-[#D0A21C] font-bold underline transition-colors cursor-pointer inline-flex items-center gap-1"
@@ -1054,6 +1059,7 @@ export default function App() {
             <Palette className="w-3 h-3 text-[#D0A21C]" />
             <span>Graphiste de la Hadara</span>
           </button>
+          </div>
         </div>
       </main>
 
