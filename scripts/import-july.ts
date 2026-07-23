@@ -105,7 +105,7 @@ async function run() {
     const item = allItems[i];
     const { firstName, lastName } = splitName(item.fullName);
     const gender = detectGender(firstName);
-    const matricule = `IRY-2026-${String(i + 1).padStart(3, "0")}`;
+    const matricule = `IRY-${String(i + 1).padStart(4, "0")}`;
     const id = `student-july-2026-${i + 1}`;
 
     const isJulyPaid = item.paymentDate && item.paymentDate.startsWith("2026-07");
