@@ -600,7 +600,7 @@ export default function HalaqaDetailView({
                                     onChange={e => updateRow(row.studentId, { startHizb: Number(e.target.value) })}
                                     className="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:outline-none"
                                   >
-                                    {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                                    {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n.toString().padStart(2, '0')} {HIZBS.find(h => h.number === n)?.name || ''}</option>)}
                                   </select>
                                   <select
                                     value={row.startHizbFraction}
@@ -619,7 +619,7 @@ export default function HalaqaDetailView({
                                     onChange={e => updateRow(row.studentId, { endHizb: Number(e.target.value) })}
                                     className="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:outline-none"
                                   >
-                                    {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                                    {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n.toString().padStart(2, '0')} {HIZBS.find(h => h.number === n)?.name || ''}</option>)}
                                   </select>
                                   <select
                                     value={row.endHizbFraction}
@@ -693,7 +693,7 @@ export default function HalaqaDetailView({
                                   <div className="flex gap-1">
                                     <select value={row.murajaahStartHizb} onChange={e => updateRow(row.studentId, { murajaahStartHizb: Number(e.target.value) })}
                                       className="flex-1 bg-white border border-indigo-200 rounded-lg px-1.5 py-1 text-[10px] font-semibold focus:outline-none">
-                                      {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                                      {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n.toString().padStart(2, '0')} {HIZBS.find(h => h.number === n)?.name || ''}</option>)}
                                     </select>
                                     <select value={row.murajaahStartFraction} onChange={e => updateRow(row.studentId, { murajaahStartFraction: Number(e.target.value) })}
                                       className="flex-1 bg-white border border-indigo-200 rounded-lg px-1.5 py-1 text-[10px] font-semibold focus:outline-none">
@@ -706,7 +706,7 @@ export default function HalaqaDetailView({
                                   <div className="flex gap-1">
                                     <select value={row.murajaahEndHizb} onChange={e => updateRow(row.studentId, { murajaahEndHizb: Number(e.target.value) })}
                                       className="flex-1 bg-white border border-indigo-200 rounded-lg px-1.5 py-1 text-[10px] font-semibold focus:outline-none">
-                                      {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                                      {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n.toString().padStart(2, '0')} {HIZBS.find(h => h.number === n)?.name || ''}</option>)}
                                     </select>
                                     <select value={row.murajaahEndFraction} onChange={e => updateRow(row.studentId, { murajaahEndFraction: Number(e.target.value) })}
                                       className="flex-1 bg-white border border-indigo-200 rounded-lg px-1.5 py-1 text-[10px] font-semibold focus:outline-none">
@@ -866,7 +866,7 @@ export default function HalaqaDetailView({
                               <div className="flex gap-2">
                                 <select value={hizbVal} onChange={e => setHizbVal(Number(e.target.value))}
                                   className="flex-1 bg-white border border-slate-200 rounded-xl px-2 py-2 text-sm font-bold focus:outline-none">
-                                  {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                                  {Array.from({ length: 60 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n.toString().padStart(2, '0')} {HIZBS.find(h => h.number === n)?.name || ''}</option>)}
                                 </select>
                                 <select value={fractionVal} onChange={e => setFractionVal(Number(e.target.value))}
                                   className="flex-1 bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-semibold focus:outline-none">

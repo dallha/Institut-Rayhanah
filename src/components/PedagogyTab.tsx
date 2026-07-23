@@ -606,7 +606,7 @@ export default function PedagogyTab({
                       >
                         {HIZBS.map((h) => (
                           <option key={h.number} value={h.number}>
-                            Hizb {h.number} — {h.name}
+                            {h.number.toString().padStart(2, '0')} {h.name}
                           </option>
                         ))}
                       </select>
