@@ -78,7 +78,7 @@ export default function App() {
 
   // Dynamic Institute Settings
   const [instituteName, setInstituteName] = useState<string>(() => 
-    localStorage.getItem("daara_institute_name") || "Institut Rayhanah"
+    localStorage.getItem("daara_institute_name") || "Rayhanah Institute"
   );
   const [isDesignerModalOpen, setIsDesignerModalOpen] = useState<boolean>(false);
 
@@ -650,11 +650,11 @@ export default function App() {
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <div className="w-64 h-24 mx-auto mb-4">
-                <img src="/logo.png" alt="Institut Rayhanah" className="w-full h-full object-contain drop-shadow-md" />
+                <img src="/logo.png" alt="Rayhanah Institute" className="w-full h-full object-contain drop-shadow-md" />
               </div>
               <h1 className="text-xl font-bold text-[#0B1C30] mb-1">Espace Direction & Administration</h1>
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">
-                Institut Rayhana pour l'enseignement coranique et l'éducation Islamique
+                Rayhanah Institute pour l'enseignement coranique et l'éducation Islamique
               </p>
               <p className="text-[#D0A21C] text-[11px] font-bold mt-1.5 uppercase tracking-widest">
                 Fondé par Cheikh Baye Kane

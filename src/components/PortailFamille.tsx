@@ -136,7 +136,7 @@ export default function PortailFamille({
           <div>
             <div className="flex items-center gap-2 text-[#D0A21C] font-bold text-xs uppercase tracking-widest mb-1">
               <Heart className="w-4 h-4 fill-[#D0A21C]" />
-              <span>Portail Famille & Parents · Institut Rayhanah</span>
+              <span>Portail Famille & Parents · Rayhanah Institute</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Espace de Suivi Parental

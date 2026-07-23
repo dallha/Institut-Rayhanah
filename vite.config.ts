@@ -17,9 +17,9 @@ export default defineConfig(() => {
         },
         includeAssets: ['logo.png'],
         manifest: {
-          name: 'Institut Rayhanah ERP',
+          name: 'Rayhanah Institute ERP',
           short_name: 'Rayhanah',
-          description: 'ERP de gestion de l\'Institut Rayhanah',
+          description: 'ERP de gestion de Rayhanah Institute',
           theme_color: '#064e3b',
           background_color: '#FDFBF7',
           display: 'standalone',

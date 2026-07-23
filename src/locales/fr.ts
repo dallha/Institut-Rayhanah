@@ -206,7 +206,7 @@ export default {
     honneur: {
       unknown: "Inconnue",
       title: "Tableau d'Honneur",
-      subtitle: "Institut Rayhanah pour l'enseignement coranique",
+      subtitle: "Rayhanah Institute pour l'enseignement coranique",
       certifiedHuffaz: "Nos Huffaz Certifiés 👑",
       hafizat: "Hafizat al-Quran (حافظة القرأن)",
       hafiz: "Hafiz al-Quran (حافظ القرأن)",

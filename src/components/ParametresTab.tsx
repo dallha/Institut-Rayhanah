@@ -62,7 +62,7 @@ export default function ParametresTab({
 
   // General Settings State
   const [instituteName, setInstituteName] = useState(() => 
-    localStorage.getItem("daara_institute_name") || "Institut Rayhanah - La Sagesse"
+    localStorage.getItem("daara_institute_name") || "Rayhanah Institute"
   );
   const [academicYear, setAcademicYear] = useState(() => 
     localStorage.getItem("daara_academic_year") || "2026-2027"
@@ -272,7 +272,7 @@ export default function ParametresTab({
     try {
       const publicKey = {
         challenge: generateRandomBuffer(),
-        rp: { name: "Institut Rayhanah", id: window.location.hostname },
+        rp: { name: "Rayhanah Institute", id: window.location.hostname },
         user: {
           id: Uint8Array.from("admin-rayhanah", c => c.charCodeAt(0)),
           name: "admin",
@@ -553,7 +553,7 @@ export default function ParametresTab({
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `ELEVES_INSTITUT_RAYHANAH_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `ELEVES_RAYHANAH_INSTITUTE_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
