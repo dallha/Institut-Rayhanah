@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "./lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { Student, Halaqa, AttendanceRecord, QuranLesson, PaymentRecord, EtapePedagogique, Evaluation } from "./types";
@@ -57,6 +58,13 @@ import { motion, AnimatePresence } from "motion/react";
 import { enqueueRequest, processQueue, getQueueCount } from "./utils/offlineQueue";
 
 export default function App() {
+  const { t, i18n } = useTranslation();
+  
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('daara_language', lng);
+  };
+  
   // Supabase Auth State
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
@@ -649,7 +657,7 @@ export default function App() {
           <div className="flex-1 w-full max-w-md mt-2 sm:mt-0 sm:mx-4">
             <div className="relative">
               <span className="absolute left-3 top-2 text-slate-400"><Search className="w-4 h-4" /></span>
-              <input type="text" placeholder="Rechercher des élèves, des dars ou des règlements..." className="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-9 pr-4 text-xs font-semibold text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-[#0B1C30]" />
+              <input type="text" placeholder={t('navbar.search')} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-9 pr-4 text-xs font-semibold text-slate-600 focus:outline-hidden focus:ring-2 focus:ring-[#0B1C30]" />
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -665,13 +673,27 @@ export default function App() {
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">
-                {isSyncing ? "Enregistrement..." : "💾 Sauvegarder Supabase"}
+                {isSyncing ? t('navbar.saving') : `💾 ${t('navbar.save')}`}
               </span>
             </button>
+            <div className="flex bg-slate-100 rounded-xl p-0.5 ml-2 mr-2">
+              <button
+                onClick={() => changeLanguage('fr')}
+                className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${i18n.language === 'fr' ? 'bg-white shadow-sm text-[#0B1C30]' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                FR
+              </button>
+              <button
+                onClick={() => changeLanguage('en')}
+                className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${i18n.language === 'en' ? 'bg-white shadow-sm text-[#0B1C30]' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                EN
+              </button>
+            </div>
             <button
               onClick={() => setIsDesignerModalOpen(true)}
               className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-xl transition-colors hidden md:block"
-              title="Personnaliser le thème"
+              title={t('navbar.theme')}
             >
               <Palette className="w-5 h-5" />
             </button>
@@ -824,7 +846,7 @@ export default function App() {
             className={`flex-1 flex flex-col items-center justify-center h-full gap-1 transition-colors cursor-pointer min-w-0 ${activeTab === "pilotage" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
           >
             <LayoutDashboard className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "pilotage" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Pilotage</span>
+            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">{t('sidebar.dashboard')}</span>
           </button>
           
           <button 
@@ -839,7 +861,7 @@ export default function App() {
                 </span>
               )}
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Scolarité</span>
+            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">{t('sidebar.school')}</span>
           </button>
 
           <button 
@@ -847,7 +869,7 @@ export default function App() {
             className={`flex-1 flex flex-col items-center justify-center h-full gap-1 transition-colors cursor-pointer min-w-0 ${activeTab === "pedagogie" ? "text-emerald-600" : "text-slate-400 hover:text-slate-600"}`}
           >
             <Mosque className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "pedagogie" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Pédagogie</span>
+            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">{t('sidebar.pedagogy')}</span>
           </button>
 
           <button 
@@ -855,7 +877,7 @@ export default function App() {
             className={`flex-1 flex flex-col items-center justify-center h-full gap-1 transition-colors cursor-pointer min-w-0 ${activeTab === "honneur" ? "text-amber-500" : "text-slate-400 hover:text-slate-600"}`}
           >
             <Trophy className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "honneur" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Honneur</span>
+            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">{t('sidebar.honor')}</span>
           </button>
 
           <button 
@@ -863,7 +885,7 @@ export default function App() {
             className={`flex-1 flex flex-col items-center justify-center h-full gap-1 transition-colors cursor-pointer min-w-0 ${activeTab === "parametres" ? "text-[#0B1C30]" : "text-slate-400 hover:text-slate-600"}`}
           >
             <Settings className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "parametres" ? "stroke-[2.5px]" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Administration</span>
+            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">{t('sidebar.settings')}</span>
           </button>
         </div>
       </nav>
