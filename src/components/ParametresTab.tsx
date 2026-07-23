@@ -38,6 +38,7 @@ interface ParametresTabProps {
   onAddHalaqa?: (halaqa: Halaqa) => void;
   onUpdateHalaqa?: (halaqa: Halaqa) => void;
   onDeleteHalaqa?: (halaqaId: string) => void;
+  onDeleteStudent?: (studentId: string) => void;
 }
 
 export default function ParametresTab({
@@ -51,7 +52,8 @@ export default function ParametresTab({
   onUpdateStudent,
   onAddHalaqa,
   onUpdateHalaqa,
-  onDeleteHalaqa
+  onDeleteHalaqa,
+  onDeleteStudent
 }: ParametresTabProps) {
   const { t } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -1492,13 +1494,26 @@ export default function ParametresTab({
                   <td className="px-4 py-3 text-xs text-slate-500">{student.regime || "Non défini"}</td>
                   <td className="px-4 py-3 text-xs">{student.parentPhone}</td>
                   <td className="px-4 py-3 text-xs text-right">
-                    <button
-                      onClick={() => setViewingStudent(student)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer text-xs"
-                    >
-                      <FolderOpen className="w-3.5 h-3.5" />
-                      <span>{t('settings.file')}</span>
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setViewingStudent(student)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer text-xs"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5" />
+                        <span>{t('settings.file')}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm("Voulez-vous vraiment supprimer cet élève ?")) {
+                            onDeleteStudent?.(student.id);
+                          }
+                        }}
+                        className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-2 py-1.5 rounded-lg inline-flex items-center shadow-xs transition-colors cursor-pointer border border-rose-200"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -1577,13 +1592,23 @@ export default function ParametresTab({
               </div>
               
               {/* Actions Row */}
-              <div className="border-t border-slate-100 p-3 bg-slate-50 flex justify-end">
+              <div className="border-t border-slate-100 p-3 bg-slate-50 flex gap-2">
                 <button
                   onClick={() => setViewingStudent(student)}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 text-xs shadow-xs transition-colors cursor-pointer"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 text-xs shadow-xs transition-colors cursor-pointer"
                 >
                   <FolderOpen className="w-4 h-4" />
                   <span>{t('settings.openStudentFile')}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm("Voulez-vous vraiment supprimer cet élève ?")) {
+                      onDeleteStudent?.(student.id);
+                    }
+                  }}
+                  className="px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg flex items-center justify-center border border-rose-200 shadow-xs transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>

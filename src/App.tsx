@@ -444,6 +444,18 @@ export default function App() {
     }
   };
 
+  const handleDeleteStudent = async (studentId: string) => {
+    const newStudents = students.filter(s => s.id !== studentId);
+    setStudents(newStudents);
+    localStorage.setItem("daara_students", JSON.stringify(newStudents));
+
+    try {
+      await supabase.from("Student").delete().eq("id", studentId);
+    } catch (err) {
+      console.warn("Error deleting student from Supabase:", err);
+    }
+  };
+
   const handleAddHalaqa = async (newHalaqa: Halaqa) => {
     const updated = [...halaqas, newHalaqa];
     setHalaqas(updated);
@@ -1039,6 +1051,7 @@ export default function App() {
                 onImportStudents={handleImportStudents}
                 onUpdateInstituteName={(name) => setInstituteName(name)}
                 onUpdateStudent={handleUpdateStudent}
+                onDeleteStudent={handleDeleteStudent}
                 onAddHalaqa={handleAddHalaqa}
                 onUpdateHalaqa={handleUpdateHalaqa}
                 onDeleteHalaqa={handleDeleteHalaqa}
