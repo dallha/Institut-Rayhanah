@@ -561,7 +561,7 @@ export default function PedagogyTab({
                       >
                         {SURAHS.map((s) => (
                           <option key={s.number} value={s.number}>
-                            {s.number}. {s.name} ({s.arabicName})
+                            {s.number.toString().padStart(3, '0')} {s.name} ({s.arabicName})
                           </option>
                         ))}
                       </select>

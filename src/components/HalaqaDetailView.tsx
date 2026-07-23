@@ -644,7 +644,7 @@ export default function HalaqaDetailView({
                                     onChange={e => updateRow(row.studentId, { startSurah: Number(e.target.value) })}
                                     className="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:outline-none"
                                   >
-                                    {SURAHS.map(s => <option key={s.number} value={s.number}>{s.number}. {s.name}</option>)}
+                                    {SURAHS.map(s => <option key={s.number} value={s.number}>{s.number.toString().padStart(3, '0')} {s.name} ({s.arabicName})</option>)}
                                   </select>
                                   <input
                                     type="number" min={1}
@@ -662,7 +662,7 @@ export default function HalaqaDetailView({
                                     onChange={e => updateRow(row.studentId, { endSurah: Number(e.target.value) })}
                                     className="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:outline-none"
                                   >
-                                    {SURAHS.map(s => <option key={s.number} value={s.number}>{s.number}. {s.name}</option>)}
+                                    {SURAHS.map(s => <option key={s.number} value={s.number}>{s.number.toString().padStart(3, '0')} {s.name} ({s.arabicName})</option>)}
                                   </select>
                                   <input
                                     type="number" min={1}
@@ -881,7 +881,7 @@ export default function HalaqaDetailView({
                               <div className="flex gap-2">
                                 <select value={surahVal} onChange={e => setSurahVal(Number(e.target.value))}
                                   className="flex-1 bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-semibold focus:outline-none">
-                                  {SURAHS.map(su => <option key={su.number} value={su.number}>{su.number}. {su.name}</option>)}
+                                  {SURAHS.map(su => <option key={su.number} value={su.number}>{su.number.toString().padStart(3, '0')} {su.name} ({su.arabicName})</option>)}
                                 </select>
                                 <input type="number" min={1} value={versetVal} onChange={e => setVersetVal(Number(e.target.value))}
                                   className="w-16 bg-white border border-slate-200 rounded-xl px-2 py-2 text-sm font-bold focus:outline-none text-center" />
