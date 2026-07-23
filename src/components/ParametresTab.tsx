@@ -438,6 +438,7 @@ export default function ParametresTab({
 
   // State for CSV Import
   const [importPreview, setImportPreview] = useState<any[] | null>(null);
+  const [selectedImportIndices, setSelectedImportIndices] = useState<number[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
@@ -458,6 +459,7 @@ export default function ParametresTab({
           return;
         }
         setImportPreview(results.data);
+        setSelectedImportIndices(results.data.map((_: any, idx: number) => idx));
       },
       error: (err) => {
         setImportError(`Erreur : ${err.message}`);
@@ -467,32 +469,62 @@ export default function ParametresTab({
 
   const handleConfirmImport = async () => {
     if (!importPreview || importPreview.length === 0) return;
+
+    const selectedRows = importPreview.filter((_, idx) => selectedImportIndices.includes(idx));
+    if (selectedRows.length === 0) {
+      alert("Veuillez sélectionner au moins un élève à importer.");
+      return;
+    }
+
     setIsImporting(true);
     try {
-      const parsedStudents: Partial<Student>[] = importPreview.map((row: any, idx: number) => ({
-        id: row.id || row.matricule || `imp_${Date.now()}_${idx}`,
-        matricule: row.matricule || row.Matricule || `RAY-${1000 + idx}`,
-        firstName: row.firstName || row.prenom || row.Prenom || row["Prénom"] || "Élève",
-        lastName: row.lastName || row.nom || row.Nom || "Inconnu",
-        gender: row.gender || row.sexe || row.Sexe || "M",
-        dateOfBirth: row.dateOfBirth || row.dob || row["Date de Naissance"] || "2015-01-01",
-        halaqaId: row.halaqaId || row.halaqa || row.Halaqa || "h1",
-        etape: (row.etape as EtapePedagogique) || EtapePedagogique.Hifz,
-        currentHizbNum: Number(row.currentHizbNum || row.hizb || row.Hizb) || 60,
-        currentHizbFraction: Number(row.currentHizbFraction || row.fraction || 0),
-        guardianName: row.guardianName || row.tuteur || row.Tuteur || "Tuteur",
-        guardianPhone: row.guardianPhone || row.telephone || row.Telephone || "+221 77 000 00 00",
-        monthlyFee: Number(row.monthlyFee || row.tarif || 15000),
-        balanceDue: Number(row.balanceDue || row.solde || 0),
-        score: Number(row.score || 100),
-        khatmatCount: Number(row.khatmatCount || 0),
-        nationality: row.nationality || row.nationalite || row.Nationalité || "Sénégalaise"
-      }));
+      const parsedStudents: Partial<Student>[] = selectedRows.map((row: any, idx: number) => {
+        const fatherName = row.fatherName || row.pere || row.Père || row.father || row["Nom Père"] || row["Nom du Père"] || "";
+        const fatherPhone = row.fatherPhone || row.tel_pere || row["Tél Père"] || row["Téléphone Père"] || "";
+        const motherName = row.motherName || row.mere || row.Mère || row.mother || row["Nom Mère"] || row["Nom de la Mère"] || "";
+        const motherPhone = row.motherPhone || row.tel_mere || row["Tél Mère"] || row["Téléphone Mère"] || "";
+        const guardianName = row.guardianName || row.tuteur || row.Tuteur || row.guardian || row["Nom Tuteur"] || row["Nom du Tuteur"] || "";
+        const guardianPhone = row.guardianPhone || row.tel_tuteur || row["Tél Tuteur"] || row["Téléphone Tuteur"] || row.telephone || row.Telephone || "";
+        const guardianRelation = row.guardianRelation || row.lien_tuteur || row["Lien Tuteur"] || row.Relation || "";
+        
+        const parentName = row.parentName || row.parent || row.Parent || fatherName || guardianName || "Parent Inconnu";
+        const parentPhone = row.parentPhone || fatherPhone || guardianPhone || "+221 77 000 00 00";
+        const parentEmail = row.parentEmail || row.email || row.Email || "";
+
+        return {
+          id: row.id || row.matricule || `imp_${Date.now()}_${idx}`,
+          matricule: row.matricule || row.Matricule || `IRY-${String(students.length + idx + 1).padStart(4, "0")}`,
+          firstName: row.firstName || row.prenom || row.Prenom || row["Prénom"] || "Élève",
+          lastName: row.lastName || row.nom || row.Nom || "Inconnu",
+          gender: row.gender || row.sexe || row.Sexe || row.Genre || "M",
+          age: Number(row.age || row.Age || row["Âge"] || 7),
+          nationality: row.nationality || row.nationalite || row.Nationalité || "Sénégalaise",
+          regime: row.regime || row.Regime || row["Régime"] || "internat",
+          parentName,
+          parentPhone,
+          parentEmail: parentEmail || undefined,
+          fatherName: fatherName || undefined,
+          fatherPhone: fatherPhone || undefined,
+          motherName: motherName || undefined,
+          motherPhone: motherPhone || undefined,
+          guardianName: guardianName || undefined,
+          guardianPhone: guardianPhone || undefined,
+          guardianRelation: guardianRelation || undefined,
+          halaqaId: row.halaqaId || row.halaqa || row.Halaqa || halaqas[0]?.id || "h1",
+          etape: (row.etape as EtapePedagogique) || EtapePedagogique.Tahajji,
+          currentHizbNum: Number(row.currentHizbNum || row.hizb || row.Hizb) || 60,
+          currentHizbFraction: Number(row.currentHizbFraction || row.fraction || 0),
+          monthlyFee: Number(row.monthlyFee || row.tarif || row.Mensualité || 15000),
+          balanceDue: Number(row.balanceDue || row.solde || row.Impayé || 0),
+          score: Number(row.score || 50),
+          khatmatCount: Number(row.khatmatCount || 0),
+          status: "en_cours"
+        };
+      });
 
       if (onImportStudents) {
         await onImportStudents(parsedStudents);
       } else {
-        // Fallback fetch API
         const res = await fetch("/api/students/import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -501,8 +533,9 @@ export default function ParametresTab({
         if (!res.ok) throw new Error("Échec de l'import backend");
       }
 
-      setImportSuccess(`${parsedStudents.length} élèves importés avec succès !`);
+      setImportSuccess(`${parsedStudents.length} élève(s) importé(s) avec succès !`);
       setImportPreview(null);
+      setSelectedImportIndices([]);
     } catch (err: any) {
       setImportError(err.message || "Erreur lors de l'enregistrement de l'import.");
     } finally {
@@ -1025,61 +1058,149 @@ export default function ParametresTab({
           </div>
         )}
 
-        {/* MODAL / APERÇU DE L'IMPORT */}
+        {/* MODAL / APERÇU COMPLET DE L'IMPORT EXCEL / CSV */}
         {importPreview && (
-          <div className="mt-6 p-4 bg-slate-50 border border-emerald-200 rounded-xl space-y-3">
-            <div className="flex justify-between items-center">
-              <h4 className="font-bold text-xs text-slate-800 uppercase flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                <span>{t('settings.filePreview', { count: importPreview.length })}</span>
-              </h4>
-              <button onClick={() => setImportPreview(null)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="max-h-40 overflow-y-auto overflow-x-auto bg-white border border-slate-200 rounded-lg p-2 text-xs">
-              <table className="w-full text-left text-[11px]">
-                <thead className="bg-slate-100 font-bold text-slate-600">
-                  <tr>
-                    <th className="p-1">#</th>
-                    <th className="p-1">{t('school.cardMatricule')}</th>
-                    <th className="p-1">{t('settings.firstLastName')}</th>
-                    <th className="p-1">{t('settings.stage')}</th>
-                    <th className="p-1">Hizb</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {importPreview.slice(0, 5).map((row, idx) => (
-                    <tr key={idx} className="border-t border-slate-100">
-                      <td className="p-1 text-slate-400">{idx + 1}</td>
-                      <td className="p-1 font-mono">{row.matricule || row.Matricule || "-"}</td>
-                      <td className="p-1 font-semibold">{row.prenom || row.firstName || ""} {row.nom || row.lastName || ""}</td>
-                      <td className="p-1">{row.etape || "Hifz"}</td>
-                      <td className="p-1">{row.hizb || row.currentHizbNum || 60}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {importPreview.length > 5 && (
-                <p className="text-[10px] text-slate-400 italic mt-1">+ {importPreview.length - 5} autres élèves...</p>
-              )}
+          <div className="mt-6 p-4 sm:p-5 bg-slate-50 border border-emerald-300 rounded-2xl shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+              <div>
+                <h4 className="font-bold text-sm text-slate-800 uppercase flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+                  <span>Aperçu de l'import : {importPreview.length} élève(s) détecté(s)</span>
+                </h4>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Cochez ou décochez les élèves que vous souhaitez importer dans le système.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (selectedImportIndices.length === importPreview.length) {
+                      setSelectedImportIndices([]);
+                    } else {
+                      setSelectedImportIndices(importPreview.map((_, i) => i));
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                >
+                  {selectedImportIndices.length === importPreview.length ? "Tout désélectionner" : "Tout sélectionner"}
+                </button>
+                <button onClick={() => setImportPreview(null)} className="text-slate-400 hover:text-slate-600 p-1">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                onClick={() => setImportPreview(null)}
-                className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-800"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleConfirmImport}
-                disabled={isImporting}
-                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-bold rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <Check className="w-4 h-4" />
-                <span>{isImporting ? "Importation..." : "Valider et importer"}</span>
-              </button>
+            <div className="max-h-80 overflow-y-auto overflow-x-auto bg-white border border-slate-200 rounded-xl text-xs shadow-inner">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead className="bg-slate-100 font-bold text-slate-600 uppercase text-[10px] sticky top-0 z-10 border-b border-slate-200">
+                  <tr>
+                    <th className="p-2.5 text-center w-10">
+                      <input
+                        type="checkbox"
+                        checked={importPreview.length > 0 && selectedImportIndices.length === importPreview.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedImportIndices(importPreview.map((_, i) => i));
+                          } else {
+                            setSelectedImportIndices([]);
+                          }
+                        }}
+                        className="rounded text-emerald-600 focus:ring-emerald-500"
+                      />
+                    </th>
+                    <th className="p-2.5">Matricule</th>
+                    <th className="p-2.5">Élève (Prénom & Nom)</th>
+                    <th className="p-2.5">Sexe / Âge / Nat.</th>
+                    <th className="p-2.5">Père (Nom & Tél)</th>
+                    <th className="p-2.5">Mère (Nom & Tél)</th>
+                    <th className="p-2.5">Tuteur / Parent</th>
+                    <th className="p-2.5">Régime & Niveau</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {importPreview.map((row, idx) => {
+                    const isSelected = selectedImportIndices.includes(idx);
+                    const prenom = row.firstName || row.prenom || row.Prenom || row["Prénom"] || "Élève";
+                    const nom = row.lastName || row.nom || row.Nom || "";
+                    const pere = row.fatherName || row.pere || row.Père || row.father || row["Nom Père"] || "—";
+                    const telPere = row.fatherPhone || row.tel_pere || row["Tél Père"] || "";
+                    const mere = row.motherName || row.mere || row.Mère || row.mother || row["Nom Mère"] || "—";
+                    const telMere = row.motherPhone || row.tel_mere || row["Tél Mère"] || "";
+                    const tuteur = row.guardianName || row.tuteur || row.Tuteur || row.parentName || row.parent || "—";
+                    const telTuteur = row.guardianPhone || row.tel_tuteur || row.parentPhone || row.telephone || "";
+
+                    return (
+                      <tr
+                        key={idx}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedImportIndices(selectedImportIndices.filter(i => i !== idx));
+                          } else {
+                            setSelectedImportIndices([...selectedImportIndices, idx]);
+                          }
+                        }}
+                        className={`cursor-pointer transition-colors ${isSelected ? "bg-emerald-50/40 hover:bg-emerald-50/70" : "hover:bg-slate-50 opacity-60"}`}
+                      >
+                        <td className="p-2.5 text-center" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedImportIndices([...selectedImportIndices, idx]);
+                              } else {
+                                setSelectedImportIndices(selectedImportIndices.filter(i => i !== idx));
+                              }
+                            }}
+                            className="rounded text-emerald-600 focus:ring-emerald-500"
+                          />
+                        </td>
+                        <td className="p-2.5 font-mono font-bold text-slate-600">{row.matricule || row.Matricule || `IRY-${String(students.length + idx + 1).padStart(4, "0")}`}</td>
+                        <td className="p-2.5 font-bold text-slate-800">{prenom} {nom}</td>
+                        <td className="p-2.5 text-slate-600">
+                          {row.gender || row.sexe || "M"} · {row.age || row.Age || 7} ans · {row.nationality || row.nationalite || "SN"}
+                        </td>
+                        <td className="p-2.5 text-slate-700">
+                          <span className="font-semibold">{pere}</span> {telPere && <span className="text-slate-400 font-mono text-[10px]">({telPere})</span>}
+                        </td>
+                        <td className="p-2.5 text-slate-700">
+                          <span className="font-semibold">{mere}</span> {telMere && <span className="text-slate-400 font-mono text-[10px]">({telMere})</span>}
+                        </td>
+                        <td className="p-2.5 text-slate-700">
+                          <span className="font-semibold">{tuteur}</span> {telTuteur && <span className="text-slate-400 font-mono text-[10px]">({telTuteur})</span>}
+                        </td>
+                        <td className="p-2.5">
+                          <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">
+                            {row.regime || "internat"} · {row.etape || "Tahajji"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+              <span className="text-xs font-bold text-slate-600">
+                {selectedImportIndices.length} sur {importPreview.length} élève(s) sélectionné(s)
+              </span>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setImportPreview(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-lg transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleConfirmImport}
+                  disabled={isImporting || selectedImportIndices.length === 0}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>{isImporting ? "Importation en cours..." : `Importer (${selectedImportIndices.length}) élève(s)`}</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
