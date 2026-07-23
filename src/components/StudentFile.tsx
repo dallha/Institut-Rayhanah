@@ -14,6 +14,7 @@ import {
   Users, GraduationCap, FileText, Settings
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 /* ── helpers ─────────────────────────────────────── */
 function getEtapeLabel(e: EtapePedagogique, gender?: string) {
@@ -76,6 +77,7 @@ type TabId = "identite" | "pedagogie" | "presences" | "finances";
 export default function StudentFile({
   student, halaqas, attendance, lessons, payments, onClose, onUpdateStudent
 }: StudentFileProps) {
+  const { t } = useTranslation();
 
   // Lock body scroll while modal is open to prevent background scroll bleed
   React.useEffect(() => {
@@ -149,10 +151,10 @@ export default function StudentFile({
   };
 
   const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: "identite",  label: "Identité",   icon: <User className="w-4 h-4" /> },
-    { id: "pedagogie", label: "Pédagogie",  icon: <BookOpen className="w-4 h-4" /> },
-    { id: "presences", label: "Présences",  icon: <Calendar className="w-4 h-4" /> },
-    { id: "finances",  label: "Finances",   icon: <CreditCard className="w-4 h-4" /> },
+    { id: "identite",  label: t('studentFile.tabIdentity'),   icon: <User className="w-4 h-4" /> },
+    { id: "pedagogie", label: t('studentFile.tabPedagogy'),   icon: <BookOpen className="w-4 h-4" /> },
+    { id: "presences", label: t('studentFile.tabAttendance'), icon: <Calendar className="w-4 h-4" /> },
+    { id: "finances",  label: t('studentFile.tabFinances'),   icon: <CreditCard className="w-4 h-4" /> },
   ];
 
   return (
@@ -193,21 +195,21 @@ export default function StudentFile({
                 </span>
                 {student.gender && (
                   <span className="text-[10px] text-emerald-200 font-medium">
-                    {student.gender === "female" || student.gender === "F" ? "♀ Féminin" : "♂ Masculin"}
+                    {student.gender === "female" || student.gender === "F" ? t('studentFile.female') : t('studentFile.male')}
                   </span>
                 )}
               </div>
-              <p className="text-emerald-200 text-[11px] sm:text-xs mt-1 truncate">{halaqa?.name ?? "—"} · {student.age ? `${student.age} ans` : "—"}</p>
+              <p className="text-emerald-200 text-[11px] sm:text-xs mt-1 truncate">{halaqa?.name ?? "—"} · {student.age ? `${student.age} ${t('studentFile.yearsOld')}` : "—"}</p>
             </div>
           </div>
 
           {/* Quick KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 sm:mt-4">
             {[
-              { label: "Progression", value: `${progress}%`, icon: <TrendingUp className="w-3.5 h-3.5" /> },
-              { label: "Présence", value: `${attendanceRate}%`, icon: <CheckCircle className="w-3.5 h-3.5" /> },
-              { label: "Score", value: `${score} pts`, icon: <Star className="w-3.5 h-3.5" /> },
-              { label: "Balance", value: `${balanceDue.toLocaleString()} F`, icon: <CreditCard className="w-3.5 h-3.5" /> },
+              { label: t('studentFile.progression'), value: `${progress}%`, icon: <TrendingUp className="w-3.5 h-3.5" /> },
+              { label: t('studentFile.presence'), value: `${attendanceRate}%`, icon: <CheckCircle className="w-3.5 h-3.5" /> },
+              { label: t('studentFile.score'), value: `${score} pts`, icon: <Star className="w-3.5 h-3.5" /> },
+              { label: t('studentFile.balance'), value: `${balanceDue.toLocaleString()} F`, icon: <CreditCard className="w-3.5 h-3.5" /> },
             ].map(kpi => (
               <div key={kpi.label} className="bg-white/10 rounded-xl p-1.5 sm:p-2 text-center">
                 <div className="flex items-center justify-center gap-1 text-emerald-200 mb-0.5">{kpi.icon}</div>
@@ -246,25 +248,25 @@ export default function StudentFile({
               <div className="flex justify-end">
                 {editing ? (
                   <div className="flex gap-2">
-                    <button onClick={() => setEditing(false)} className="px-3 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Annuler</button>
+                    <button onClick={() => setEditing(false)} className="px-3 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">{t('studentFile.cancel')}</button>
                     <button onClick={handleSave} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm transition-all">
-                      <Save className="w-3.5 h-3.5" /> Enregistrer
+                      <Save className="w-3.5 h-3.5" /> {t('studentFile.save')}
                     </button>
                   </div>
                 ) : (
                   <button onClick={() => setEditing(true)} className="px-4 py-1.5 border-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all">
-                    <Edit3 className="w-3.5 h-3.5" /> Modifier
+                    <Edit3 className="w-3.5 h-3.5" /> {t('studentFile.edit')}
                   </button>
                 )}
               </div>
 
               {/* Identity card */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Informations Personnelles</h3>
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> {t('studentFile.personalInfo')}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: "Prénom", field: "firstName" as const },
-                    { label: "Nom de famille", field: "lastName" as const },
+                    { label: t('school.firstName'), field: "firstName" as const },
+                    { label: t('school.lastName'), field: "lastName" as const },
                   ].map(({ label, field }) => (
                     <div key={field}>
                       <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{label}</label>
@@ -280,38 +282,38 @@ export default function StudentFile({
                     </div>
                   ))}
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Âge</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.age')}</label>
                     {editing ? (
                       <input type="number" min={4} max={30} className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.age} onChange={e => setForm(f => ({ ...f, age: Number(e.target.value) }))} />
                     ) : (
-                      <p className="text-sm font-semibold text-slate-800">{student.age ? `${student.age} ans` : "—"}</p>
+                      <p className="text-sm font-semibold text-slate-800">{student.age ? `${student.age} ${t('studentFile.yearsOld')}` : "—"}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Genre</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('studentFile.gender')}</label>
                     {editing ? (
                       <select className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.gender} onChange={e => setForm(f => ({ ...f, gender: e.target.value }))}>
-                        <option value="male">Masculin</option>
-                        <option value="female">Féminin</option>
+                        <option value="male">{t('studentFile.male')}</option>
+                        <option value="female">{t('studentFile.female')}</option>
                       </select>
                     ) : (
-                      <p className="text-sm font-semibold text-slate-800">{student.gender === "female" ? "Féminin" : "Masculin"}</p>
+                      <p className="text-sm font-semibold text-slate-800">{student.gender === "female" ? t('studentFile.female') : t('studentFile.male')}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Régime</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('studentFile.regime')}</label>
                     {editing ? (
                       <select className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.regime} onChange={e => setForm(f => ({ ...f, regime: e.target.value as any }))}>
-                        <option value="externat">Externat</option>
-                        <option value="internat">Internat</option>
-                        <option value="demi-pension">Demi-pension</option>
+                        <option value="externat">{t('school.regimeExternat')}</option>
+                        <option value="internat">{t('school.regimeInternat')}</option>
+                        <option value="demi-pension">{t('school.regimeDemi')}</option>
                       </select>
                     ) : (
                       <p className="text-sm font-semibold text-slate-800 capitalize">{student.regime ?? "externat"}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nationalité</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.nationality')}</label>
                     {editing ? (
                       <input
                         className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
@@ -320,20 +322,20 @@ export default function StudentFile({
                         placeholder="Ex: Sénégalaise, Mauritanienne..."
                       />
                     ) : (
-                      <p className="text-sm font-semibold text-slate-800">{student.nationality ?? "Sénégalaise"}</p>
+                      <p className="text-sm font-semibold text-slate-800">{student.nationality ?? t('studentFile.defaultNationality')}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Statut Élève</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('studentFile.studentStatus')}</label>
                     {editing ? (
                       <select
                         className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 font-bold"
                         value={form.status}
                         onChange={e => setForm(f => ({ ...f, status: e.target.value as any }))}
                       >
-                        <option value="en_cours">📖 En cours (Actif)</option>
-                        <option value="hafiz">👑 Hafiz(a) Certifié(e)</option>
-                        <option value="abandonne">⚠️ Abandonné / Inactif</option>
+                        <option value="en_cours">📖 {t('studentFile.statusActive')}</option>
+                        <option value="hafiz">👑 {t('studentFile.statusHafiz')}</option>
+                        <option value="abandonne">⚠️ {t('studentFile.statusAbandoned')}</option>
                       </select>
                     ) : (
                       <span className={`text-xs font-bold px-2.5 py-1 rounded-full border inline-block ${
@@ -341,7 +343,7 @@ export default function StudentFile({
                         (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "bg-amber-100 text-amber-800 border-amber-200" :
                         "bg-emerald-100 text-emerald-700 border-emerald-200"
                       }`}>
-                        {student.status === "abandonne" ? "⚠️ Abandonné" : (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? "👑 Hafiz(a)" : "📖 En cours"}
+                        {student.status === "abandonne" ? `⚠️ ${t('studentFile.abandoned')}` : (student.status === "hafiz" || student.etape === EtapePedagogique.Hafiz) ? `👑 Hafiz(a)` : `📖 ${t('studentFile.inProgress')}`}
                       </span>
                     )}
                   </div>
@@ -354,10 +356,10 @@ export default function StudentFile({
 
               {/* Parent info */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Contact Parent / Tuteur</h3>
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {t('studentFile.parentContact')}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nom du parent / tuteur</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.parentName')}</label>
                     {editing ? (
                       <input className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentName} onChange={e => setForm(f => ({ ...f, parentName: e.target.value }))} />
                     ) : (
@@ -365,7 +367,7 @@ export default function StudentFile({
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Téléphone</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.phone')}</label>
                     {editing ? (
                       <input className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentPhone} onChange={e => setForm(f => ({ ...f, parentPhone: e.target.value }))} />
                     ) : (
@@ -375,7 +377,7 @@ export default function StudentFile({
                     )}
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Email (optionnel)</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{t('school.email')}</label>
                     {editing ? (
                       <input type="email" className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.parentEmail} onChange={e => setForm(f => ({ ...f, parentEmail: e.target.value }))} />
                     ) : student.parentEmail ? (
@@ -391,7 +393,7 @@ export default function StudentFile({
 
               {/* Halaqa */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-3"><Users className="w-3.5 h-3.5" /> Halaqa (Groupe)</h3>
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-3"><Users className="w-3.5 h-3.5" /> {t('studentFile.halaqaGroup')}</h3>
                 {editing ? (
                   <select className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.halaqaId} onChange={e => setForm(f => ({ ...f, halaqaId: e.target.value }))}>
                     {halaqas.map(h => (
@@ -405,7 +407,7 @@ export default function StudentFile({
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800">{halaqa?.name ?? "—"}</p>
-                      <p className="text-xs text-slate-400">Enseignant: {halaqa?.teacherName ?? "—"}</p>
+                      <p className="text-xs text-slate-400">{t('studentFile.teacher')}: {halaqa?.teacherName ?? "—"}</p>
                     </div>
                   </div>
                 )}
@@ -419,14 +421,14 @@ export default function StudentFile({
               <div className="flex justify-end">
                 {editing ? (
                   <div className="flex gap-2">
-                    <button onClick={() => setEditing(false)} className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-bold rounded-lg">Annuler</button>
+                    <button onClick={() => setEditing(false)} className="px-3 py-1.5 border border-slate-200 text-slate-500 text-xs font-bold rounded-lg">{t('studentFile.cancel')}</button>
                     <button onClick={handleSave} className="px-4 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm">
-                      <Save className="w-3.5 h-3.5" /> Enregistrer
+                      <Save className="w-3.5 h-3.5" /> {t('studentFile.save')}
                     </button>
                   </div>
                 ) : (
                   <button onClick={() => setEditing(true)} className="px-4 py-1.5 border-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-xs font-bold rounded-lg flex items-center gap-1.5">
-                    <Edit3 className="w-3.5 h-3.5" /> Modifier
+                    <Edit3 className="w-3.5 h-3.5" /> {t('studentFile.edit')}
                   </button>
                 )}
               </div>
@@ -434,7 +436,7 @@ export default function StudentFile({
               {/* Progress bar */}
               <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-emerald-800 uppercase">Progression Coranique</span>
+                  <span className="text-xs font-bold text-emerald-800 uppercase">{t('studentFile.quranicProgression')}</span>
                   <span className="text-2xl font-black text-emerald-700">{progress}%</span>
                 </div>
                 <div className="w-full bg-emerald-200 rounded-full h-3 overflow-hidden">
@@ -446,13 +448,13 @@ export default function StudentFile({
                 <p className="text-[10px] text-emerald-600 mt-1">
                   {student.currentHizbNum
                     ? `Hizb ${student.currentHizbNum} · ${formatHizbFractionArabic(student.currentHizbFraction ?? 0)}`
-                    : "Position non définie"}
+                    : t('studentFile.positionUndefined')}
                 </p>
               </div>
 
               {/* Etape */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">Étape du Cursus</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">{t('studentFile.curriculumStage')}</label>
                 {editing ? (
                   <select className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.etape} onChange={e => setForm(f => ({ ...f, etape: e.target.value as EtapePedagogique }))}>
                     {Object.values(EtapePedagogique).map(et => (
@@ -531,10 +533,10 @@ export default function StudentFile({
 
               {/* Ward */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">Objectif Quotidien (Ward الورد)</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">{t('studentFile.dailyObjective')}</label>
                 {editing ? (
                   <select className="w-full border border-emerald-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" value={form.dailyWardHizbs} onChange={e => setForm(f => ({ ...f, dailyWardHizbs: Number(e.target.value) }))}>
-                    <option value={0}>Aucun objectif</option>
+                    <option value={0}>{t('studentFile.noObjective')}</option>
                     <option value={0.25}>1/4 de Hizb</option>
                     <option value={0.5}>1/2 Hizb</option>
                     <option value={0.75}>3/4 de Hizb</option>
@@ -544,14 +546,14 @@ export default function StudentFile({
                     <option value={3}>3 Hizbs</option>
                   </select>
                 ) : (
-                  <p className="text-sm font-semibold text-slate-800">{student.dailyWardHizbs > 0 ? `${student.dailyWardHizbs} Hizb(s)` : "Aucun"}</p>
+                  <p className="text-sm font-semibold text-slate-800">{student.dailyWardHizbs > 0 ? `${student.dailyWardHizbs} Hizb(s)` : t('studentFile.none')}</p>
                 )}
               </div>
 
               {/* Medals */}
               {medals.length > 0 && (
                 <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                  <h3 className="text-xs font-bold text-amber-700 uppercase mb-3 flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> Médailles obtenues</h3>
+                  <h3 className="text-xs font-bold text-amber-700 uppercase mb-3 flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> {t('studentFile.medalsObtained')}</h3>
                   <div className="flex flex-wrap gap-2">
                     {medals.map(m => (
                       <span key={m.id} className="flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-200">
@@ -566,22 +568,52 @@ export default function StudentFile({
               {studentLessons.length > 0 && (
                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                   <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
-                    <h3 className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Derniers Dars</h3>
+                    <h3 className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> {t('studentFile.lastDars')}</h3>
                   </div>
                   <div className="divide-y divide-slate-50">
                     {studentLessons.slice(0, 8).map(l => (
-                      <div key={l.id} className="flex items-center justify-between px-4 py-2.5">
-                        <div>
-                          <p className="text-xs font-semibold text-slate-700">
-                            {l.type === "sourate"
-                              ? `S.${l.startSurah} v.${l.startVerset} → S.${l.endSurah} v.${l.endVerset}`
-                              : `Hizb ${l.startHizb} → Hizb ${l.endHizb}`}
-                          </p>
-                          <p className="text-[10px] text-slate-400 font-mono">{l.date}</p>
+                      <div key={l.id} className="flex flex-col px-4 py-2.5 gap-1.5">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+                              <p className="text-xs font-semibold text-slate-700">
+                                {l.type === "sourate"
+                                  ? `S.${l.startSurah} v.${l.startVerset} → S.${l.endSurah} v.${l.endVerset}`
+                                  : `Hizb ${l.startHizb} → Hizb ${l.endHizb}`}
+                              </p>
+                              {l.versesCount !== undefined && l.versesCount > 0 && (
+                                <span className="text-[9px] font-mono bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded">
+                                  {l.versesCount} v.
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-mono mt-0.5">{l.date}</p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${l.evaluation === Evaluation.Naam ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                            {l.evaluation === Evaluation.Naam ? "⭐ نعم" : "⚠️ لم"}
+                          </span>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${l.evaluation === Evaluation.Naam ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-                          {l.evaluation === Evaluation.Naam ? "⭐ نعم" : "⚠️ لم"}
-                        </span>
+                        
+                        {l.murajaahStartHizb && (
+                          <div className="flex items-start justify-between mt-1 pt-1.5 border-t border-slate-50 border-dashed">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                              <p className="text-[11px] font-medium text-indigo-700">
+                                Révision: Hizb {l.murajaahStartHizb} → {l.murajaahEndHizb}
+                              </p>
+                            </div>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${l.murajaahEvaluation === Evaluation.Naam ? "bg-indigo-100 text-indigo-700" : "bg-rose-50 text-rose-600"}`}>
+                              {l.murajaahEvaluation === Evaluation.Naam ? "نعم" : "لم"}
+                            </span>
+                          </div>
+                        )}
+
+                        {l.comments && (
+                          <div className="bg-slate-50 text-slate-500 text-[10px] px-2 py-1.5 rounded-md italic mt-0.5">
+                            "{l.comments}"
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -598,27 +630,27 @@ export default function StudentFile({
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
                   <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
                   <p className="text-xl font-black text-emerald-700">{presentCount}</p>
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase">Présences</p>
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase">{t('studentFile.presences')}</p>
                 </div>
                 <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-center">
                   <XCircle className="w-5 h-5 text-rose-500 mx-auto mb-1" />
                   <p className="text-xl font-black text-rose-600">{absentCount}</p>
-                  <p className="text-[10px] text-rose-600 font-bold uppercase">Absences</p>
+                  <p className="text-[10px] text-rose-600 font-bold uppercase">{t('studentFile.absences')}</p>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
                   <TrendingUp className="w-5 h-5 text-slate-500 mx-auto mb-1" />
                   <p className="text-xl font-black text-slate-700">{attendanceRate}%</p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase">Taux</p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase">{t('studentFile.rate')}</p>
                 </div>
               </div>
 
               {/* Attendance list */}
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase">Historique des présences (30 dernières)</h3>
+                  <h3 className="text-xs font-bold text-slate-500 uppercase">{t('studentFile.attendanceHistory')}</h3>
                 </div>
                 {studentAttendance.length === 0 ? (
-                  <p className="text-center text-slate-400 text-xs p-6">Aucun enregistrement.</p>
+                  <p className="text-center text-slate-400 text-xs p-6">{t('studentFile.noRecord')}</p>
                 ) : (
                   <div className="divide-y divide-slate-50">
                     {studentAttendance.map(a => (
@@ -629,9 +661,9 @@ export default function StudentFile({
                           : a.status === AttendanceStatus.Late ? "bg-amber-100 text-amber-700"
                           : "bg-rose-100 text-rose-700"
                         }`}>
-                          {a.status === AttendanceStatus.Present ? <><CheckCircle className="w-3 h-3" /> Présent</>
-                          : a.status === AttendanceStatus.Late ? <><AlertTriangle className="w-3 h-3" /> Retard</>
-                          : <><XCircle className="w-3 h-3" /> Absent</>}
+                          {a.status === AttendanceStatus.Present ? <><CheckCircle className="w-3 h-3" /> {t('studentFile.present')}</>
+                          : a.status === AttendanceStatus.Late ? <><AlertTriangle className="w-3 h-3" /> {t('studentFile.late')}</>
+                          : <><XCircle className="w-3 h-3" /> {t('studentFile.absent')}</>}
                         </span>
                       </div>
                     ))}
@@ -647,33 +679,33 @@ export default function StudentFile({
               {/* Balance card */}
               <div className={`rounded-xl p-5 ${balanceDue > 0 ? "bg-rose-50 border-2 border-rose-300" : "bg-emerald-50 border-2 border-emerald-300"}`}>
                 <p className={`text-xs font-bold uppercase mb-1 ${balanceDue > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                  {balanceDue > 0 ? "⚠️ Solde dû" : "✅ Compte à jour"}
+                  {balanceDue > 0 ? t('studentFile.balanceDue') : t('studentFile.accountUpToDate')}
                 </p>
                 <p className={`text-3xl font-black ${balanceDue > 0 ? "text-rose-700" : "text-emerald-700"}`}>
                   {balanceDue.toLocaleString()} FCFA
                 </p>
-                <p className="text-xs text-slate-500 mt-1">Mensualité: {(student.monthlyFee ?? 0).toLocaleString()} FCFA / mois</p>
+                <p className="text-xs text-slate-500 mt-1">{t('studentFile.monthlyFee')}: {(student.monthlyFee ?? 0).toLocaleString()} FCFA / {t('studentFile.month')}</p>
               </div>
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
                   <p className="text-xl font-black text-slate-700">{totalPaid.toLocaleString()}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-bold">FCFA versés (total)</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-bold">{t('studentFile.fcfaPaid')}</p>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
                   <p className="text-xl font-black text-slate-700">{studentPayments.length}</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-bold">Paiements enregistrés</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-bold">{t('studentFile.paymentsRecorded')}</p>
                 </div>
               </div>
 
               {/* Payments list */}
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase">Historique des paiements</h3>
+                  <h3 className="text-xs font-bold text-slate-500 uppercase">{t('studentFile.paymentsHistory')}</h3>
                 </div>
                 {studentPayments.length === 0 ? (
-                  <p className="text-center text-slate-400 text-xs p-6">Aucun paiement enregistré.</p>
+                  <p className="text-center text-slate-400 text-xs p-6">{t('studentFile.noPayment')}</p>
                 ) : (
                   <div className="divide-y divide-slate-50">
                     {studentPayments.map(p => (

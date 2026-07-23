@@ -201,9 +201,9 @@ export default function PedagogyTab({
         <div>
           <h3 className="font-bold text-base text-slate-800 flex items-center space-x-1.5">
             <Users className="w-5 h-5 text-[#0B1C30]" />
-            <span>Gestion des Effectifs Halaqas</span>
+            <span>{t('pedagogy.halaqaManagement')}</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">Capacités et taux de remplissage par classe</p>
+          <p className="text-xs text-slate-400 mt-1">{t('pedagogy.halaqaCapacitiesDesc')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="halaqa-capacities-list">
@@ -220,7 +220,7 @@ export default function PedagogyTab({
                     <p className="text-[10px] text-slate-400 font-medium">Oustaz : {h.teacherName}</p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isFull ? "bg-rose-100 text-rose-800" : "bg-[#0B1C30]/5 text-[#0B1C30]"}`}>
-                    {occupied} / {h.maxCapacity} élèves
+                    {occupied} / {h.maxCapacity} {t('pedagogy.students')}
                   </span>
                 </div>
 
@@ -232,14 +232,14 @@ export default function PedagogyTab({
                 </div>
 
                 <div className="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
-                  <span>Occupation</span>
-                  <span>{percentage}% de remplissage</span>
+                  <span>{t('pedagogy.occupancy')}</span>
+                  <span>{percentage}% {t('pedagogy.fillRate')}</span>
                 </div>
 
                 {isFull && (
                   <div className="flex items-center space-x-1 text-[10px] text-rose-600 font-semibold pt-1">
                     <ShieldAlert className="w-3.5 h-3.5" />
-                    <span>Capacité maximale atteinte.</span>
+                    <span>{t('pedagogy.maxReached')}</span>
                   </div>
                 )}
               </div>
@@ -332,7 +332,7 @@ export default function PedagogyTab({
                   {student.etape !== EtapePedagogique.Tahajji ? (
                     <div>
                       <div className="flex justify-between text-xs text-slate-500 mb-1 font-medium">
-                        <span>Progression Coranique</span>
+                        <span>{t('studentFile.quranicProgression')}</span>
                         <span className="font-bold text-emerald-600">{progress}%</span>
                       </div>
                       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
@@ -578,9 +578,9 @@ export default function PedagogyTab({
                 <div className="space-y-1 bg-amber-50 p-4 rounded-xl border border-amber-100">
                   <label className="block text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center space-x-1">
                     <Award className="w-4 h-4" />
-                    <span>Clôtures du Coran (Khatmats)</span>
+                    <span>{t('pedagogy.khatmatLabel')}</span>
                   </label>
-                  <p className="text-[11px] text-amber-700">Déclarez combien de fois cet élève a entièrement révisé et clôturé le Coran.</p>
+                  <p className="text-[11px] text-amber-700">{t('pedagogy.khatmatDesc')}</p>
                   <input
                     type="number"
                     className="w-full bg-white border border-amber-200 text-amber-900 rounded-lg p-2 mt-2 focus:outline-hidden focus:border-amber-400"

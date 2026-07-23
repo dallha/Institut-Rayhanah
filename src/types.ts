@@ -89,6 +89,18 @@ export interface QuranLesson {
   startHizbFraction?: number;
   endHizb?: number;
   endHizbFraction?: number;
+
+  // Computed / Optional data
+  versesCount?: number;
+  
+  // Muraja'ah (Revision)
+  murajaahStartHizb?: number;
+  murajaahStartFraction?: number;
+  murajaahEndHizb?: number;
+  murajaahEndFraction?: number;
+  murajaahEvaluation?: Evaluation;
+
+  comments?: string;
 }
 
 export interface AttendanceRecord {

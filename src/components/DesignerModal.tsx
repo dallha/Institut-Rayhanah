@@ -1,6 +1,7 @@
 import React from "react";
 import { X, Palette, Phone, ExternalLink, Sparkles, CheckCircle2, Award } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 interface DesignerModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface DesignerModalProps {
 }
 
 export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -56,7 +58,7 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
             {/* Services (Read-only without prices) */}
             <div className="space-y-4">
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">
-                Domaines d'Expertise & Prestations
+                {t('designer.expertiseTitle')}
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -69,15 +71,15 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
                   <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Recherche & 3 concepts de logo</span>
+                      <span>{t('designer.service1a')}</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Jusqu'à 3 cycles de modifications</span>
+                      <span>{t('designer.service1b')}</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Livraison HD (PNG, SVG, PDF)</span>
+                      <span>{t('designer.service1c')}</span>
                     </li>
                   </ul>
                 </div>
@@ -91,15 +93,15 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
                   <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0 mt-0.5" />
-                      <span>Affiches & Flyers (Événement / Business)</span>
+                      <span>{t('designer.service2a')}</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0 mt-0.5" />
-                      <span>Bâches grand format & Bannières</span>
+                      <span>{t('designer.service2b')}</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0 mt-0.5" />
-                      <span>Supports réseaux sociaux</span>
+                      <span>{t('designer.service2c')}</span>
                     </li>
                   </ul>
                 </div>
@@ -113,11 +115,11 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
                   <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                      <span><strong>Starter Pack :</strong> Logo + Charte + Carte</span>
+                      <span><strong>Starter Pack :</strong> {t('designer.starterPack')}</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                      <span><strong>Event Pack :</strong> Affiche + Badge + Kakemono</span>
+                      <span><strong>Event Pack :</strong> {t('designer.eventPack')}</span>
                     </li>
                   </ul>
                 </div>
@@ -127,7 +129,7 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
             {/* Contact & Portfolio */}
             <div className="bg-[#0B1C30] text-white p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="space-y-1 text-center sm:text-left">
-                <p className="text-[10px] font-bold text-[#D0A21C] uppercase tracking-wider">Contact & Commandes</p>
+                <p className="text-[10px] font-bold text-[#D0A21C] uppercase tracking-wider">{t('designer.contactOrders')}</p>
                 <div className="flex items-center gap-2 text-xs font-mono font-semibold">
                   <Phone className="w-3.5 h-3.5 text-emerald-400" />
                   <span>+221 77 623 27 41 / +221 76 375 63 63</span>
@@ -142,7 +144,7 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
                   className="bg-[#D0A21C] hover:bg-amber-500 text-slate-900 font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Portfolio Behance</span>
+                  <span>{t('designer.portfolioBtn')}</span>
                 </a>
               </div>
             </div>
@@ -150,12 +152,12 @@ export default function DesignerModal({ isOpen, onClose }: DesignerModalProps) {
 
           {/* Footer Close */}
           <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-between items-center">
-            <span className="text-[10px] text-slate-400 font-medium">Design & Identité Visuelle — Non éditable</span>
+            <span className="text-[10px] text-slate-400 font-medium">{t('designer.footer')}</span>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
             >
-              Fermer
+              {t('designer.close')}
             </button>
           </div>
         </motion.div>

@@ -161,6 +161,41 @@ export function formatHizbFractionArabic(fraction: number): string {
   return "جديد";
 }
 
+// Calculates the exact number of verses recited, supporting both forward and West African (backward) Surah progression
+export function calculateVersesCount(startS?: number, startV?: number, endS?: number, endV?: number): number {
+  if (!startS || !startV || !endS || !endV) return 0;
+  
+  const sStart = getSurahByNum(startS);
+  const sEnd = getSurahByNum(endS);
+  if (!sStart || !sEnd) return 0;
+
+  if (startS === endS) {
+    return Math.max(0, endV - startV + 1);
+  }
+
+  let total = 0;
+  
+  if (startS > endS) {
+    // West African progression (backwards Surah order, e.g. 114 -> 113)
+    total += Math.max(0, sStart.versesCount - startV + 1);
+    for (let i = startS - 1; i > endS; i--) {
+      const s = getSurahByNum(i);
+      if (s) total += s.versesCount;
+    }
+    total += Math.max(0, endV);
+  } else {
+    // Standard progression (forward Surah order, e.g. 2 -> 3)
+    total += Math.max(0, sStart.versesCount - startV + 1);
+    for (let i = startS + 1; i < endS; i++) {
+      const s = getSurahByNum(i);
+      if (s) total += s.versesCount;
+    }
+    total += Math.max(0, endV);
+  }
+  
+  return total;
+}
+
 // Convert a Lesson's Surah range into a readable string
 export function getSurahRangeString(startS?: number, startV?: number, endS?: number, endV?: number): string {
   if (!startS || !endS) return "-";

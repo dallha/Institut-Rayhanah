@@ -53,9 +53,9 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
 
   // Pricing scheme as specified in PDF
   const regimePricing = {
-    internat: { monthly: 110000, signup: 150000, label: t('school.regimeInternat'), desc: "Logé, nourri, encadrement 24h/7" },
-    externat: { monthly: 35000, signup: 50000, label: t('school.regimeExternat'), desc: "Cours uniquement en journée" },
-    "demi-pension": { monthly: 50000, signup: 50000, label: t('school.regimeDemi'), desc: "Repas du midi inclus" }
+    internat: { monthly: 110000, signup: 150000, label: t('school.regimeInternat'), desc: t('school.regimeInternatDesc') },
+    externat: { monthly: 35000, signup: 50000, label: t('school.regimeExternat'), desc: t('school.regimeExternatDesc') },
+    "demi-pension": { monthly: 50000, signup: 50000, label: t('school.regimeDemi'), desc: t('school.regimeDemiDesc') }
   };
 
   const handleDragCert = (e: React.DragEvent) => {
@@ -96,12 +96,12 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
   const handleEnroll = (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName || !parentName || !parentPhone) {
-      alert("Veuillez remplir tous les champs obligatoires (marqués d'un astérisque).");
+      alert(t('school.missingFieldsMsg'));
       return;
     }
 
     if (!rulesAccepted) {
-      alert("Vous devez lire et signer le Règlement Intérieur de l'établissement pour valider l'inscription.");
+      alert(t('school.rulesNotAcceptedMsg'));
       return;
     }
 
@@ -277,7 +277,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
 
           {/* Section: Regime selection */}
           <div className="space-y-2">
-            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">3. Régime de Scolarisation & Tarification</span>
+            <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">{t('school.schoolingRegimeTitle')}</span>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {(Object.keys(regimePricing) as Array<keyof typeof regimePricing>).map((key) => {
                 const item = regimePricing[key];
@@ -300,11 +300,11 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                       <p className="text-[10px] text-slate-400 font-medium leading-tight">{item.desc}</p>
                     </div>
                     <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-baseline">
-                      <span className="text-[10px] text-slate-500 font-bold">Mensuel:</span>
+                      <span className="text-[10px] text-slate-500 font-bold">{t('school.monthly')}</span>
                       <span className="font-extrabold text-xs text-[#0B1C30]">{item.monthly.toLocaleString()} F</span>
                     </div>
                     <div className="flex justify-between items-baseline mt-1">
-                      <span className="text-[10px] text-slate-400">Inscription:</span>
+                      <span className="text-[10px] text-slate-400">{t('school.signupFee')}</span>
                       <span className="font-bold text-[11px] text-slate-500">{item.signup.toLocaleString()} F</span>
                     </div>
                   </div>
@@ -316,7 +316,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           {/* Section: Academic assignment */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4" id="form-pedagogy-sec">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-500 uppercase">Halaqa d'affectation</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase">{t('school.halaqaLabel')}</label>
               <select
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden"
                 value={halaqaId}
@@ -413,11 +413,11 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
             </div>
             
             <div className="text-[11px] text-slate-500 leading-relaxed max-h-32 overflow-y-auto pr-1 space-y-2 no-scrollbar">
-              <p><strong>Engagements de scolarité :</strong> L'inscription à l'internat est annuelle et se renouvelle chaque année au retour des vacances de Mawlid Naby. L'élève s'inscrit pour une année scolaire entière.</p>
-              <p><strong>Conditions financières :</strong> La scolarité est payable par anticipation <strong>AVANT le 05 de chaque mois</strong>. Une absence justifiée ou non ne donne droit à aucun remboursement.</p>
-              <p><strong>Discipline & Équipements :</strong> Les appareils électroniques (téléphones portables, tablettes) sont STRICTEMENT INTERDITS. Les élèves doivent apporter des tenues décentes conformes à l'accoutrement islamique.</p>
-              <p><strong>Santé & Médicaments :</strong> Il est formellement interdit de conserver des médicaments au dortoir. Tous les traitements doivent être obligatoirement déposés à l'administration.</p>
-              <p><strong>Vacances & Sorties :</strong> Trois vacances sont programmées dans l'année : Korité (15 jours), Tabaski (15 jours) et Gamou (20 jours). Aucune sortie exceptionnelle ne sera accordée sans autorisation écrite préalable (24h à l'avance) et présence physique du tuteur légal.</p>
+              <p><strong>{t('school.rulesCommitmentTitle')}</strong> {t('school.rulesCommitmentDesc')}</p>
+              <p><strong>{t('school.rulesFinancialTitle')}</strong> {t('school.rulesFinancialDesc1')} <strong>{t('school.rulesFinancialDesc2')}</strong>{t('school.rulesFinancialDesc3')}</p>
+              <p><strong>{t('school.rulesDisciplineTitle')}</strong> {t('school.rulesDisciplineDesc')}</p>
+              <p><strong>{t('school.rulesHealthTitle')}</strong> {t('school.rulesHealthDesc')}</p>
+              <p><strong>{t('school.rulesHolidaysTitle')}</strong> {t('school.rulesHolidaysDesc')}</p>
             </div>
 
             <div className="pt-2 flex items-start space-x-2">
@@ -458,56 +458,55 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           <div>
             <h3 className="font-extrabold text-sm text-[#0B1C30] flex items-center space-x-1.5 uppercase tracking-wide">
               <Info className="w-4.5 h-4.5 text-[#D0A21C]" />
-              <span>Aide-Mémoire Rayhana</span>
+              <span>{t('school.helpMemoryTitle')}</span>
             </h3>
-            <p className="text-[10px] text-slate-400 mt-0.5">Informations de contact et barème des frais officiels</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">{t('school.helpMemoryDesc')}</p>
           </div>
 
           <div className="text-xs space-y-3.5" id="help-info-content">
             <div className="flex items-start space-x-2">
               <MapPin className="w-4 h-4 text-[#D0A21C] shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-slate-700 text-[11px]">Siège & Adresse :</p>
-                <p className="text-slate-500 font-medium text-[11px]">Somisci Mermoz, Villa N 30, Dakar, Sénégal</p>
-                <p className="text-[10px] text-slate-400 italic mt-0.5">Fondé en 1952 par Cheikha Marieme Niass</p>
+                <p className="font-bold text-slate-700 text-[11px]">{t('school.headquartersTitle')}</p>
+                <p className="text-slate-500 font-medium text-[11px]">{t('school.address')}</p>
+                <p className="text-[10px] text-slate-400 italic mt-0.5">{t('school.foundedBy')}</p>
               </div>
             </div>
 
             <div className="flex items-start space-x-2">
               <Phone className="w-4 h-4 text-[#D0A21C] shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-slate-700 text-[11px]">Téléphones de l'Administration :</p>
+                <p className="font-bold text-slate-700 text-[11px]">{t('school.adminPhones')}</p>
                 <p className="text-[#0B1C30] font-bold text-[11px]">+221 77 663 32 42</p>
                 <p className="text-[#0B1C30] font-bold text-[11px]">+221 75 109 66 66</p>
               </div>
             </div>
 
-            {/* Rates recap block */}
             <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl space-y-2">
-              <p className="text-[10px] font-bold text-[#0B1C30] uppercase tracking-wide">Grille des frais d'inscription & Scolarité</p>
+              <p className="text-[10px] font-bold text-[#0B1C30] uppercase tracking-wide">{t('school.feeGridTitle')}</p>
               <div className="space-y-1 text-[11px] font-medium text-slate-600">
                 <div className="flex justify-between">
-                  <span>Internat Complet :</span>
-                  <span className="font-bold text-slate-800">110 000 F / mois</span>
+                  <span>{t('school.fullBoarding')}</span>
+                  <span className="font-bold text-slate-800">110 000 F / {t('school.monthly').replace(':', '')}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/50 pb-1 text-[10px] text-slate-400">
-                  <span>Inscription :</span>
+                  <span>{t('school.signupFee')}</span>
                   <span>150 000 F</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Demi-Pension :</span>
-                  <span className="font-bold text-slate-800">50 000 F / mois</span>
+                  <span>{t('school.halfBoard')}</span>
+                  <span className="font-bold text-slate-800">50 000 F / {t('school.monthly').replace(':', '')}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/50 pb-1 text-[10px] text-slate-400">
-                  <span>Inscription :</span>
+                  <span>{t('school.signupFee')}</span>
                   <span>50 000 F</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Externat Simple :</span>
-                  <span className="font-bold text-slate-800">35 000 F / mois</span>
+                  <span>{t('school.daySchool')}</span>
+                  <span className="font-bold text-slate-800">35 000 F / {t('school.monthly').replace(':', '')}</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>Inscription :</span>
+                  <span>{t('school.signupFee')}</span>
                   <span>50 000 F</span>
                 </div>
               </div>

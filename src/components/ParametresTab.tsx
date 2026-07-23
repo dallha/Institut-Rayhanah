@@ -503,7 +503,7 @@ export default function ParametresTab({
                   autoFocus
                 />
               </div>
-              {authError && <p className="text-rose-500 text-xs mt-2 font-semibold">Mot de passe incorrect.</p>}
+              {authError && <p className="text-rose-500 text-xs mt-2 font-semibold">{t('settings.wrongPassword')}</p>}
             </div>
             
             <button
@@ -540,7 +540,7 @@ export default function ParametresTab({
         {settingsSuccess && (
           <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-bold flex items-center gap-2">
             <Check className="w-4 h-4 text-emerald-600" />
-            <span>Paramètres de l'établissement enregistrés avec succès !</span>
+            <span>{t('settings.settingsSaved')}</span>
           </div>
         )}
 
@@ -689,7 +689,7 @@ export default function ParametresTab({
               })}
 
               {halaqas.length === 0 && (
-                <p className="text-xs text-slate-400 italic text-center py-2">Aucune Halaqa enregistrée.</p>
+                <p className="text-xs text-slate-400 italic text-center py-2">{t('settings.noHalaqa')}</p>
               )}
 
               <button
@@ -767,7 +767,7 @@ export default function ParametresTab({
             <div>
               <label className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2">
                 <Upload className="w-4 h-4" />
-                <span>Choisir un fichier CSV...</span>
+                <span>{t('settings.chooseCSV')}</span>
                 <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
               </label>
             </div>
@@ -794,7 +794,7 @@ export default function ParametresTab({
               </button>
               
               <div className="mt-4 pt-4 border-t border-slate-200/60">
-                <h5 className="font-bold text-[10px] text-slate-400 uppercase tracking-wider mb-2">Opérations Avancées</h5>
+                <h5 className="font-bold text-[10px] text-slate-400 uppercase tracking-wider mb-2">{t('settings.advancedOps')}</h5>
                 <button
                   onClick={handleClearCache}
                   className="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold px-4 py-2 rounded-lg transition-colors flex justify-center items-center gap-2 cursor-pointer"
@@ -813,7 +813,7 @@ export default function ParametresTab({
             <div className="flex justify-between items-center">
               <h4 className="font-bold text-xs text-slate-800 uppercase flex items-center gap-2">
                 <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                <span>Aperçu du fichier : {importPreview.length} ligne(s) détectée(s)</span>
+                <span>{t('settings.filePreview', { count: importPreview.length })}</span>
               </h4>
               <button onClick={() => setImportPreview(null)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-4 h-4" />
@@ -824,9 +824,9 @@ export default function ParametresTab({
                 <thead className="bg-slate-100 font-bold text-slate-600">
                   <tr>
                     <th className="p-1">#</th>
-                    <th className="p-1">Matricule</th>
-                    <th className="p-1">Prénom & Nom</th>
-                    <th className="p-1">Étape</th>
+                    <th className="p-1">{t('school.cardMatricule')}</th>
+                    <th className="p-1">{t('settings.firstLastName')}</th>
+                    <th className="p-1">{t('settings.stage')}</th>
                     <th className="p-1">Hizb</th>
                   </tr>
                 </thead>
@@ -872,9 +872,9 @@ export default function ParametresTab({
           <div>
             <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
               <Shield className="w-5 h-5 text-[#0B1C30]" />
-              <span>Gestion de l'Équipe & Accès — إدارة الفريق</span>
+              <span>{t('settings.teamManagement')}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Gérez le personnel, les enseignants et leurs accès au système</p>
+            <p className="text-xs text-slate-400 mt-1">{t('settings.teamDesc')}</p>
           </div>
           <button 
             onClick={() => handleOpenModal()}
@@ -889,11 +889,11 @@ export default function ParametresTab({
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-xs text-slate-500 font-bold uppercase">
               <tr>
-                <th className="px-4 py-3 rounded-tl-lg">Nom Complet</th>
-                <th className="px-4 py-3">Fonction / Poste</th>
-                <th className="px-4 py-3">Téléphone</th>
-                <th className="px-4 py-3">Statut</th>
-                <th className="px-4 py-3 rounded-tr-lg text-right">Actions</th>
+                <th className="px-4 py-3 rounded-tl-lg">{t('settings.fullName')}</th>
+                <th className="px-4 py-3">{t('settings.positionRole')}</th>
+                <th className="px-4 py-3">{t('school.phone')}</th>
+                <th className="px-4 py-3">{t('settings.status')}</th>
+                <th className="px-4 py-3 rounded-tr-lg text-right">{t('settings.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -974,11 +974,11 @@ export default function ParametresTab({
                 <div className="flex items-center space-x-2">
                   <button onClick={() => handleOpenModal(staff)} className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-600 hover:text-[#0B1C30] hover:bg-slate-50 rounded-lg transition-colors font-semibold">
                     <Edit className="w-3.5 h-3.5" />
-                    <span>Modifier</span>
+                    <span>{t('studentFile.edit')}</span>
                   </button>
                   <button onClick={() => handleDelete(staff.id)} className="flex items-center gap-1.5 px-3 py-1.5 border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-semibold">
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Supprimer</span>
+                    <span>{t('settings.delete')}</span>
                   </button>
                 </div>
               </div>
@@ -997,9 +997,9 @@ export default function ParametresTab({
         <div className="mb-5">
           <h3 className="font-bold text-base sm:text-lg text-slate-800 flex items-center space-x-2">
             <Activity className="w-5 h-5 text-slate-600 shrink-0" />
-            <span>Journaux d'Audit & Activité Système</span>
+            <span>{t('settings.auditLogs')}</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1">Historique des actions critiques effectuées par l'équipe sur la plateforme</p>
+          <p className="text-xs text-slate-400 mt-1">{t('settings.auditDesc')}</p>
         </div>
 
         {/* Desktop table */}
@@ -1007,9 +1007,9 @@ export default function ParametresTab({
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-100 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
               <tr>
-                <th className="px-4 py-2.5 whitespace-nowrap">Date & Heure</th>
-                <th className="px-4 py-2.5">Utilisateur</th>
-                <th className="px-4 py-2.5">Action Effectuée</th>
+                <th className="px-4 py-2.5 whitespace-nowrap">{t('settings.dateTime')}</th>
+                <th className="px-4 py-2.5">{t('settings.user')}</th>
+                <th className="px-4 py-2.5">{t('settings.actionDone')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 text-xs">
@@ -1054,7 +1054,7 @@ export default function ParametresTab({
             className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Vider le cache PWA & Actualiser</span>
+            <span>{t('settings.clearCache')}</span>
           </button>
         </div>
       </div>
@@ -1067,9 +1067,9 @@ export default function ParametresTab({
           <div>
             <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
               <Users className="w-5 h-5 text-[#0B1C30]" />
-              <span>Registre Global des Élèves — سجل الطلاب</span>
+              <span>{t('settings.globalStudentRegistry')}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Liste complète des inscrits de l'institut</p>
+            <p className="text-xs text-slate-400 mt-1">{t('settings.registryDesc')}</p>
           </div>
           <div className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold">
             Total : {students.length}
@@ -1104,13 +1104,13 @@ export default function ParametresTab({
           <table className="w-full text-left text-sm text-slate-600 whitespace-nowrap">
             <thead className="bg-slate-50 text-xs text-slate-500 font-bold uppercase">
               <tr>
-                <th className="px-4 py-3 rounded-tl-lg">Matricule</th>
-                <th className="px-4 py-3">Nom & Prénom</th>
-                <th className="px-4 py-3">Genre</th>
-                <th className="px-4 py-3">Niveau</th>
-                <th className="px-4 py-3">Régime</th>
-                <th className="px-4 py-3">Contact Parent</th>
-                <th className="px-4 py-3 rounded-tr-lg text-right">Action</th>
+                <th className="px-4 py-3 rounded-tl-lg">{t('school.cardMatricule')}</th>
+                <th className="px-4 py-3">{t('settings.firstLastName')}</th>
+                <th className="px-4 py-3">{t('studentFile.gender')}</th>
+                <th className="px-4 py-3">{t('settings.level')}</th>
+                <th className="px-4 py-3">{t('studentFile.regime')}</th>
+                <th className="px-4 py-3">{t('settings.parentContact')}</th>
+                <th className="px-4 py-3 rounded-tr-lg text-right">{t('settings.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -1140,7 +1140,7 @@ export default function ParametresTab({
                       className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer text-xs"
                     >
                       <FolderOpen className="w-3.5 h-3.5" />
-                      <span>Dossier</span>
+                      <span>{t('settings.file')}</span>
                     </button>
                   </td>
                 </tr>
@@ -1215,7 +1215,7 @@ export default function ParametresTab({
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 text-xs shadow-xs transition-colors cursor-pointer"
                 >
                   <FolderOpen className="w-4 h-4" />
-                  <span>Ouvrir le Dossier Élève</span>
+                  <span>{t('settings.openStudentFile')}</span>
                 </button>
               </div>
             </div>
@@ -1259,7 +1259,7 @@ export default function ParametresTab({
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Nom de la Halaqa</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.halaqaName')}</label>
                 <input 
                   type="text" 
                   value={halaqaForm.name}
@@ -1270,7 +1270,7 @@ export default function ParametresTab({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Enseignant / Oustaz Responsable</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.responsibleTeacher')}</label>
                 <input 
                   type="text" 
                   value={halaqaForm.teacherName}
@@ -1281,7 +1281,7 @@ export default function ParametresTab({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Capacité Maximale d'Élèves</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.maxCapacity')}</label>
                 <input 
                   type="number" 
                   min={1}
@@ -1326,7 +1326,7 @@ export default function ParametresTab({
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Nom Complet (Ex: Amadou Diallo - أحمد)</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.fullNameEx')}</label>
                 <input 
                   type="text" 
                   value={formData.name}
@@ -1337,7 +1337,7 @@ export default function ParametresTab({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Fonction / Poste</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.positionRole')}</label>
                 <input 
                   type="text" 
                   value={formData.role}
@@ -1348,7 +1348,7 @@ export default function ParametresTab({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Téléphone</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('school.phone')}</label>
                 <input 
                   type="text" 
                   value={formData.phone}
@@ -1359,15 +1359,15 @@ export default function ParametresTab({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Statut</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">{t('settings.status')}</label>
                 <select 
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
                   className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 >
-                  <option value="Actif">Actif</option>
-                  <option value="Inactif">Inactif</option>
-                  <option value="En congé">En congé</option>
+                  <option value="Actif">{t('settings.statusActive')}</option>
+                  <option value="Inactif">{t('settings.statusInactive')}</option>
+                  <option value="En congé">{t('settings.statusOnLeave')}</option>
                 </select>
               </div>
             </div>

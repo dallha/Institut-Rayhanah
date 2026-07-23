@@ -27,8 +27,8 @@ export default function ComptabiliteTab({
   const { t } = useTranslation();
   const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || "");
   const [paymentAmount, setPaymentAmount] = useState<number>(15000);
-  const [paymentPurpose, setPaymentPurpose] = useState<string>("Mensualité Juillet 2026");
-  const [recordedBy, setRecordedBy] = useState<string>("Oustaz Directeur");
+  const [paymentPurpose, setPaymentPurpose] = useState<string>(t('treasury.defaultPurpose'));
+  const [recordedBy, setRecordedBy] = useState<string>(t('treasury.defaultRecordedBy'));
   const [receiptSuccess, setReceiptSuccess] = useState<boolean>(false);
   const [activeReceipt, setActiveReceipt] = useState<PaymentRecord | null>(null);
 
@@ -63,7 +63,7 @@ export default function ComptabiliteTab({
 
   const getStudentFullName = (id: string) => {
     const s = students.find(st => st.id === id);
-    return s ? `${s.firstName} ${s.lastName} (${s.matricule})` : "Inconnu";
+    return s ? `${s.firstName} ${s.lastName} (${s.matricule})` : t('treasury.unknownStudent');
   };
 
   return (
@@ -83,7 +83,7 @@ export default function ComptabiliteTab({
           {receiptSuccess && activeReceipt && (
             <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg text-emerald-800 text-xs font-semibold flex items-center space-x-2" id="payment-success-msg">
               <CheckCircle className="w-4 h-4 text-emerald-600" />
-              <span>{t('treasury.receiptSuccess')} Reçu {activeReceipt.receiptNumber} émis.</span>
+              <span>{t('treasury.receiptSuccess')}</span>
             </div>
           )}
 
@@ -147,9 +147,9 @@ export default function ComptabiliteTab({
           <div>
             <h3 className="font-bold text-base text-slate-800 flex items-center space-x-1.5">
               <Receipt className="w-5 h-5 text-emerald-600" />
-              <span>Visualisation du Reçu</span>
+              <span>{t('treasury.receiptPreviewTitle')}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Aperçu direct du dernier reçu de versement émis</p>
+            <p className="text-xs text-slate-400 mt-1">{t('treasury.receiptPreviewDesc')}</p>
           </div>
 
           {activeReceipt ? (
@@ -158,7 +158,7 @@ export default function ComptabiliteTab({
                 <div className="flex items-center gap-2">
                   <img src="/logo.png" alt="Logo" className="w-24 h-8 object-contain" />
                   <div>
-                    <p className="text-[8px] text-slate-500 font-bold ml-2 border-l border-emerald-800/20 pl-2">Section Daara & Recouvrement</p>
+                    <p className="text-[8px] text-slate-500 font-bold ml-2 border-l border-emerald-800/20 pl-2">{t('treasury.daaraSection')}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -170,27 +170,27 @@ export default function ComptabiliteTab({
               {/* Cachet filigrane */}
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none overflow-hidden z-0">
                 <div className="border-4 border-emerald-900 rounded-full w-48 h-48 flex items-center justify-center -rotate-12">
-                  <span className="text-emerald-900 font-black text-2xl text-center uppercase tracking-widest">Payé</span>
+                  <span className="text-emerald-900 font-black text-2xl text-center uppercase tracking-widest">{t('treasury.paidStamp')}</span>
                 </div>
               </div>
 
               <div className="space-y-2 py-1 relative z-10">
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-medium">Élève :</span>
+                  <span className="text-slate-400 font-medium">{t('treasury.studentLabel')}</span>
                   <span className="font-bold text-slate-800">{getStudentFullName(activeReceipt.studentId)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-medium">Motif :</span>
+                  <span className="text-slate-400 font-medium">{t('treasury.purposeLabel')}</span>
                   <span className="font-semibold text-slate-800">{activeReceipt.purpose}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-medium">Encaissé par :</span>
+                  <span className="text-slate-400 font-medium">{t('treasury.cashedByLabel')}</span>
                   <span className="font-semibold text-slate-800">{activeReceipt.recordedBy}</span>
                 </div>
               </div>
 
               <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg text-center flex justify-between items-center">
-                <span className="text-emerald-800 font-bold uppercase tracking-wider text-[10px]">Montant Total Encaissé</span>
+                <span className="text-emerald-800 font-bold uppercase tracking-wider text-[10px]">{t('treasury.totalAmountLabel')}</span>
                 <span className="text-base font-extrabold text-emerald-900">{activeReceipt.amount.toLocaleString()} FCFA</span>
               </div>
 
@@ -205,7 +205,7 @@ export default function ComptabiliteTab({
           ) : (
             <div className="border border-dashed border-slate-200 p-12 text-center rounded-xl text-slate-400 text-xs italic flex flex-col items-center justify-center space-y-2 min-h-[220px]">
               <FileText className="w-10 h-10 text-slate-300" />
-              <span>Aucun reçu sélectionné. Enregistrez un versement ou cliquez sur un élève pour générer le reçu.</span>
+              <span>{t('treasury.noReceiptSelected')}</span>
             </div>
           )}
         </div>
@@ -270,7 +270,7 @@ export default function ComptabiliteTab({
                       ? "bg-rose-100 border-rose-200 text-rose-800" 
                       : "bg-slate-100 border-slate-200 text-slate-600"
                   }`}>
-                    {isOverThreshold ? "Alerte Relance ⚠️" : "Impayé Standard"}
+                    {isOverThreshold ? t('treasury.alertReminder') : t('treasury.standardUnpaid')}
                   </span>
                 </div>
                 <div className="text-right">
@@ -284,7 +284,7 @@ export default function ComptabiliteTab({
                     }}
                     className="text-[10px] text-emerald-600 hover:text-emerald-700 font-bold underline mt-1 block cursor-pointer"
                   >
-                    Régler la balance
+                    {t('treasury.settleBalance')}
                   </button>
                 </div>
               </div>
@@ -293,7 +293,7 @@ export default function ComptabiliteTab({
 
           {unpaidStudents.length === 0 && (
             <div className="text-center py-10 text-slate-400 text-xs italic col-span-full">
-              Aucun impayé enregistré. Tout est en règle !
+              {t('treasury.noUnpaidMsg')}
             </div>
           )}
         </div>

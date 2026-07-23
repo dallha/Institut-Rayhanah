@@ -17,6 +17,7 @@ import {
   Cell
 } from "recharts";
 import { Calendar, CheckCircle, AlertTriangle, Sparkles, ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface WeeklySummaryChartProps {
   students: Student[];
@@ -24,8 +25,7 @@ interface WeeklySummaryChartProps {
   lessons: QuranLesson[];
 }
 
-// French weekday helper
-const WEEKDAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+// Translation handled dynamically via t('weekly.weekdays', { returnObjects: true })
 
 // Helper to get ISO week number and year from a date string (YYYY-MM-DD)
 function getWeekAndYear(dateStr: string) {
@@ -57,10 +57,10 @@ function getWeekRangeLabel(week: number, year: number) {
   end.setDate(end.getDate() + 6);
   
   const format = (date: Date) => {
-    return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+    return date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
   };
   
-  return `Semaine ${week} (${format(ISOweekStart)} - ${format(end)})`;
+  return { week, ISOweekStart, end, formattedStart: format(ISOweekStart), formattedEnd: format(end) };
 }
 
 // Get the weekday index (0 = Monday, 6 = Sunday)
@@ -72,6 +72,9 @@ function getWeekdayIndex(dateStr: string): number {
 }
 
 export default function WeeklySummaryChart({ students, attendance, lessons }: WeeklySummaryChartProps) {
+  const { t } = useTranslation();
+  const weekdays = t('weekly.weekdays', { returnObjects: true }) as string[];
+
   // Find all weeks available in the logs to populate the selector
   const availableWeeks = useMemo(() => {
     const weeksMap = new Map<string, { week: number; year: number }>();
@@ -103,7 +106,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
 
     return sorted.map(([key, value]) => ({
       key,
-      label: getWeekRangeLabel(value.week, value.year),
+      label: `${t('weekly.week')} ${value.week} (${getWeekRangeLabel(value.week, value.year).formattedStart} - ${getWeekRangeLabel(value.week, value.year).formattedEnd})`,
       ...value
     }));
   }, [attendance, lessons]);
@@ -135,7 +138,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
     const { week, year } = currentWeekInfo;
 
     // Initialize 7 days
-    const days = WEEKDAYS.map((name) => ({
+    const days = weekdays.map((name) => ({
       name,
       // Attendance stats
       presents: 0,
@@ -247,10 +250,10 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
         <div>
           <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-emerald-700" />
-            Résumé de Performance Hebdomadaire
+            {t('weekly.summaryTitle')}
           </h3>
           <p className="text-xs text-slate-400 mt-1">
-            Visualisation analytique de la régularité et des leçons par semaine
+            {t('weekly.summaryDesc')}
           </p>
         </div>
 
@@ -260,7 +263,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
             onClick={handlePrevWeek}
             disabled={availableWeeks.findIndex(w => w.key === selectedWeekKey) === availableWeeks.length - 1}
             className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white text-slate-600 transition-all"
-            title="Semaine précédente"
+            title={t('weekly.prevWeek')}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -281,7 +284,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
             onClick={handleNextWeek}
             disabled={availableWeeks.findIndex(w => w.key === selectedWeekKey) === 0}
             className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white text-slate-600 transition-all"
-            title="Semaine suivante"
+            title={t('weekly.nextWeek')}
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -291,35 +294,35 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
       {/* Week Metrics Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6" id="weekly-overview-metrics">
         <div className="bg-emerald-50/50 border border-emerald-100/50 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-[9px] font-bold text-emerald-800 uppercase tracking-wide">Assiduité Moyenne</span>
+          <span className="text-[9px] font-bold text-emerald-800 uppercase tracking-wide">{t('weekly.avgAttendance')}</span>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-xl sm:text-2xl font-extrabold text-emerald-900">{summaryStats.averageAttendanceRate}%</span>
           </div>
-          <span className="text-[10px] text-emerald-700 mt-1 font-medium">Présents & retards</span>
+          <span className="text-[10px] text-emerald-700 mt-1 font-medium">{t('weekly.presentAndLate')}</span>
         </div>
 
         <div className="bg-sky-50/50 border border-sky-100/50 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-[9px] font-bold text-sky-800 uppercase tracking-wide">Leçons Récitées</span>
+          <span className="text-[9px] font-bold text-sky-800 uppercase tracking-wide">{t('weekly.recitedLessons')}</span>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-xl sm:text-2xl font-extrabold text-sky-900">{summaryStats.totalLessonsRecorded}</span>
           </div>
-          <span className="text-[10px] text-sky-700 mt-1 font-medium">Dars quotidien validé</span>
+          <span className="text-[10px] text-sky-700 mt-1 font-medium">{t('weekly.validatedDars')}</span>
         </div>
 
         <div className="bg-amber-50/50 border border-amber-100/50 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-[9px] font-bold text-amber-800 uppercase tracking-wide">Mentions Excellent (ممتاز)</span>
+          <span className="text-[9px] font-bold text-amber-800 uppercase tracking-wide">{t('weekly.excellentMentions')}</span>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-xl sm:text-2xl font-extrabold text-amber-900">{summaryStats.totalExcellent}</span>
           </div>
-          <span className="text-[10px] text-amber-700 mt-1 font-medium">Qualité de mémorisation</span>
+          <span className="text-[10px] text-amber-700 mt-1 font-medium">{t('weekly.memorizationQuality')}</span>
         </div>
 
         <div className="bg-rose-50/50 border border-rose-100/50 rounded-xl p-3 flex flex-col justify-between col-span-2 lg:col-span-1">
-          <span className="text-[9px] font-bold text-rose-800 uppercase tracking-wide font-sans">Jours de Haute Présence</span>
+          <span className="text-[9px] font-bold text-rose-800 uppercase tracking-wide font-sans">{t('weekly.highPresenceDays')}</span>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-xl sm:text-2xl font-extrabold text-rose-900">{summaryStats.daysWithPerfectAttendance} / 7</span>
           </div>
-          <span className="text-[10px] text-rose-700 mt-1 font-medium">Taux &ge; 95%</span>
+          <span className="text-[10px] text-rose-700 mt-1 font-medium" dangerouslySetInnerHTML={{ __html: t('weekly.rateGte95').replace('>=', '&ge;') }}></span>
         </div>
       </div>
 
@@ -333,7 +336,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
               : "border-transparent text-slate-400 hover:text-slate-600"
           }`}
         >
-          Assiduité (Présences vs Absences)
+          {t('weekly.attendanceTab')}
         </button>
         <button
           onClick={() => setActiveSubTab("pedagogy")}
@@ -343,7 +346,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
               : "border-transparent text-slate-400 hover:text-slate-600"
           }`}
         >
-          Progrès (Leçons récités par mention)
+          {t('weekly.progressTab')}
         </button>
       </div>
 
@@ -351,9 +354,9 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
       {!hasData ? (
         <div className="border-2 border-dashed border-slate-100 rounded-xl py-12 flex flex-col items-center justify-center text-center px-4">
           <Calendar className="w-8 h-8 text-slate-300 stroke-[1.5]" />
-          <p className="text-xs font-semibold text-slate-500 mt-3">Aucune donnée disponible pour cette semaine</p>
+          <p className="text-xs font-semibold text-slate-500 mt-3">{t('weekly.noData')}</p>
           <p className="text-[10px] text-slate-400 mt-1 max-w-xs">
-            Veuillez choisir une autre semaine dans le sélecteur ci-dessus ou valider l'appel d'aujourd'hui.
+            {t('weekly.noDataDesc')}
           </p>
         </div>
       ) : (
@@ -387,9 +390,9 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
                     fontFamily: 'sans-serif'
                   }}
                   formatter={(value, name) => {
-                    if (name === "presents") return [value, "Présents/Retards"];
-                    if (name === "absents") return [value, "Absents"];
-                    if (name === "attendanceRate") return [`${value}%`, "Taux d'assiduité"];
+                    if (name === "presents") return [value, t('weekly.presentLateLegend')];
+                    if (name === "absents") return [value, t('weekly.absentsLegend')];
+                    if (name === "attendanceRate") return [`${value}%`, t('weekly.attendanceRateLegend')];
                     return [value, name];
                   }}
                 />
@@ -403,14 +406,14 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
                 
                 <Bar 
                   dataKey="presents" 
-                  name="Présents" 
+                  name={t('weekly.presents')} 
                   fill="#047857" // Emerald-700
                   radius={[4, 4, 0, 0]} 
                   maxBarSize={30}
                 />
                 <Bar 
                   dataKey="absents" 
-                  name="Absents" 
+                  name={t('weekly.absents')} 
                   fill="#FDA4AF" // Rose-300
                   radius={[4, 4, 0, 0]} 
                   maxBarSize={30}
@@ -444,9 +447,9 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
                     fontFamily: 'sans-serif'
                   }}
                   formatter={(value, name) => {
-                    if (name === "excellentLessons") return [value, "Excellent (ممتاز)"];
-                    if (name === "bienLessons") return [value, "Bien (جيد)"];
-                    if (name === "otherLessons") return [value, "Passable/Faible"];
+                    if (name === "excellentLessons") return [value, t('weekly.excellent')];
+                    if (name === "bienLessons") return [value, t('weekly.good')];
+                    if (name === "otherLessons") return [value, t('weekly.fairPoor')];
                     return [value, name];
                   }}
                 />
@@ -460,7 +463,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
 
                 <Bar 
                   dataKey="excellentLessons" 
-                  name="Excellent (ممتاز)" 
+                  name={t('weekly.excellent')} 
                   fill="#D97706" // Amber-600
                   stackId="lessonsStack"
                   radius={[0, 0, 0, 0]} 
@@ -468,7 +471,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
                 />
                 <Bar 
                   dataKey="bienLessons" 
-                  name="Bien (جيد)" 
+                  name={t('weekly.good')} 
                   fill="#10B981" // Emerald-500
                   stackId="lessonsStack"
                   radius={[0, 0, 0, 0]} 
@@ -476,7 +479,7 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
                 />
                 <Bar 
                   dataKey="otherLessons" 
-                  name="Passable/Faible" 
+                  name={t('weekly.fairPoor')} 
                   fill="#94A3B8" // Slate-400
                   stackId="lessonsStack"
                   radius={[4, 4, 0, 0]} 
@@ -492,10 +495,10 @@ export default function WeeklySummaryChart({ students, attendance, lessons }: We
       <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[10px] text-slate-400">
         <span className="flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-amber-500" />
-          Les données reflètent les journées clôturées par les enseignants.
+          {t('weekly.footerNote')}
         </span>
         <span className="hidden sm:inline italic">
-          Mise à jour en temps réel
+          {t('weekly.realTimeUpdate')}
         </span>
       </div>
     </div>

@@ -5,9 +5,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Student, Halaqa, AttendanceStatus, Evaluation, EtapePedagogique, QuranLesson, AttendanceRecord } from "../types";
-import { SURAHS, HIZBS, formatHizbFractionArabic } from "../quranData";
-import { CheckCircle, AlertTriangle, XCircle, Save, Lock, ArrowRight, BookOpen, UserCheck } from "lucide-react";
+import { SURAHS, HIZBS, formatHizbFractionArabic, calculateVersesCount, getSurahByNum } from "../quranData";
+import { CheckCircle, AlertTriangle, XCircle, Save, Lock, ArrowRight, BookOpen, UserCheck, MessageSquare } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 interface AttendanceTabProps {
   students: Student[];
@@ -32,9 +33,20 @@ interface RowState {
   startHizbFraction: number;
   endHizb: number;
   endHizbFraction: number;
+
+  // Muraja'ah
+  murajaahActive: boolean;
+  murajaahStartHizb: number;
+  murajaahStartFraction: number;
+  murajaahEndHizb: number;
+  murajaahEndFraction: number;
+  murajaahEvaluation: Evaluation;
+
+  comments: string;
 }
 
 export default function AttendanceTab({ students, halaqas, onClotureDay }: AttendanceTabProps) {
+  const { t } = useTranslation();
   const [selectedHalaqa, setSelectedHalaqa] = useState<string>(halaqas[0]?.id || "h1");
   const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [isClotured, setIsClotured] = useState<boolean>(false);
@@ -63,6 +75,15 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
         startHizbFraction: student.currentHizbFraction || 0,
         endHizb: student.currentHizbNum || 60,
         endHizbFraction: student.currentHizbFraction || 0,
+
+        murajaahActive: false,
+        murajaahStartHizb: student.currentHizbNum || 60,
+        murajaahStartFraction: 0,
+        murajaahEndHizb: student.currentHizbNum || 60,
+        murajaahEndFraction: 0,
+        murajaahEvaluation: Evaluation.Naam,
+
+        comments: ""
       };
     });
     setGridRows(initialRows);
@@ -98,6 +119,12 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
       // 2. Lesson (only if Present or Late, and not Tahajji)
       const student = students.find(s => s.id === row.studentId);
       if (student && student.etape !== EtapePedagogique.Tahajji && row.status !== AttendanceStatus.Absent) {
+        
+        let vCount = 0;
+        if (row.lessonType === "sourate") {
+          vCount = calculateVersesCount(row.startSurah, row.startVerset, row.endSurah, row.endVerset);
+        }
+
         quranLessons.push({
           id: `les_${row.studentId}_${Date.now()}`,
           studentId: row.studentId,
@@ -112,6 +139,13 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
           startHizbFraction: row.lessonType === "hizb" ? row.startHizbFraction : undefined,
           endHizb: row.lessonType === "hizb" ? row.endHizb : undefined,
           endHizbFraction: row.lessonType === "hizb" ? row.endHizbFraction : undefined,
+          versesCount: vCount,
+          murajaahStartHizb: row.murajaahActive ? row.murajaahStartHizb : undefined,
+          murajaahStartFraction: row.murajaahActive ? row.murajaahStartFraction : undefined,
+          murajaahEndHizb: row.murajaahActive ? row.murajaahEndHizb : undefined,
+          murajaahEndFraction: row.murajaahActive ? row.murajaahEndFraction : undefined,
+          murajaahEvaluation: row.murajaahActive ? row.murajaahEvaluation : undefined,
+          comments: row.comments
         });
       }
     });
@@ -127,14 +161,14 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
         <div id="attendance-header-meta">
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <UserCheck className="w-5 h-5 text-emerald-600" />
-            <span>Cahier d'Appel & Dars Quotidien</span>
+            <span>{t('attendance.title')}</span>
           </h3>
-          <p className="text-xs text-slate-400 font-medium mt-1">Saisie de présence et progression de la Halaqa</p>
+          <p className="text-xs text-slate-400 font-medium mt-1">{t('attendance.subtitle')}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto" id="attendance-config-controls">
           <div>
-            <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Sélection Halaqa</label>
+            <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">{t('attendance.selectHalaqa')}</label>
             <select
               id="attendance-halaqa-select"
               className="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg p-2 focus:outline-hidden font-semibold"
@@ -148,7 +182,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
           </div>
 
           <div>
-            <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">Date d'évaluation</label>
+            <label className="block text-[10px] text-slate-400 font-bold uppercase mb-1">{t('attendance.evalDate')}</label>
             <input
               type="date"
               id="attendance-date-input"
@@ -164,7 +198,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
       {isClotured && (
         <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-800 text-xs font-semibold flex items-center space-x-2 animate-bounce" id="attendance-clotured-banner">
           <CheckCircle className="w-5 h-5 text-emerald-600" />
-          <span>La journée pédagogique a été clôturée avec succès ! Les dossiers élèves et la scolarité ont été mis à jour de façon asynchrone.</span>
+          <span>{t('attendance.clotureSuccess')}</span>
         </div>
       )}
 
@@ -172,10 +206,10 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
       <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-xs" id="attendance-sheet-wrapper">
         <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center" id="attendance-sheet-header">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Élèves de la Halaqa ({halaqaStudents.length})
+            {t('attendance.studentsList')} ({halaqaStudents.length})
           </span>
           <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-            Étape Active
+            {t('attendance.activeStage')}
           </span>
         </div>
 
@@ -242,20 +276,36 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                   {isAbsent ? (
                     <div className="flex items-center gap-2 bg-slate-100 border border-dashed border-slate-300 p-3 rounded-xl text-slate-400">
                       <Lock className="w-4 h-4 shrink-0" />
-                      <span className="text-xs italic">Saisie bloquée — élève absent.</span>
+                      <span className="text-xs italic">{t('attendance.absentBlocked')}</span>
                     </div>
                   ) : isTahajji ? (
                     <div className="flex items-center gap-2 bg-sky-50 border border-sky-200 p-3 rounded-xl text-sky-700">
                       <BookOpen className="w-4 h-4 shrink-0 text-sky-500" />
-                      <span className="text-xs font-medium">Phase Tahajji — pas de leçon coranique requise.</span>
+                      <span className="text-xs font-medium">{t('attendance.tahajjiNoLesson')}</span>
                     </div>
                   ) : (
                     <div className="border-2 border-emerald-300 rounded-xl overflow-hidden shadow-sm" id={`lesson-inputs-grid-${student.id}`}>
-                      {/* Green header bar */}
+                      
+                      {/* Current Cursor Badge */}
+                      <div className="px-4 py-1.5 bg-emerald-100 border-b border-emerald-200 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-emerald-800">
+                          <span className="text-[10px] font-bold uppercase tracking-wider">{t('attendance.currentCursor')}:</span>
+                          <span className="text-xs font-semibold">
+                            Hizb {student.currentHizbNum || 60} {student.currentHizbFraction ? `(${formatHizbFractionArabic(student.currentHizbFraction)})` : ""} · {getSurahByNum(student.currentSurahNum || 114)?.arabicName} v.{student.currentVersetNum || 1}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Green header bar (HIFZ) */}
                       <div className="flex items-center justify-between px-4 py-2.5 bg-emerald-600">
                         <div className="flex items-center gap-2 text-white">
                           <BookOpen className="w-4 h-4" />
-                          <span className="text-xs font-bold uppercase tracking-widest">الدرس — Leçon du Jour</span>
+                          <span className="text-xs font-bold uppercase tracking-widest">{t('attendance.lessonOfTheDay')}</span>
+                          {row.lessonType === "sourate" && (
+                            <span className="ml-2 bg-emerald-800/40 px-2 py-0.5 rounded text-[10px] font-mono">
+                              📊 {calculateVersesCount(row.startSurah, row.startVerset, row.endSurah, row.endVerset)} {t('attendance.versesCount')}
+                            </span>
+                          )}
                         </div>
                         <div className="flex gap-1.5">
                           <button
@@ -273,13 +323,13 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                         </div>
                       </div>
 
-                      {/* Body */}
+                      {/* Body (HIFZ) */}
                       <div className="p-3 bg-emerald-50 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                         {/* Sourate mode */}
                         {row.lessonType === "sourate" ? (
                           <div className="md:col-span-2 grid grid-cols-2 gap-2">
                             <div>
-                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Début</label>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">{t('attendance.start')}</label>
                               <div className="flex gap-1">
                                 <select
                                   className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
@@ -305,7 +355,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                               </div>
                             </div>
                             <div>
-                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Fin</label>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">{t('attendance.end')}</label>
                               <div className="flex gap-1">
                                 <select
                                   className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
@@ -331,7 +381,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                           /* Hizb mode */
                           <div className="md:col-span-2 grid grid-cols-2 gap-2">
                             <div>
-                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Début</label>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">{t('attendance.start')}</label>
                               <div className="flex gap-1">
                                 <select
                                   className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
@@ -360,7 +410,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
                               </div>
                             </div>
                             <div>
-                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Fin</label>
+                              <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">{t('attendance.end')}</label>
                               <div className="flex gap-1">
                                 <select
                                   className="bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-medium"
@@ -389,17 +439,115 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
 
                         {/* Evaluation */}
                         <div>
-                          <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Évaluation</label>
+                          <label className="block text-[10px] font-bold text-emerald-800 uppercase mb-1">{t('attendance.evaluation')}</label>
                           <select
                             className={`w-full border-2 rounded-lg px-2 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all ${row.evaluation === Evaluation.Naam ? "bg-amber-50 border-amber-400 text-amber-800" : "bg-rose-50 border-rose-300 text-rose-700"}`}
                             value={row.evaluation}
                             onChange={(e) => updateRowField(student.id, "evaluation", e.target.value)}
                           >
-                            <option value={Evaluation.Naam}>⭐ نعم — Validé</option>
-                            <option value={Evaluation.Lam}>⚠️ لم — À refaire</option>
+                            <option value={Evaluation.Naam}>{t('attendance.evalNaam')}</option>
+                            <option value={Evaluation.Lam}>{t('attendance.evalLam')}</option>
                           </select>
                         </div>
                       </div>
+
+                      {/* MURAJA'AH SECTION */}
+                      <div className="border-t border-emerald-200">
+                        <div className="px-4 py-2 bg-indigo-50 flex items-center justify-between cursor-pointer hover:bg-indigo-100 transition-colors" onClick={() => updateRowField(student.id, "murajaahActive", !row.murajaahActive)}>
+                          <div className="flex items-center gap-2 text-indigo-800">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded border-indigo-400 text-indigo-600 focus:ring-indigo-500" checked={row.murajaahActive} readOnly />
+                            <span className="text-xs font-bold uppercase tracking-widest">{t('attendance.murajaah')}</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-indigo-600">{t('attendance.murajaahToggle')}</span>
+                        </div>
+                        
+                        {row.murajaahActive && (
+                          <div className="p-3 bg-indigo-50/50 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                            <div className="md:col-span-2 grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[10px] font-bold text-indigo-800 uppercase mb-1">{t('attendance.start')}</label>
+                                <div className="flex gap-1">
+                                  <select
+                                    className="bg-white border border-indigo-200 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-400 font-medium"
+                                    value={row.murajaahStartHizb}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      updateRowField(student.id, "murajaahStartHizb", val);
+                                      updateRowField(student.id, "murajaahEndHizb", val);
+                                    }}
+                                  >
+                                    {HIZBS.map(h => (
+                                      <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
+                                    ))}
+                                  </select>
+                                  <select
+                                    className="bg-white border border-indigo-200 rounded-lg px-2 py-1.5 text-xs w-20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                    value={row.murajaahStartFraction}
+                                    onChange={(e) => updateRowField(student.id, "murajaahStartFraction", Number(e.target.value))}
+                                  >
+                                    <option value={0}>بداية</option>
+                                    <option value={0.25}>ربع</option>
+                                    <option value={0.50}>نصف</option>
+                                    <option value={0.75}>ثلاثة</option>
+                                    <option value={1.00}>كامل</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-indigo-800 uppercase mb-1">{t('attendance.end')}</label>
+                                <div className="flex gap-1">
+                                  <select
+                                    className="bg-white border border-indigo-200 rounded-lg px-2 py-1.5 text-xs flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-400 font-medium"
+                                    value={row.murajaahEndHizb}
+                                    onChange={(e) => updateRowField(student.id, "murajaahEndHizb", Number(e.target.value))}
+                                  >
+                                    {HIZBS.map(h => (
+                                      <option key={h.number} value={h.number}>الحزب {h.number}: {h.name}</option>
+                                    ))}
+                                  </select>
+                                  <select
+                                    className="bg-white border border-indigo-200 rounded-lg px-2 py-1.5 text-xs w-20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                    value={row.murajaahEndFraction}
+                                    onChange={(e) => updateRowField(student.id, "murajaahEndFraction", Number(e.target.value))}
+                                  >
+                                    <option value={0}>بداية</option>
+                                    <option value={0.25}>ربع</option>
+                                    <option value={0.50}>نصف</option>
+                                    <option value={0.75}>ثلاثة</option>
+                                    <option value={1.00}>كامل</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Murajaah Evaluation */}
+                            <div>
+                              <label className="block text-[10px] font-bold text-indigo-800 uppercase mb-1">{t('attendance.evaluation')}</label>
+                              <select
+                                className={`w-full border-2 rounded-lg px-2 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all ${row.murajaahEvaluation === Evaluation.Naam ? "bg-amber-50 border-amber-400 text-amber-800" : "bg-rose-50 border-rose-300 text-rose-700"}`}
+                                value={row.murajaahEvaluation}
+                                onChange={(e) => updateRowField(student.id, "murajaahEvaluation", e.target.value)}
+                              >
+                                <option value={Evaluation.Naam}>{t('attendance.evalNaam')}</option>
+                                <option value={Evaluation.Lam}>{t('attendance.evalLam')}</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Comments / Tajweed section */}
+                      <div className="bg-white p-2 border-t border-emerald-100 flex items-center">
+                        <MessageSquare className="w-4 h-4 text-slate-400 mr-2" />
+                        <input
+                          type="text"
+                          placeholder={t('attendance.commentsPlaceholder')}
+                          className="w-full text-xs text-slate-700 border-none bg-transparent focus:outline-none focus:ring-0"
+                          value={row.comments}
+                          onChange={(e) => updateRowField(student.id, "comments", e.target.value)}
+                        />
+                      </div>
+
                     </div>
                   )}
                 </div>
@@ -417,7 +565,7 @@ export default function AttendanceTab({ students, halaqas, onClotureDay }: Atten
             className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center space-x-2"
           >
             <Save className="w-4 h-4" />
-            <span>CLÔTURER LA JOURNÉE PÉDAGOGIQUE</span>
+            <span>{t('attendance.clotureBtn')}</span>
           </button>
         </div>
       </div>

@@ -64,7 +64,7 @@ export default function HonneurTab({ students, halaqas }: HonneurTabProps) {
                 {(student.gender === 'female' || student.gender === 'F') ? t('honneur.hafizat') : t('honneur.hafiz')}
               </p>
               <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium space-y-1">
-                <p>Halaqa : {getHalaqaName(student.halaqaId)}</p>
+                <p>{t('honneur.halaqaLabel')} {getHalaqaName(student.halaqaId)}</p>
                 <p>Khatmats : <span className="font-bold text-amber-600">{student.khatmatCount}</span></p>
               </div>
             </motion.div>

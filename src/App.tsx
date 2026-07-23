@@ -480,13 +480,16 @@ export default function App() {
       if (!lesson) return student;
 
       let scoreAward = 15;
-      if (lesson.evaluation === Evaluation.Naam) scoreAward = 30;
-
-      if (lesson.type === "sourate" && lesson.endSurah) {
-        return { ...student, currentSurahNum: lesson.endSurah, currentVersetNum: lesson.endVerset || 1, score: student.score + scoreAward };
-      } else if (lesson.type === "hizb" && lesson.endHizb) {
-        return { ...student, currentHizbNum: lesson.endHizb, currentHizbFraction: lesson.endHizbFraction || 0, score: student.score + scoreAward };
+      if (lesson.evaluation === Evaluation.Naam) {
+        scoreAward = 30;
+        
+        if (lesson.type === "sourate" && lesson.endSurah) {
+          return { ...student, currentSurahNum: lesson.endSurah, currentVersetNum: lesson.endVerset || 1, score: student.score + scoreAward };
+        } else if (lesson.type === "hizb" && lesson.endHizb) {
+          return { ...student, currentHizbNum: lesson.endHizb, currentHizbFraction: lesson.endHizbFraction || 0, score: student.score + scoreAward };
+        }
       }
+      
       return { ...student, score: student.score + scoreAward };
     });
 

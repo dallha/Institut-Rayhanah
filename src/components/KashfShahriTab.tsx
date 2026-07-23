@@ -8,6 +8,7 @@ import { Student, Halaqa, QuranLesson, AttendanceRecord, AttendanceStatus } from
 import { SURAHS, getSurahByNum } from "../quranData";
 import { Printer, Share2, ToggleLeft, ToggleRight, CalendarDays, BookOpen, Layers } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 interface KashfShahriTabProps {
   students: Student[];
@@ -17,6 +18,7 @@ interface KashfShahriTabProps {
 }
 
 export default function KashfShahriTab({ students, halaqas, lessons, attendance }: KashfShahriTabProps) {
+  const { t } = useTranslation();
   const [selectedHalaqa, setSelectedHalaqa] = useState<string>(halaqas[0]?.id || "h1");
   const [displayMode, setDisplayMode] = useState<"sourate" | "hizb">("sourate");
   const [selectedMonth, setSelectedMonth] = useState<number>(7); // July by default
@@ -36,13 +38,13 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
     // Check attendance
     const att = attendance.find(a => a.studentId === studentId && a.date === dateString);
     if (att && att.status === AttendanceStatus.Absent) {
-      return { text: "غ", color: "bg-rose-50 text-rose-500 font-bold", title: "Absent" };
+      return { text: "غ", color: "bg-rose-50 text-rose-500 font-bold", title: t('kashf.absent') };
     }
 
     // Check lesson
     const les = lessons.find(l => l.studentId === studentId && l.date === dateString);
     if (!les) {
-      return { text: "-", color: "text-slate-300", title: "Pas de dars enregistré" };
+      return { text: "-", color: "text-slate-300", title: t('kashf.noDars') };
     }
 
     if (displayMode === "sourate") {
@@ -65,7 +67,7 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
       }
     }
 
-    return { text: "✓", color: "bg-slate-50 text-slate-500", title: "Évalué" };
+    return { text: "✓", color: "bg-slate-50 text-slate-500", title: t('kashf.evaluated') };
   };
 
   const handlePrint = () => {
@@ -81,10 +83,10 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
         <div>
           <h3 className="font-bold text-lg text-slate-800 flex items-center space-x-2">
             <CalendarDays className="w-5 h-5 text-emerald-600" />
-            <span>Kashf Shahri (الكشف الشهري) - Registre Mensuel</span>
+            <span>{t('kashf.title')}</span>
           </h3>
           <p className="text-xs text-slate-400 font-medium mt-1">
-            Matrice des progrès et assiduité pour l'exportation et le contrôle parental
+            {t('kashf.subtitle')}
           </p>
         </div>
 
@@ -106,9 +108,9 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
           >
-            <option value={7}>Juillet 2026</option>
-            <option value={8}>Août 2026</option>
-            <option value={9}>Septembre 2026</option>
+            <option value={7}>{t('kashf.july')} 2026</option>
+            <option value={8}>{t('kashf.august')} 2026</option>
+            <option value={9}>{t('kashf.september')} 2026</option>
           </select>
 
           {/* Range part toggle */}
@@ -117,13 +119,13 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
               onClick={() => setDayRange("part1")}
               className={`px-3 py-1 text-xs font-bold rounded ${dayRange === "part1" ? "bg-white text-slate-800 shadow-xs" : "text-slate-500"}`}
             >
-              Jours 1 - 15
+              {t('kashf.days1_15')}
             </button>
             <button
               onClick={() => setDayRange("part2")}
               className={`px-3 py-1 text-xs font-bold rounded ${dayRange === "part2" ? "bg-white text-slate-800 shadow-xs" : "text-slate-500"}`}
             >
-              Jours 16 - 31
+              {t('kashf.days16_31')}
             </button>
           </div>
         </div>
@@ -132,21 +134,21 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
       {/* Interactive Display Toggle & Export Buttons */}
       <div className="flex flex-col sm:flex-row justify-between items-center bg-emerald-50 border border-emerald-100 p-4 rounded-xl gap-4" id="kashf-export-bar">
         <div className="flex items-center space-x-3 text-emerald-900" id="kashf-mode-toggle-group">
-          <span className="text-xs font-bold uppercase tracking-wide">Mode d'affichage :</span>
+          <span className="text-xs font-bold uppercase tracking-wide">{t('kashf.displayMode')}</span>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setDisplayMode("sourate")}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${displayMode === "sourate" ? "bg-emerald-600 text-white" : "bg-white text-emerald-800 hover:bg-emerald-100"}`}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Sourate / Verset</span>
+              <span>{t('kashf.surahVerse')}</span>
             </button>
             <button
               onClick={() => setDisplayMode("hizb")}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${displayMode === "hizb" ? "bg-emerald-600 text-white" : "bg-white text-emerald-800 hover:bg-emerald-100"}`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Hizb / Fraction</span>
+              <span>{t('kashf.hizbFraction')}</span>
             </button>
           </div>
         </div>
@@ -157,14 +159,14 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
             className="flex items-center space-x-1.5 px-4 py-2 bg-white border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg transition-all"
           >
             <Printer className="w-4 h-4" />
-            <span>Imprimer / PDF</span>
+            <span>{t('kashf.printPdf')}</span>
           </button>
           <button
-            onClick={() => alert("Lien d'exportation WhatsApp copié dans le presse-papiers pour envoi immédiat aux parents.")}
+            onClick={() => alert(t('kashf.whatsappCopied'))}
             className="flex items-center space-x-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all"
           >
             <Share2 className="w-4 h-4" />
-            <span>Partager WhatsApp</span>
+            <span>{t('kashf.shareWhatsapp')}</span>
           </button>
         </div>
       </div>
@@ -175,7 +177,7 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
           <thead>
             <tr className="bg-slate-50 border-b border-slate-100">
               <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider sticky left-0 bg-slate-50 border-r border-slate-100 z-10 w-44">
-                Élève (Matricule)
+                {t('kashf.studentMatricule')}
               </th>
               {days.map(day => (
                 <th key={day} className="p-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[50px] border-r border-slate-100">
@@ -214,7 +216,7 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
             {activeStudents.length === 0 && (
               <tr>
                 <td colSpan={days.length + 1} className="p-8 text-center text-slate-400 text-xs italic">
-                  Aucun élève actif dans cette Halaqa ce mois-ci.
+                  {t('kashf.noActiveStudent')}
                 </td>
               </tr>
             )}
@@ -226,9 +228,9 @@ export default function KashfShahriTab({ students, halaqas, lessons, attendance 
       <div className="hidden print:block text-center space-y-4 mb-8 text-slate-800" id="print-view-metadata">
         <div className="flex flex-col items-center border-b-2 border-emerald-900 pb-6">
           <img src="/logo.png" alt="Logo Rayhanah" className="h-28 object-contain mb-4" />
-          <h3 className="text-xl font-bold uppercase tracking-widest mt-2">Kashf Shahri — Registre de Suivi Coranique</h3>
-          <p className="text-sm font-bold mt-1 text-slate-600">Halaqa : {currentHalaqaName}</p>
-          <p className="text-xs text-slate-500 italic mt-1">Mois de {selectedMonth === 7 ? "Juillet" : selectedMonth === 8 ? "Août" : "Septembre"} {selectedYear} • Imprimé le {new Date().toLocaleDateString("fr-FR")}</p>
+          <h3 className="text-xl font-bold uppercase tracking-widest mt-2">{t('kashf.printTitle')}</h3>
+          <p className="text-sm font-bold mt-1 text-slate-600">{t('kashf.printHalaqa')} {currentHalaqaName}</p>
+          <p className="text-xs text-slate-500 italic mt-1">{t('kashf.printMonth')} {selectedMonth === 7 ? t('kashf.july') : selectedMonth === 8 ? t('kashf.august') : t('kashf.september')} {selectedYear} • {t('kashf.printPrinted')} {new Date().toLocaleDateString("fr-FR")}</p>
         </div>
       </div>
     </div>
