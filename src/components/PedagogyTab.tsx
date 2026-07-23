@@ -208,40 +208,69 @@ export default function PedagogyTab({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="halaqa-capacities-list">
           {halaqas.map((h) => {
-            const occupied = getHalaqaOccupancy(h.id);
+            const hStudents = students.filter(s => s.halaqaId === h.id);
+            const occupied = hStudents.length;
             const percentage = Math.round((occupied / h.maxCapacity) * 100);
             const isFull = occupied >= h.maxCapacity;
 
+            // Advanced Halaqa metrics
+            const hifzInHalaqa = hStudents.filter(s => s.currentHizbNum);
+            const avgHizbInHalaqa = hifzInHalaqa.length > 0
+              ? Math.round(hifzInHalaqa.reduce((sum, s) => sum + (s.currentHizbNum || 60), 0) / hifzInHalaqa.length)
+              : 60;
+            const hafizInHalaqaCount = hStudents.filter(s => s.etape === EtapePedagogique.Hafiz).length;
+
             return (
-              <div key={h.id} className="border border-slate-100 p-4 rounded-xl space-y-2 relative" id={`halaqa-stat-${h.id}`}>
+              <div 
+                key={h.id} 
+                className={`border p-4 rounded-2xl space-y-3 relative transition-all ${
+                  selectedHalaqa === h.id ? "border-[#0B1C30] bg-slate-50/60 ring-2 ring-[#0B1C30]/10" : "border-slate-100 hover:border-slate-200 bg-white"
+                }`}
+                id={`halaqa-stat-${h.id}`}
+              >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-bold text-sm text-slate-700">{h.name}</h4>
-                    <p className="text-[10px] text-slate-400 font-medium">Oustaz : {h.teacherName}</p>
+                    <h4 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5">
+                      <span>{h.name}</span>
+                    </h4>
+                    <p className="text-[11px] text-emerald-700 font-bold mt-0.5">Oustaz : {h.teacherName}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{h.building || "Bâtiment Principal"}</p>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isFull ? "bg-rose-100 text-rose-800" : "bg-[#0B1C30]/5 text-[#0B1C30]"}`}>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${isFull ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>
                     {occupied} / {h.maxCapacity} {t('pedagogy.students')}
                   </span>
                 </div>
 
-                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${isFull ? "bg-rose-500" : percentage > 80 ? "bg-amber-500" : "bg-[#D0A21C]"}`}
-                    style={{ width: `${Math.min(100, percentage)}%` }}
-                  ></div>
-                </div>
-
-                <div className="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
-                  <span>{t('pedagogy.occupancy')}</span>
-                  <span>{percentage}% {t('pedagogy.fillRate')}</span>
-                </div>
-
-                {isFull && (
-                  <div className="flex items-center space-x-1 text-[10px] text-rose-600 font-semibold pt-1">
-                    <ShieldAlert className="w-3.5 h-3.5" />
-                    <span>{t('pedagogy.maxReached')}</span>
+                {/* Progress Bar */}
+                <div className="space-y-1">
+                  <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${isFull ? "bg-rose-500" : percentage > 80 ? "bg-amber-500" : "bg-emerald-600"}`}
+                      style={{ width: `${Math.min(100, percentage)}%` }}
+                    ></div>
                   </div>
-                )}
+                  <div className="flex justify-between text-[10px] text-slate-400 font-bold">
+                    <span>Taux d'occupation : {percentage}%</span>
+                    <span>Hizb Moyen : <strong className="text-slate-800">{avgHizbInHalaqa}</strong></span>
+                  </div>
+                </div>
+
+                {/* Badges & Action */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+                    <span>👑 {hafizInHalaqaCount} Hafiz</span>
+                  </div>
+                  <button
+                    onClick={() => setSelectedHalaqa(selectedHalaqa === h.id ? "all" : h.id)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      selectedHalaqa === h.id 
+                        ? "bg-[#0B1C30] text-white" 
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {selectedHalaqa === h.id ? "Affiché ✓" : "Filtrer"}
+                  </button>
+                </div>
               </div>
             );
           })}

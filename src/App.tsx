@@ -1045,7 +1045,7 @@ export default function App() {
         </div>
       </main>
 
-      {/* BOTTOM NAVIGATION (6 Separate Spaces) */}
+      {/* BOTTOM NAVIGATION (5 Separate Spaces) */}
       <nav className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-50 safe-area-pb">
         <div className="flex justify-around items-center h-16 max-w-7xl mx-auto px-1 sm:px-4">
           <button 
@@ -1077,14 +1077,6 @@ export default function App() {
           >
             <Mosque className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "pedagogie" ? "stroke-[2.5px]" : "stroke-2"}`} />
             <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">{t('sidebar.pedagogy')}</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab("famille")}
-            className={`flex-1 flex flex-col items-center justify-center h-full gap-1 transition-colors cursor-pointer min-w-0 ${activeTab === "famille" ? "text-pink-600" : "text-slate-400 hover:text-slate-600"}`}
-          >
-            <Heart className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${activeTab === "famille" ? "stroke-[2.5px] fill-pink-500" : "stroke-2"}`} />
-            <span className="text-[9px] sm:text-[10px] font-bold block w-full text-center truncate px-0.5">Famille</span>
           </button>
 
           <button 
