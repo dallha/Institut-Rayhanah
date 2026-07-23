@@ -551,9 +551,13 @@ export default function HalaqaDetailView({
                       {!isTahajji && !isAbsent && (
                         <button
                           onClick={() => updateRow(row.studentId, { expanded: !row.expanded })}
-                          className="ml-1 p-1.5 text-slate-400 hover:text-[#0B1C30] hover:bg-slate-100 rounded-lg cursor-pointer transition-all"
+                          className={`ml-2 flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-extrabold rounded-lg cursor-pointer transition-all ${
+                            row.expanded ? "bg-[#0B1C30] text-white" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100"
+                          }`}
                         >
-                          {row.expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          <BookOpen className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">{row.expanded ? "Fermer Dars" : "Saisir Dars"}</span>
+                          {row.expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
                       )}
                     </div>
