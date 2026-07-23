@@ -108,7 +108,13 @@ export default function App() {
     setLoginSubmitting(false);
   };
 
+  const [isFamilyModeActive, setIsFamilyModeActive] = useState<boolean>(() => {
+    return localStorage.getItem("daara_user_mode") === "famille";
+  });
+
   const handleLogout = async () => {
+    localStorage.removeItem("daara_user_mode");
+    setIsFamilyModeActive(false);
     await supabase.auth.signOut();
   };
 
@@ -559,61 +565,114 @@ export default function App() {
               </p>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-slate-100 relative">
-              <form onSubmit={handleGlobalLogin} className="space-y-6">
+            {/* Mode Switcher Tabs on Login */}
+            <div className="flex bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setIsFamilyModeActive(false)}
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  !isFamilyModeActive ? "bg-[#0B1C30] text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Administration / Oustaz</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFamilyModeActive(true);
+                  localStorage.setItem("daara_user_mode", "famille");
+                }}
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  isFamilyModeActive ? "bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5 fill-current" />
+                <span>Portail Famille (Parents)</span>
+              </button>
+            </div>
+
+            {isFamilyModeActive ? (
+              <div className="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-pink-100 text-center space-y-5">
+                <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto border border-pink-100 text-pink-600">
+                  <Heart className="w-8 h-8 fill-pink-500" />
+                </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Adresse Email</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-[#D0A21C]" />
-                    </div>
-                    <input
-                      type="email"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]/20 transition-all font-semibold text-slate-800 text-sm"
-                      placeholder="votre@email.com"
-                      required
-                      autoFocus
-                    />
-                  </div>
+                  <h3 className="font-extrabold text-lg text-slate-800">Espace Suivi Parental & Famille</h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                    Consultez en lecture seule la progression coranique, l'assiduité et les reçus de vos enfants.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Mot de passe</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <KeyRound className="h-5 w-5 text-[#D0A21C]" />
-                    </div>
-                    <input
-                      type="password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className={`block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border ${loginError ? 'border-rose-400 ring-4 ring-rose-50' : 'border-slate-200'} rounded-xl focus:outline-none focus:border-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]/20 transition-all font-semibold text-slate-800 text-sm`}
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
-                  {loginError && (
-                    <p className="text-rose-500 text-xs mt-2 font-bold flex items-center gap-1">
-                      {loginError}
-                    </p>
-                  )}
-                </div>
-                
                 <button
-                  type="submit"
-                  disabled={loginSubmitting}
-                  className="w-full bg-[#0B1C30] text-white px-4 py-4 rounded-xl font-bold hover:bg-[#142d47] hover:shadow-xl hover:shadow-[#0B1C30]/20 transition-all duration-300 mt-4 flex justify-center items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  type="button"
+                  onClick={() => {
+                    setIsFamilyModeActive(true);
+                    localStorage.setItem("daara_user_mode", "famille");
+                  }}
+                  className="w-full bg-gradient-to-r from-[#0B1C30] via-[#142d47] to-[#0B1C30] text-white px-4 py-3.5 rounded-xl font-bold hover:shadow-lg transition-all flex justify-center items-center gap-2 text-sm cursor-pointer"
                 >
-                  {loginSubmitting ? (
-                    <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Connexion en cours...</>
-                  ) : (
-                    <><Lock className="w-4 h-4" />Déverrouiller le système</>
-                  )}
+                  <Users className="w-4 h-4 text-[#D0A21C]" />
+                  <span>Accéder au Portail Famille</span>
                 </button>
-              </form>
-            </div>
+              </div>
+            ) : (
+              <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-[0_20px_60px_rgb(11,28,48,0.08)] border border-slate-100 relative">
+                <form onSubmit={handleGlobalLogin} className="space-y-6">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Adresse Email</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <User className="h-5 w-5 text-[#D0A21C]" />
+                      </div>
+                      <input
+                        type="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        className="block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]/20 transition-all font-semibold text-slate-800 text-sm"
+                        placeholder="votre@email.com"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Mot de passe</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <KeyRound className="h-5 w-5 text-[#D0A21C]" />
+                      </div>
+                      <input
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className={`block w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border ${loginError ? 'border-rose-400 ring-4 ring-rose-50' : 'border-slate-200'} rounded-xl focus:outline-none focus:border-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]/20 transition-all font-semibold text-slate-800 text-sm`}
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+                    {loginError && (
+                      <p className="text-rose-500 text-xs mt-2 font-bold flex items-center gap-1">
+                        {loginError}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={loginSubmitting}
+                    className="w-full bg-[#0B1C30] text-white px-4 py-4 rounded-xl font-bold hover:bg-[#142d47] hover:shadow-xl hover:shadow-[#0B1C30]/20 transition-all duration-300 mt-4 flex justify-center items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {loginSubmitting ? (
+                      <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Connexion en cours...</>
+                    ) : (
+                      <><Lock className="w-4 h-4" />Déverrouiller le système</>
+                    )}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
 
@@ -701,10 +760,18 @@ export default function App() {
             >
               <Palette className="w-5 h-5" />
             </button>
-            <div className="relative group">
-              <div className="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center cursor-pointer">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center">
                 <span className="text-emerald-700 font-bold text-sm">{session?.user?.email?.[0]?.toUpperCase() || "A"}</span>
               </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                title="Se déconnecter"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Déconnexion</span>
+              </button>
             </div>
           </div>
         </div>
