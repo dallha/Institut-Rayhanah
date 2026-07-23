@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { Student, Halaqa, EtapePedagogique, AttendanceRecord, QuranLesson, PaymentRecord } from "../types";
-import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic } from "../quranData";
+import { SURAHS, HIZBS, calculateWestAfricanProgress, formatHizbFractionArabic, getHizbName, getSurahNameDisplay } from "../quranData";
 import { Search, Filter, BookOpen, GraduationCap, ChevronRight, Award, Plus, Calendar, Settings, FolderOpen, Users, ShieldAlert, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslation } from "react-i18next";
@@ -407,13 +407,13 @@ export default function PedagogyTab({
                         <div>
                           <span className="text-slate-400 block font-medium">Curseur Actuel</span>
                           <span className="text-slate-700 font-semibold block mt-0.5 truncate">
-                            {student.currentSurahNum ? `${SURAHS.find(s => s.number === student.currentSurahNum)?.name} (v. ${student.currentVersetNum || 1})` : "Non défini"}
+                            {student.currentSurahNum ? `${getSurahNameDisplay(student.currentSurahNum)} (v. ${student.currentVersetNum || 1})` : "Non défini"}
                           </span>
                         </div>
                         <div>
                           <span className="text-slate-400 block font-medium">{t('pedagogy.hizbFraction')}</span>
                           <span className="text-slate-700 font-semibold block mt-0.5 truncate">
-                            {student.currentHizbNum ? `Hizb ${student.currentHizbNum} (${formatHizbFractionArabic(student.currentHizbFraction || 0)})` : t('pedagogy.undefined')}
+                            {student.currentHizbNum ? `${getHizbName(student.currentHizbNum)} (${formatHizbFractionArabic(student.currentHizbFraction || 0)})` : t('pedagogy.undefined')}
                           </span>
                         </div>
                       </div>
@@ -606,7 +606,7 @@ export default function PedagogyTab({
                       >
                         {HIZBS.map((h) => (
                           <option key={h.number} value={h.number}>
-                            الحزب {h.number}: {h.name}
+                            Hizb {h.number} — {h.name}
                           </option>
                         ))}
                       </select>

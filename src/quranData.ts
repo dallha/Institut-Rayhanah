@@ -196,6 +196,21 @@ export function calculateVersesCount(startS?: number, startV?: number, endS?: nu
   return total;
 }
 
+export function getHizbName(num?: number): string {
+  if (!num) return "";
+  const hizb = HIZBS.find(h => h.number === num);
+  if (!hizb) return `Hizb ${num}`;
+  const arabicPart = hizb.name.split(" — ")[0];
+  return `${arabicPart}`;
+}
+
+export function getSurahNameDisplay(num?: number): string {
+  if (!num) return "";
+  const surah = getSurahByNum(num);
+  if (!surah) return `Sourate ${num}`;
+  return `${surah.name} (${surah.arabicName})`;
+}
+
 // Convert a Lesson's Surah range into a readable string
 export function getSurahRangeString(startS?: number, startV?: number, endS?: number, endV?: number): string {
   if (!startS || !endS) return "-";
@@ -213,7 +228,10 @@ export function getHizbRangeString(startH?: number, startHF?: number, endH?: num
   const startFracText = startHF ? ` (${formatHizbFractionArabic(startHF)})` : "";
   const endFracText = endHF ? ` (${formatHizbFractionArabic(endHF)})` : "";
   
-  return `Hizb ${startH}${startFracText} ➔ Hizb ${endH}${endFracText}`;
+  const startName = getHizbName(startH);
+  const endName = getHizbName(endH);
+  
+  return `${startName}${startFracText} ➔ ${endName}${endFracText}`;
 }
 
 export const HIZBS = [

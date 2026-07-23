@@ -9,7 +9,7 @@ import {
   AttendanceStatus, AttendanceRecord, QuranLesson
 } from "../types";
 import { supabase } from "../lib/supabase";
-import { SURAHS, HIZBS, formatHizbFractionArabic, calculateWestAfricanProgress, calculateVersesCount } from "../quranData";
+import { SURAHS, HIZBS, formatHizbFractionArabic, calculateWestAfricanProgress, calculateVersesCount, getHizbName, getSurahNameDisplay } from "../quranData";
 import {
   ArrowLeft, UserCheck, BookOpen, Save, CheckCircle, XCircle,
   AlertTriangle, Users, GraduationCap, Award, Phone, Building2,
@@ -441,11 +441,11 @@ export default function HalaqaDetailView({
                       <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${etapeColor(s.etape)}`}>
                         {s.etape === EtapePedagogique.Hafiz ? "👑 Hafiz" : s.etape}
                       </span>
-                      {s.currentHizbNum && (
-                        <span className="text-[10px] font-bold text-slate-600">
-                          Hizb {s.currentHizbNum} · {prog}%
-                        </span>
-                      )}
+                        {s.currentHizbNum && (
+                          <span className="text-[10px] font-bold text-slate-600 truncate max-w-[120px]">
+                            {getHizbName(s.currentHizbNum)} · {prog}%
+                          </span>
+                        )}
                       <button
                         onClick={() => { setActiveTab("niveaux"); openLevelEdit(s); }}
                         className="text-[10px] font-bold text-[#0B1C30] bg-[#0B1C30]/5 hover:bg-[#0B1C30]/10 px-2 py-1 rounded-lg cursor-pointer transition-all"
@@ -522,7 +522,7 @@ export default function HalaqaDetailView({
                             {s.etape === EtapePedagogique.Hafiz ? "👑 Hafiz" : s.etape}
                           </span>
                           {s.currentHizbNum && (
-                            <span className="text-[9px] text-slate-500 font-medium">Hizb {s.currentHizbNum}{formatHizbFractionArabic(s.currentHizbFraction || 0)}</span>
+                            <span className="text-[9px] text-slate-500 font-medium truncate max-w-[100px]">{getHizbName(s.currentHizbNum)}{formatHizbFractionArabic(s.currentHizbFraction || 0)}</span>
                           )}
                         </div>
                       </div>
@@ -797,13 +797,13 @@ export default function HalaqaDetailView({
                           {s.etape === EtapePedagogique.Hafiz ? "👑 Hafiz" : s.etape}
                         </span>
                         {s.currentHizbNum && (
-                          <span className="text-[10px] text-slate-500 font-medium">
-                            Hizb {s.currentHizbNum}{formatHizbFractionArabic(s.currentHizbFraction || 0)} · {prog}%
+                          <span className="text-[10px] font-bold text-slate-600">
+                            {getHizbName(s.currentHizbNum)}{formatHizbFractionArabic(s.currentHizbFraction || 0)} · {prog}%
                           </span>
                         )}
                         {s.currentSurahNum && (
-                          <span className="text-[10px] text-slate-400 font-medium">
-                            S.{s.currentSurahNum}:{s.currentVersetNum}
+                          <span className="text-[10px] text-slate-500 font-medium truncate max-w-[120px]" title={getSurahNameDisplay(s.currentSurahNum)}>
+                            {getSurahNameDisplay(s.currentSurahNum)} v.{s.currentVersetNum}
                           </span>
                         )}
                       </div>
