@@ -314,18 +314,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           </div>
 
           {/* Section: Academic assignment */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" id="form-pedagogy-sec">
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-500 uppercase">{t('school.halaqaLabel')}</label>
-              <select
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-hidden"
-                value={halaqaId}
-                onChange={(e) => setHalaqaId(e.target.value)}
-              >
-                {halaqas.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
-              </select>
-            </div>
-
+          <div className="grid grid-cols-1 gap-4" id="form-pedagogy-sec">
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-500">{t('school.etapeLabel')}</label>
               <select
