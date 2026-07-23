@@ -4,7 +4,8 @@ import AttendanceTab from "./AttendanceTab";
 import PedagogyTab from "./PedagogyTab";
 import KashfShahriTab from "./KashfShahriTab";
 import WeeklySummaryChart from "./WeeklySummaryChart";
-import { UserCheck, BookOpen, BarChart2, FileCheck } from "lucide-react";
+import HalaqatModule from "./HalaqatModule";
+import { UserCheck, BookOpen, BarChart2, FileCheck, Users } from "lucide-react";
 
 interface PedagogieModuleProps {
   students: Student[];
@@ -14,6 +15,9 @@ interface PedagogieModuleProps {
   onUpdateStudent: (student: Student) => void;
   payments?: PaymentRecord[];
   onClotureDay: (attendance: AttendanceRecord[], lessons: QuranLesson[]) => void;
+  onAddHalaqa: (h: Halaqa) => void;
+  onUpdateHalaqa: (h: Halaqa) => void;
+  onDeleteHalaqa: (id: string) => void;
   initialSubTab?: string;
 }
 
@@ -25,6 +29,9 @@ export default function PedagogieModule({
   onUpdateStudent,
   onClotureDay,
   payments = [],
+  onAddHalaqa,
+  onUpdateHalaqa,
+  onDeleteHalaqa,
   initialSubTab = "pedagogy"
 }: PedagogieModuleProps) {
   const [subTab, setSubTab] = useState<string>(initialSubTab);
@@ -36,6 +43,7 @@ export default function PedagogieModule({
         {[
           { id: "pedagogy", label: "Suivi Coranique (Hifz)", icon: <BookOpen className="w-4 h-4" /> },
           { id: "attendance", label: "Cahier d'Appel & Leçons", icon: <UserCheck className="w-4 h-4" /> },
+          { id: "halaqat", label: "Halaqāt (Cercles)", icon: <Users className="w-4 h-4" /> },
           { id: "bulletins", label: "Bulletins Mensuels (كشف شهري)", icon: <FileCheck className="w-4 h-4" /> },
           { id: "stats", label: "Statistiques Hebdo", icon: <BarChart2 className="w-4 h-4" /> }
         ].map((tab) => (
@@ -71,6 +79,16 @@ export default function PedagogieModule({
           students={students}
           halaqas={halaqas}
           onClotureDay={onClotureDay}
+        />
+      )}
+
+      {subTab === "halaqat" && (
+        <HalaqatModule
+          halaqas={halaqas}
+          students={students}
+          onAddHalaqa={onAddHalaqa}
+          onUpdateHalaqa={onUpdateHalaqa}
+          onDeleteHalaqa={onDeleteHalaqa}
         />
       )}
 

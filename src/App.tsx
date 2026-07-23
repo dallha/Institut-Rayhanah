@@ -1006,6 +1006,9 @@ export default function App() {
                 payments={payments}
                 onUpdateStudent={handleUpdateStudent}
                 onClotureDay={handleClotureDay}
+                onAddHalaqa={handleAddHalaqa}
+                onUpdateHalaqa={handleUpdateHalaqa}
+                onDeleteHalaqa={handleDeleteHalaqa}
                 initialSubTab={activeDaaraSubTab || "pedagogy"}
               />
             )}

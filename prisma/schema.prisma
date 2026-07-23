@@ -63,11 +63,17 @@ model StudentMedal {
 }
 
 model Halaqa {
-  id          String    @id @default(uuid())
-  name        String
-  teacherName String
-  maxCapacity Int       @default(20)
-  students    Student[]
+  id           String    @id @default(uuid())
+  name         String
+  teacherName  String
+  maxCapacity  Int       @default(20)
+  building     String?
+  schedule     String?
+  level        String?
+  description  String?
+  phoneTeacher String?
+  isActive     Boolean   @default(true)
+  students     Student[]
 }
 
 model QuranLesson {

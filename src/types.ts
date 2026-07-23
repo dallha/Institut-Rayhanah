@@ -51,7 +51,7 @@ export interface Student {
   balanceDue: number; // Outstanding amount in FCFA/Euro
   monthlyFee: number;
   age?: number;
-  regime?: "internat" | "externat" | "demi-pension";
+  regime?: "internat" | "externat" | "demi-pension" | "cas_social";
   nationality?: string;
   fatherName?: string;
   fatherPhone?: string;
@@ -68,6 +68,12 @@ export interface Halaqa {
   name: string;
   teacherName: string;
   maxCapacity: number;
+  building?: string;          // Ex: "Bâtiment Mermoz"
+  schedule?: string;          // Ex: "08h00 - 14h00"
+  level?: string;             // Ex: "Hifz Avancé"
+  description?: string;       // Notes libres
+  phoneTeacher?: string;      // Téléphone de l'Oustaz
+  isActive?: boolean;         // Actif / Archivé
 }
 
 export interface StaffMember {
