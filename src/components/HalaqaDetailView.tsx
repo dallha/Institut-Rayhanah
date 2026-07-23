@@ -45,6 +45,10 @@ export default function HalaqaDetailView({
 }: HalaqaDetailViewProps) {
   const [activeTab, setActiveTab] = useState<TabId>("apercu");
   const [syncMsg, setSyncMsg] = useState<null | { ok: boolean; text: string }>(null);
+  
+  const [showAddStudent, setShowAddStudent] = useState(false);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [addingStudentId, setAddingStudentId] = useState<string | null>(null);
 
   // ── Students of this Halaqa ────────────────────────────────────────────
   const halaqaStudents = useMemo(
@@ -203,7 +207,25 @@ export default function HalaqaDetailView({
       setSyncMsg({ ok: false, text: "Mise à jour locale, sync différée." });
     }
     setSavingLevel(false);
+    setSavingLevel(false);
     setEditingStudentId(null);
+    setTimeout(() => setSyncMsg(null), 3000);
+  };
+
+  const handleAddStudentToHalaqa = async (s: Student) => {
+    setAddingStudentId(s.id);
+    const updated: Student = { ...s, halaqaId: halaqa.id };
+    onUpdateStudent(updated);
+    try {
+      const { medals, ...clean } = updated;
+      await supabase.from("Student").upsert(clean);
+      setSyncMsg({ ok: true, text: `✅ ${s.firstName} ${s.lastName} a été ajouté(e) au cercle avec succès.` });
+    } catch {
+      setSyncMsg({ ok: false, text: "Ajout local réussi, sync différée." });
+    }
+    setAddingStudentId(null);
+    setShowAddStudent(false);
+    setStudentSearch("");
     setTimeout(() => setSyncMsg(null), 3000);
   };
 
@@ -330,10 +352,77 @@ export default function HalaqaDetailView({
 
           {/* Student roster summary */}
           <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-xs">
-            <div className="px-5 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Liste des Élèves</span>
-              <span className="text-[10px] font-bold text-slate-400">{halaqaStudents.length} inscrits</span>
+            <div className="px-5 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Liste des Élèves</span>
+                <span className="text-[10px] font-bold text-slate-400">{halaqaStudents.length} inscrits</span>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAddStudent(!showAddStudent);
+                  setStudentSearch("");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+                  showAddStudent 
+                    ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                    : "bg-[#0B1C30] text-white hover:bg-[#142d47]"
+                }`}
+              >
+                {showAddStudent ? <XCircle className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                {showAddStudent ? "Fermer" : "Transférer un élève ici"}
+              </button>
             </div>
+
+            <AnimatePresence>
+              {showAddStudent && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden bg-slate-50 border-b border-slate-100"
+                >
+                  <div className="p-4 space-y-3">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Rechercher par prénom, nom ou matricule..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#0B1C30]"
+                      />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto space-y-1">
+                      {students
+                        .filter(s => s.halaqaId !== halaqa.id)
+                        .filter(s => 
+                          !studentSearch || 
+                          `${s.firstName} ${s.lastName} ${s.matricule}`.toLowerCase().includes(studentSearch.toLowerCase())
+                        )
+                        .slice(0, 10)
+                        .map(s => (
+                          <div key={s.id} className="flex items-center justify-between bg-white border border-slate-100 p-2 rounded-lg">
+                            <div>
+                              <p className="font-bold text-xs text-slate-800">{s.firstName} {s.lastName}</p>
+                              <p className="text-[10px] text-slate-500">{s.matricule} · {s.etape}</p>
+                            </div>
+                            <button
+                              onClick={() => handleAddStudentToHalaqa(s)}
+                              disabled={addingStudentId === s.id}
+                              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-[10px] font-bold transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                              {addingStudentId === s.id ? "Ajout..." : "Ajouter"}
+                            </button>
+                          </div>
+                      ))}
+                      {students.filter(s => s.halaqaId !== halaqa.id).length === 0 && (
+                        <p className="text-[10px] text-slate-400 text-center py-2">Tous les élèves sont déjà dans cette Halaqa.</p>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="divide-y divide-slate-50">
               {halaqaStudents.map(s => {
                 const prog = calculateWestAfricanProgress(s.currentHizbNum, s.currentHizbFraction);
