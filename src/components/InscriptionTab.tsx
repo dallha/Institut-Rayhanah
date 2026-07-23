@@ -52,7 +52,8 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
   const [halaqaId, setHalaqaId] = useState(halaqas[0]?.id || "h1");
   const [nationality, setNationality] = useState("Sénégalaise");
   const [etape, setEtape] = useState<EtapePedagogique>(EtapePedagogique.Tahajji);
-  const [regime, setRegime] = useState<"internat" | "externat" | "demi-pension">("internat");
+  const [regime, setRegime] = useState<"internat" | "externat" | "demi-pension" | "cas_social">("internat");
+  const [customMonthlyFee, setCustomMonthlyFee] = useState<number>(110000);
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [successMsg, setSuccessMsg] = useState(false);
 
@@ -62,11 +63,12 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
   const [isDragCert, setIsDragCert] = useState(false);
   const [isDragId, setIsDragId] = useState(false);
 
-  // Pricing scheme as specified in PDF
+  // Pricing scheme based on actual Daara data
   const regimePricing = {
-    internat: { monthly: 110000, signup: 150000, label: t('school.regimeInternat'), desc: t('school.regimeInternatDesc') },
-    externat: { monthly: 35000, signup: 50000, label: t('school.regimeExternat'), desc: t('school.regimeExternatDesc') },
-    "demi-pension": { monthly: 50000, signup: 50000, label: t('school.regimeDemi'), desc: t('school.regimeDemiDesc') }
+    internat: { monthly: 110000, signup: 150000, label: "Internat Complet & Cas Réguliers", desc: "Logé, nourri, encadrement 24h/7 & cursus approfondi" },
+    externat: { monthly: 35000, signup: 50000, label: "Externat Standard", desc: "Cours uniquement en journée (25 000 F - 50 000 F)" },
+    "demi-pension": { monthly: 50000, signup: 50000, label: "Demi-Pension", desc: "Repas du midi inclus" },
+    cas_social: { monthly: 50000, signup: 0, label: "Cas Social (Accompagnement)", desc: "Tarif réduit selon dossier (40 000 F - 80 000 F)" }
   };
 
   const handleDragCert = (e: React.DragEvent) => {
@@ -144,7 +146,7 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
       medals: [],
       score: 50, // Welcome points
       balanceDue: regimePricing[regime].signup, // Initial signup fee due on balance
-      monthlyFee: regimePricing[regime].monthly,
+      monthlyFee: customMonthlyFee || regimePricing[regime].monthly,
       age,
       regime,
       nationality
@@ -339,30 +341,33 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
           </div>
 
           {/* Section: Regime selection */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <span className="block text-xs font-bold text-[#0B1C30] uppercase tracking-wider">{t('school.schoolingRegimeTitle')}</span>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {(Object.keys(regimePricing) as Array<keyof typeof regimePricing>).map((key) => {
                 const item = regimePricing[key];
                 const isSelected = regime === key;
                 return (
                   <div
                     key={key}
-                    onClick={() => setRegime(key)}
-                    className={`cursor-pointer p-4 rounded-xl border-2 transition-all flex flex-col justify-between ${
+                    onClick={() => {
+                      setRegime(key);
+                      setCustomMonthlyFee(item.monthly);
+                    }}
+                    className={`cursor-pointer p-3.5 rounded-xl border-2 transition-all flex flex-col justify-between ${
                       isSelected 
-                        ? "border-[#D0A21C] bg-amber-50/20" 
+                        ? "border-[#D0A21C] bg-amber-50/30 shadow-xs" 
                         : "border-slate-200 hover:border-slate-300 bg-white"
                     }`}
                   >
                     <div>
                       <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-sm text-slate-800">{item.label}</span>
-                        {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-[#D0A21C]"></span>}
+                        <span className="font-bold text-xs text-slate-800">{item.label}</span>
+                        {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-[#D0A21C] shrink-0"></span>}
                       </div>
-                      <p className="text-[10px] text-slate-400 font-medium leading-tight">{item.desc}</p>
+                      <p className="text-[10px] text-slate-500 font-medium leading-tight">{item.desc}</p>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-baseline">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex justify-between items-baseline">
                       <span className="text-[10px] text-slate-500 font-bold">{t('school.monthly')}</span>
                       <span className="font-extrabold text-xs text-[#0B1C30]">{item.monthly.toLocaleString()} F</span>
                     </div>
@@ -373,6 +378,26 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
                   </div>
                 );
               })}
+            </div>
+
+            {/* Custom / Exact Monthly Fee Input */}
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700">Montant personnalisé de la Mensualité (FCFA)</label>
+                <p className="text-[10px] text-slate-400">Ajustez le tarif exact si l'élève bénéficie d'un tarif régulier particulier (ex: 110 000 F, 120 000 F, 125 000 F, 25 000 F, 40 000 F, 75 000 F).</p>
+              </div>
+              <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                <input
+                  type="number"
+                  value={customMonthlyFee}
+                  onChange={(e) => setCustomMonthlyFee(Number(e.target.value))}
+                  className="w-full sm:w-36 bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-black text-[#0B1C30] focus:ring-2 focus:ring-[#0B1C30]"
+                  placeholder="Ex: 110000"
+                  min="0"
+                  step="5000"
+                />
+                <span className="font-bold text-xs text-slate-600">FCFA</span>
+              </div>
             </div>
           </div>
 
@@ -538,28 +563,28 @@ export default function InscriptionTab({ students, halaqas, onEnrollStudent }: I
               <p className="text-[10px] font-bold text-[#0B1C30] uppercase tracking-wide">{t('school.feeGridTitle')}</p>
               <div className="space-y-1 text-[11px] font-medium text-slate-600">
                 <div className="flex justify-between">
-                  <span>{t('school.fullBoarding')}</span>
-                  <span className="font-bold text-slate-800">110 000 F / {t('school.monthly').replace(':', '')}</span>
+                  <span>Internat & Cas Régulier :</span>
+                  <span className="font-bold text-slate-800">110 000 F / mois</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/50 pb-1 text-[10px] text-slate-400">
-                  <span>{t('school.signupFee')}</span>
+                  <span>Inscription Internat :</span>
                   <span>150 000 F</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t('school.halfBoard')}</span>
-                  <span className="font-bold text-slate-800">50 000 F / {t('school.monthly').replace(':', '')}</span>
+                  <span>Externat Standard :</span>
+                  <span className="font-bold text-slate-800">25 000 F - 50 000 F</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/50 pb-1 text-[10px] text-slate-400">
-                  <span>{t('school.signupFee')}</span>
+                  <span>Inscription Externat :</span>
                   <span>50 000 F</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t('school.daySchool')}</span>
-                  <span className="font-bold text-slate-800">35 000 F / {t('school.monthly').replace(':', '')}</span>
+                  <span>Cas Social (Réduit) :</span>
+                  <span className="font-bold text-emerald-700">40 000 F - 80 000 F</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>{t('school.signupFee')}</span>
-                  <span>50 000 F</span>
+                  <span>Inscription Cas Social :</span>
+                  <span className="text-emerald-600 font-bold">Exonéré / Réduit</span>
                 </div>
               </div>
             </div>
