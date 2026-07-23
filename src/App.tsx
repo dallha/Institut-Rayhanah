@@ -282,6 +282,11 @@ export default function App() {
     }
   }, [activeTab, activeDaaraSubTab]);
 
+  // Always scroll to top when changing views
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab, activeDaaraSubTab]);
+
 
   const fetchAllData = async () => {
     setIsSyncing(true);
