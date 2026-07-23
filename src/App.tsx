@@ -818,6 +818,24 @@ export default function App() {
     );
   }
 
+  // ── Portail Famille : standalone screen, bypasses admin layout entirely ──
+  if (isFamilyModeActive) {
+    return (
+      <PortailFamille
+        students={
+          familyAuthenticatedStudentIds.length > 0
+            ? students.filter((s) => familyAuthenticatedStudentIds.includes(s.id))
+            : students
+        }
+        halaqas={halaqas}
+        attendance={attendance}
+        lessons={lessons}
+        payments={payments}
+        onLogoutParent={handleFamilyLogout}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-slate-800 flex flex-col font-sans pb-24 overflow-x-hidden w-full relative" id="daara-erp-root">
       {/* Decorative premium gold & navy top line */}
@@ -992,21 +1010,7 @@ export default function App() {
               />
             )}
 
-            {/* PORTAIL FAMILLE TAB */}
-            {(activeTab === "famille" || isFamilyModeActive) && (
-              <PortailFamille
-                students={
-                  familyAuthenticatedStudentIds.length > 0
-                    ? students.filter((s) => familyAuthenticatedStudentIds.includes(s.id))
-                    : students
-                }
-                halaqas={halaqas}
-                attendance={attendance}
-                lessons={lessons}
-                payments={payments}
-                onLogoutParent={handleFamilyLogout}
-              />
-            )}
+            {/* PORTAIL FAMILLE is now a standalone screen — see early return above */}
 
             {/* HONNEUR TAB */}
             {activeTab === "honneur" && (
