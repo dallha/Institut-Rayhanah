@@ -595,7 +595,7 @@ export default function HalaqaDetailView({
 
                           {/* Hizb entry */}
                           {row.lessonType === "hizb" && (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-slate-500 uppercase">Hizb Début</label>
                                 <div className="flex gap-1.5">
@@ -639,7 +639,7 @@ export default function HalaqaDetailView({
 
                           {/* Sourate entry */}
                           {row.lessonType === "sourate" && (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-slate-500 uppercase">De (Sourate · Verset)</label>
                                 <div className="flex gap-1.5">
@@ -691,7 +691,7 @@ export default function HalaqaDetailView({
                               <span className="text-[10px] font-bold text-slate-600">+ Muraja'ah (Révision) لمراجعة</span>
                             </label>
                             {row.murajaahActive && (
-                              <div className="grid grid-cols-2 gap-2 pl-2 border-l-2 border-indigo-200">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2 border-l-2 border-indigo-200">
                                 <div className="space-y-1">
                                   <label className="text-[9px] font-bold text-slate-500 uppercase">Révision De Hizb</label>
                                   <div className="flex gap-1">
@@ -863,7 +863,7 @@ export default function HalaqaDetailView({
                         </div>
 
                         {etapeVal !== EtapePedagogique.Tahajji && (
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {/* Hizb actuel */}
                             <div className="space-y-1">
                               <label className="text-[10px] font-bold text-slate-500 uppercase">Hizb actuel (1-60)</label>

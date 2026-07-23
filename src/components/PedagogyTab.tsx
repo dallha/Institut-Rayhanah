@@ -550,7 +550,7 @@ export default function PedagogyTab({
                   </div>
 
                   {/* Body */}
-                  <div className="p-4 bg-emerald-50 grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-emerald-50 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Surah Selector */}
                     <div className="col-span-2 space-y-1">
                       <label className="block text-[10px] font-bold text-emerald-800 uppercase">Sourate de Mémorisation</label>
