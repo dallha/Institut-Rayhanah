@@ -123,12 +123,31 @@ export default function ComptabiliteTab({
 
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('treasury.purpose')}</label>
-              <input
-                type="text"
-                className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg p-2 text-xs focus:outline-hidden"
-                value={paymentPurpose}
-                onChange={(e) => setPaymentPurpose(e.target.value)}
-              />
+              <div className="space-y-2">
+                <select
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg p-2 text-xs font-semibold focus:outline-hidden"
+                  onChange={(e) => {
+                    if (e.target.value !== "custom") {
+                      setPaymentPurpose(e.target.value);
+                    }
+                  }}
+                  defaultValue={t('treasury.defaultPurpose')}
+                >
+                  <option value="Mensualité (Scolarité Mermoz)">Mensualité (Scolarité Mermoz)</option>
+                  <option value="Mensualité (Juillet 2026)">Mensualité (Juillet 2026)</option>
+                  <option value="Frais d'inscription & Dossier">Frais d'inscription & Dossier</option>
+                  <option value="Cotisation Cantine / Restauration">Cotisation Cantine / Restauration</option>
+                  <option value="Droit d'examen & Certification">Droit d'examen & Certification</option>
+                  <option value="custom">✏️ Autre motif (Saisie libre ci-dessous)</option>
+                </select>
+                <input
+                  type="text"
+                  className="w-full bg-white border border-slate-200 text-slate-700 rounded-lg p-2 text-xs font-medium focus:ring-1 focus:ring-[#0B1C30]"
+                  placeholder="Ou saisissez un motif personnalisé..."
+                  value={paymentPurpose}
+                  onChange={(e) => setPaymentPurpose(e.target.value)}
+                />
+              </div>
             </div>
 
             <button

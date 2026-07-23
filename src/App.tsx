@@ -978,22 +978,6 @@ export default function App() {
               />
             )}
 
-            {/* SCOLARITÉ MODULE */}
-            {activeTab === "scolarite" && (
-              <ScolariteModule
-                students={students}
-                halaqas={halaqas}
-                payments={payments}
-                attendance={attendance}
-                lessons={lessons}
-                onEnrollStudent={handleEnrollStudent}
-                onAddPayment={handleAddPayment}
-                unpaidThreshold={unpaidThreshold}
-                onUpdateThreshold={setUnpaidThreshold}
-                initialSubTab={activeDaaraSubTab || "inscriptions"}
-              />
-            )}
-
             {/* PÉDAGOGIE MODULE (Appel, Suivi Coranique, Stats) */}
             {activeTab === "pedagogie" && (
               <PedagogieModule
